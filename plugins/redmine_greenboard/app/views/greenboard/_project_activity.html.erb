@@ -1,0 +1,13 @@
+<%
+  gb_fetcher = Redmine::Activity::Fetcher.new(User.current, project: project,
+                                              with_subprojects: Setting.display_subprojects_issues?)
+  gb_events = gb_fetcher.events(nil, nil, limit: 20)
+%>
+<section class="gb-activity box">
+  <h3><%= l(:gb_recent_updates) %>
+    <%= link_to l(:gb_see_all), project_activity_path(project), class: 'gb-box-link' %></h3>
+  <%= render partial: 'greenboard/timeline', locals: { events: gb_events, show_project: false } %>
+  <% if gb_events.any? %>
+    <p class="gb-box-foot"><%= link_to l(:gb_see_all), project_activity_path(project) %></p>
+  <% end %>
+</section>

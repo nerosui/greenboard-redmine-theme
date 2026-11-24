@@ -1,0 +1,133 @@
+/* ==========================================================================
+   C-wrap — text wrapping, one policy per element type (DESIGN §6.1)
+   This is the ONLY file that declares text-wrap / word-break / line-break / overflow-wrap.
+   Page and component files must not restate them (see COMPONENTS.md, C-wrap done check).
+   Groups: prose · headings · subjects · labels · machine strings · hashes · preformatted.
+   `text-wrap: pretty` and `word-break: keep-all / break-word` are not used anywhere;
+   `text-wrap: balance` is for headings / titles only.
+   Single tokens (keys, dates, pills, buttons, table headers, nav items) keep `white-space: nowrap`
+   where their owners set it and get nothing here.
+   ========================================================================== */
+
+/* ---------- Prose: rendered text, descriptions, comments, summaries, help text, flash messages ----------
+   Line 1 is always filled (W1: 「トップページの初回表示に 4 秒ほどかかってい／る。」), never halved by balance.
+   word-break is `normal` here, not `auto-phrase`: phrase breaking moved the whole phrase 「かかっている。」 to
+   line 2 and left line 1 four characters short at 375px, which is exactly what W1 forbids. */
+div.wiki,
+.wiki :is(p, li, dd, dt, blockquote, th, td),
+div.issue .attributes .attribute .value,
+.news-article,
+.news-article p,
+p.gbd-summary,
+.gbd-lead,
+.gbd-tl-line,
+#news .summary,
+p.summary,
+.gb-timeline__who,
+.gb-timeline__desc,
+dl#search-results > dd,
+em.info,
+.flash,
+#errorExplanation,
+table.list :is(td.description, span.description),
+.table-list-cell.description,
+table#commit-keywords td,
+.gb-status-warn {
+  text-wrap: wrap;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  line-break: strict;
+}
+
+/* ---------- Headings / titles: balanced lines, never clamped ---------- */
+#content :is(h1, h2, h3, h4),
+.wiki :is(h1, h2, h3, h4),
+div.issue div.subject h3,
+.gbd-title-row > h2,
+.ui-dialog-title {
+  text-wrap: balance;
+  word-break: auto-phrase;
+  overflow-wrap: anywhere;
+  line-break: strict;
+}
+
+/* ---------- Subjects in collections: one rule for tables, cards, timelines, chips, gantt rows ----------
+   Clamp numbers live with C-issue-row / C-timeline (§6.7); wrapping is the same everywhere. */
+table.list td.subject,
+table.list td.subject a,
+.gb-subj,
+.issue-card .card-content > .subject .value,
+.issue-card .card-content > .subject .value a,
+.gb-timeline__title,
+.gb-timeline__subject,
+.gb-timeline__link,
+.gantt_subjects_column .issue-subject,
+.gb-te-issue,
+.gb-te-subj,
+.gb-rel__subject,
+.gb-report-issue,
+.gb-report-grp,
+.gbd-tl-subject,
+dl#search-results > dt,
+.gb-issue-title,
+table.list.projects td.name a {
+  text-wrap: wrap;
+  word-break: auto-phrase;
+  overflow-wrap: anywhere;
+  line-break: strict;
+}
+
+/* ---------- Calendar chip subjects: the narrowest clamped subject box (~6 characters wide, 2 lines).
+   Same as the subject rule except `word-break: normal`: with auto-phrase, a phrase wider than the chip
+   (「ログイン画面の」) is force-broken and the next phrase is pushed past the 2-line clamp, leaving line 2
+   with one character + ellipsis. Character breaking keeps both clamped lines filled. ---------- */
+.gb-cal-chip__subject {
+  text-wrap: wrap;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  line-break: strict;
+}
+
+/* ---------- Labels: form labels, legends, checkbox / radio labels, definition terms, admin name cells,
+   table headers that are allowed to wrap. Never balanced. ---------- */
+label,
+legend,
+.gb-admin-card__desc,
+table.list td.name,
+table.list > thead > tr > th,
+table.permissions td {
+  text-wrap: wrap;
+  word-break: auto-phrase;
+  overflow-wrap: normal;
+}
+
+/* ---------- Machine strings: inline code, URLs, file names, e-mail addresses ---------- */
+.wiki :not(pre) > code,
+.wiki > code,
+.wiki tt,
+.wiki a.external,
+a.mail,
+td.filename,
+div.attachments td,
+.gb-profile-head > ul li a {
+  text-wrap: wrap;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Hashes: checksums, API keys ---------- */
+td.digest,
+#sidebar pre {
+  text-wrap: wrap;
+  word-break: break-all;
+}
+
+/* ---------- Preformatted: pre keeps its lines; diff lines wrap ---------- */
+pre,
+.wiki pre {
+  word-break: normal;
+  overflow-wrap: normal;
+}
+pre.text-diff {
+  overflow-wrap: anywhere;
+}

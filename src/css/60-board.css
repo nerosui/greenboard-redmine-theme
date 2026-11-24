@@ -1,0 +1,1195 @@
+/* ==========================================================================
+   60-board — kanban board (redmine_issues_panel), DESIGN.md §3.4
+   The plugin stylesheet loads after the theme and uses a few !important rules,
+   so selectors are prefixed with body.controller-issues_panel #content and the
+   few !important below only beat the plugin's own !important / jQuery inline styles.
+   ========================================================================== */
+
+.controller-issues_panel #content {
+  /* DESIGN §3.4: columns are at least 232px and stretch to fill: four columns fit the 991px board of a
+     1273px screen (4 × 232 + 5 × 12 = 988px); a fifth column is what first makes the board scroll sideways
+     inside its own area. Five or more columns (JS adds .gb-board--many) are a little wider. */
+  --gb-board-col-min: 232px;
+  --gb-board-gap: 12px;
+}
+.controller-issues_panel #content table.issues-panel.gb-board--many { --gb-board-col-min: 260px; }
+/* phones: one column at a time, snapping (DESIGN.md §4). From 768px up the 260px minimum stays,
+   so the board shows as many columns as the scroller can fit and scrolls sideways for the rest. */
+@media (max-width: 767px) {
+  .controller-issues_panel #content,
+  .controller-issues_panel #content table.issues-panel.gb-board--many { --gb-board-col-min: 84vw; }
+  .controller-issues_panel #content form[data-cm-url] > .autoscroll {
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gb-board-gap);
+  }
+  .controller-issues_panel #content table.issues-panel thead th,
+  .controller-issues_panel #content table.issues-panel td.issue-card-receiver { scroll-snap-align: start; }
+}
+
+/* ---------- board scroller: horizontal scroll inside the card, sticky column headers ----------
+   The border-spacing adds a gap on both outer sides, so the scroller extends one gap past the content
+   box on each side; the outer columns then line up with the filter card. --gb-board-top (set by JS) is the
+   scroller's distance from the document top, so its bottom edge and horizontal scrollbar stay on screen. */
+.controller-issues_panel #content form[data-cm-url] > .autoscroll {
+  box-sizing: border-box;
+  overflow: auto;
+  width: calc(100% + 2 * var(--gb-board-gap));
+  max-width: none; /* core/global: .autoscroll { max-width: 100% } */
+  max-height: max(360px, calc(100vh - var(--gb-board-top, 360px) - var(--gb-board-after, 24px)));
+  min-height: 240px;
+  margin: 0 0 0 calc(-1 * var(--gb-board-gap));
+  padding: 0 0 var(--gb-sp-2, 8px);
+  overscroll-behavior: contain; /* wheel / swipe at the board's end does not scroll the page under it */
+  scrollbar-width: thin;
+  scrollbar-color: var(--gb-border-strong) transparent;
+}
+/* phones: no inner vertical scroll (it nested a short scroller inside the page and cut cards under the sticky
+   lane titles); the page scrolls, the board only scrolls sideways column by column */
+@media (max-width: 767px) {
+  .controller-issues_panel #content form[data-cm-url] > .autoscroll {
+    max-height: none;
+    min-height: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-y: auto; /* the page scrolls here: a vertical swipe on the board must reach it */
+  }
+}
+
+.controller-issues_panel #content table.issues-panel {
+  table-layout: fixed;
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  border-collapse: separate;
+  border-spacing: var(--gb-board-gap) 0;
+  margin: 0;
+  overflow: visible;
+  background: transparent;
+  box-shadow: none;
+}
+.controller-issues_panel #content table.issues-panel tbody tr:hover,
+.controller-issues_panel #content table.issues-panel tbody tr:hover td { background: transparent; }
+
+/* ---------- column header ---------- */
+.controller-issues_panel #content table.issues-panel thead th {
+  /* fixed layout: the table grows past 100% when columns × min width does not fit → horizontal scroll */
+  width: var(--gb-board-col-min);
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  box-sizing: border-box;
+  height: 44px;
+  padding: 0 8px 0 12px;
+  background: var(--gb-surface-2);
+  border: 1px solid var(--gb-border);
+  border-bottom: 0;
+  border-radius: var(--gb-radius) var(--gb-radius) 0 0;
+  /* status band, then an opaque frame in the card colour: 4px above the header and half the column gap on
+     each side, so cards scrolling under the pinned header row never show through its corners or the gaps */
+  box-shadow:
+    inset 0 3px 0 var(--gb-st-x, var(--gb-st-6)),
+    0 -4px 0 2px var(--gb-surface),
+    calc(-.5 * var(--gb-board-gap)) 0 0 0 var(--gb-surface),
+    calc(.5 * var(--gb-board-gap)) 0 0 0 var(--gb-surface);
+  color: var(--gb-text);
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold, 600);
+  line-height: 42px; /* 44px row: 1px top border + 43px; a 44px line made the row 46px */
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* outer columns: the frame reaches the scroller edge (a full gap) */
+.controller-issues_panel #content table.issues-panel thead th:first-child {
+  box-shadow:
+    inset 0 3px 0 var(--gb-st-x, var(--gb-st-6)),
+    0 -4px 0 2px var(--gb-surface),
+    calc(-1 * var(--gb-board-gap)) 0 0 0 var(--gb-surface),
+    calc(.5 * var(--gb-board-gap)) 0 0 0 var(--gb-surface);
+}
+.controller-issues_panel #content table.issues-panel thead th:last-child {
+  box-shadow:
+    inset 0 3px 0 var(--gb-st-x, var(--gb-st-6)),
+    0 -4px 0 2px var(--gb-surface),
+    calc(-.5 * var(--gb-board-gap)) 0 0 0 var(--gb-surface),
+    var(--gb-board-gap) 0 0 0 var(--gb-surface);
+}
+.controller-issues_panel #content table.issues-panel thead th:only-child {
+  box-shadow:
+    inset 0 3px 0 var(--gb-st-x, var(--gb-st-6)),
+    0 -4px 0 2px var(--gb-surface),
+    calc(-1 * var(--gb-board-gap)) 0 0 0 var(--gb-surface),
+    var(--gb-board-gap) 0 0 0 var(--gb-surface);
+}
+.controller-issues_panel #content table.issues-panel:has(.issue-card-1-2) thead th { width: 440px; }
+.controller-issues_panel #content table.issues-panel:has(.issue-card-1-3) thead th { width: 600px; }
+
+.controller-issues_panel #content table.issues-panel thead th::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 8px 1px 0;
+  border-radius: 50%;
+  background: var(--gb-st-x, var(--gb-st-6));
+  vertical-align: middle;
+}
+.controller-issues_panel .gb-col-st-1 { --gb-st-x: var(--gb-st-1); }
+.controller-issues_panel .gb-col-st-2 { --gb-st-x: var(--gb-st-2); }
+.controller-issues_panel .gb-col-st-3 { --gb-st-x: var(--gb-st-3); }
+.controller-issues_panel .gb-col-st-4 { --gb-st-x: var(--gb-st-4); }
+.controller-issues_panel .gb-col-st-5 { --gb-st-x: var(--gb-st-5); }
+.controller-issues_panel .gb-col-st-6 { --gb-st-x: var(--gb-st-6); }
+
+/* count badge (§2.7) */
+.controller-issues_panel #content table.issues-panel th .badge-count {
+  position: static;
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 20px;
+  height: 18px;
+  margin: 0 0 1px 8px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--gb-radius-pill, 999px);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: 11px;
+  font-weight: var(--gb-fw-bold, 600);
+  line-height: 18px;
+  text-align: center;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ＋ icon button at the right end of the header. The plugin renders it on every column a new issue may start
+   in; Redmine's workflow only lets a new issue start in its initial status, so in practice that is 未対応.
+   It is the one entry point on every layout (the in-column 「新しい課題」 buttons are hidden, see below). */
+.controller-issues_panel #content table.issues-panel thead th:has(> a.add-issue-card) { padding-right: 44px; }
+.controller-issues_panel #content table.issues-panel th a.add-issue-card {
+  position: absolute;
+  top: 7px; /* (44px row − 28px) / 2, less the 1px top border */
+  right: 8px;
+  float: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  border-radius: var(--gb-radius-sm, 4px);
+  color: var(--gb-text-2);
+  line-height: 1;
+  transition: background-color var(--gb-dur-1, 120ms), color var(--gb-dur-1, 120ms);
+}
+.controller-issues_panel #content table.issues-panel th a.add-issue-card .icon-label { display: none; }
+.controller-issues_panel #content table.issues-panel th a.add-issue-card svg { width: 18px; height: 18px; margin: 0; }
+.controller-issues_panel #content table.issues-panel th a.add-issue-card:hover {
+  background: var(--gb-primary-soft);
+  color: var(--gb-primary-strong);
+}
+.controller-issues_panel #content table.issues-panel th a.add-issue-card:focus-visible {
+  outline: none;
+  box-shadow: var(--gb-focus);
+}
+
+/* ---------- column body (droppable cells) ---------- */
+.controller-issues_panel #content table.issues-panel td.issue-card-receiver {
+  box-sizing: border-box;
+  padding: 4px 8px 8px !important; /* beats the plugin's !important padding */
+  background: var(--gb-surface-2);
+  border: 1px solid var(--gb-border) !important; /* plugin: 1px dashed #fff !important */
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 0;
+  vertical-align: top;
+  text-align: left;
+  transition: background-color var(--gb-dur-1, 120ms), box-shadow var(--gb-dur-1, 120ms);
+}
+.controller-issues_panel #content table.issues-panel:not(.gb-board--grouped) tbody tr:last-child td.issue-card-receiver {
+  border-bottom: 1px solid var(--gb-border) !important;
+  border-radius: 0 0 var(--gb-radius) var(--gb-radius);
+  padding-bottom: 12px !important;
+}
+/* not grouped: columns reach a comfortable minimum height and stay equal (table row) */
+.controller-issues_panel #content table.issues-panel:not(.gb-board--grouped) td.issue-card-receiver { height: 240px; }
+
+.controller-issues_panel #content .issue-cards {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* empty column / lane (no issue cards; the hidden 「新しい課題」 button does not count): a quiet drop slot */
+.controller-issues_panel #content td.issue-card-receiver:not(:has(.issue-card:not(.add-issue-card))) > .issue-cards {
+  min-height: 56px;
+  border: 1.5px dashed var(--gb-border);
+  border-radius: var(--gb-radius);
+}
+/* ungrouped board: the empty column says so, centred on one line */
+.controller-issues_panel #content table.issues-panel:not(.gb-board--grouped) td.issue-card-receiver:not(:has(.issue-card:not(.add-issue-card))) > .issue-cards {
+  align-items: center;
+  justify-content: center;
+}
+.controller-issues_panel #content table.issues-panel:not(.gb-board--grouped) td.issue-card-receiver:not(:has(.issue-card:not(.add-issue-card))) > .issue-cards::before {
+  content: "課題はありません";
+  color: var(--gb-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* drag & drop: target column outlined, drop slot shown at the end of the column */
+.controller-issues_panel #content table.issues-panel td.issue-card-receiver.ui-droppable-active {
+  background: var(--gb-surface-3);
+}
+.controller-issues_panel #content table.issues-panel td.issue-card-receiver.ui-droppable-hover {
+  background: var(--gb-primary-softer) !important;
+  border-color: var(--gb-primary) !important; /* plugin: 2px dashed #aaa !important */
+  box-shadow: inset 0 0 0 1px var(--gb-primary);
+}
+.controller-issues_panel #content td.ui-droppable-hover .issue-cards::after {
+  content: "";
+  order: 99;
+  flex: 1 1 100%;
+  height: 52px;
+  border: 1.5px dashed var(--gb-primary-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-primary-softer);
+}
+.controller-issues_panel #content td.ui-droppable-hover:not(:has(.issue-card:not(.add-issue-card))) > .issue-cards { border-color: transparent; }
+.controller-issues_panel #content table.issues-panel:not(.gb-board--grouped) td.ui-droppable-hover:not(:has(.issue-card:not(.add-issue-card))) > .issue-cards::before { content: none; }
+
+/* ---------- swimlanes (group_by) ---------- */
+/* the title of the lane in view stays under the sticky column headers while that lane scrolls by; the JS
+   marks it .gb-lane-pinned and lowers --gb-lane-top as the next title arrives, so it is pushed out, never
+   stacked above another title */
+.controller-issues_panel #content table.issues-panel tr.group > td.gb-lane-pinned {
+  position: sticky;
+  top: var(--gb-lane-top, 44px); /* column header height */
+}
+.controller-issues_panel #content table.issues-panel tr.group > td {
+  z-index: 2; /* below the column headers (3), above the cards */
+  padding: 16px 4px 8px !important;
+  background: var(--gb-surface);
+  border: 0 !important;
+  text-align: left;
+  white-space: nowrap;
+}
+.controller-issues_panel #content table.issues-panel tr.group > td > * { vertical-align: middle; }
+.controller-issues_panel #content table.issues-panel tbody tr.group:first-child > td { padding-top: 12px !important; }
+.controller-issues_panel #content table.issues-panel tr.group .expander {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: 0 4px 0 0;
+  padding: 0;
+  border-radius: var(--gb-radius-sm, 4px);
+  color: var(--gb-text-2);
+  cursor: pointer;
+  background: none;
+}
+.controller-issues_panel #content table.issues-panel tr.group .expander:hover { background: var(--gb-surface-3); color: var(--gb-text); }
+.controller-issues_panel #content table.issues-panel tr.group .expander:focus-visible { outline: none; box-shadow: var(--gb-focus); }
+.controller-issues_panel #content table.issues-panel tr.group .expander svg { width: 16px; height: 16px; margin: 0; }
+.controller-issues_panel #content table.issues-panel tr.group .name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gb-text);
+  font-size: 14px;
+  font-weight: var(--gb-fw-bold, 600);
+}
+.controller-issues_panel #content table.issues-panel tr.group .name a { color: var(--gb-text); }
+.controller-issues_panel #content table.issues-panel tr.group .name a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+.controller-issues_panel #content table.issues-panel tr.group .badge-count {
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 20px;
+  height: 18px;
+  margin-left: 8px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--gb-radius-pill, 999px);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: 11px;
+  font-weight: var(--gb-fw-bold, 600);
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+/* a lane's cells: rounded segment of the column, gap below for the next lane title */
+.controller-issues_panel #content table.gb-board--grouped tr[class^="issue-card-receivers"] td.issue-card-receiver {
+  border: 1px solid var(--gb-border) !important;
+  border-radius: var(--gb-radius);
+  padding: 8px !important;
+}
+.controller-issues_panel #content table.gb-board--grouped tbody tr.group + tr td.issue-card-receiver { border-top-width: 1px !important; }
+.controller-issues_panel #content table.gb-board--grouped thead th { border-bottom: 1px solid var(--gb-border); border-radius: var(--gb-radius); }
+
+/* ---------- card ---------- */
+.controller-issues_panel #content .issue-card {
+  box-sizing: border-box;
+  margin: 0 !important; /* plugin .issue-card-1-1 margin; spacing comes from the flex gap */
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  box-shadow: none;
+  color: var(--gb-text);
+  cursor: grab;
+  transition: border-color var(--gb-dur-1, 120ms), box-shadow var(--gb-dur-1, 120ms);
+}
+.controller-issues_panel #content .issue-card.issue-card-1-1,
+.controller-issues_panel #content .issue-cards > .add-issue-card { width: 100%; flex: 1 1 100%; }
+.controller-issues_panel #content .issue-card.issue-card-1-2 { flex: 0 0 calc((100% - 8px) / 2); min-width: 0; }
+.controller-issues_panel #content .issue-card.issue-card-1-3 { flex: 0 0 calc((100% - 16px) / 3); min-width: 0; }
+
+.controller-issues_panel #content .issue-card:not(.add-issue-card):hover {
+  border-color: var(--gb-primary-border);
+  box-shadow: var(--gb-shadow);
+}
+.controller-issues_panel #content .issue-card:not(.add-issue-card):focus-within { border-color: var(--gb-primary-border); }
+
+/* while dragging: lifted card, slight tilt (plugin writes rotate(10deg) inline) */
+.controller-issues_panel #content .issue-card.ui-draggable-dragging {
+  transform: rotate(2deg) !important;
+  border-color: var(--gb-primary-border);
+  box-shadow: var(--gb-shadow-md);
+  cursor: grabbing;
+  opacity: 1 !important;
+}
+
+/* the slot a dragged card leaves behind (JS inserts .gb-drag-ghost while dragging) */
+.controller-issues_panel #content .issue-cards { position: relative; }
+.controller-issues_panel #content .issue-cards > .gb-drag-ghost {
+  position: absolute;
+  z-index: 0;
+  box-sizing: border-box;
+  border: 1.5px dashed var(--gb-primary-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-primary-softer);
+  pointer-events: none;
+}
+.controller-issues_panel #content .issue-card.ui-draggable-dragging { z-index: 10 !important; }
+/* the lifted shadow must beat the card :hover shadow (the pointer stays over the dragged card) */
+.controller-issues_panel #content .issue-card.ui-draggable-dragging,
+.controller-issues_panel #content .issue-card.ui-draggable-dragging:not(.add-issue-card):hover {
+  border-color: var(--gb-primary-border);
+  box-shadow: var(--gb-shadow-md) !important;
+}
+
+/* inner wrapper carries context-menu / priority / closed / overdue classes */
+.controller-issues_panel #content .issue-card > div.hascontextmenu {
+  border-radius: calc(var(--gb-radius) - 1px);
+  background: transparent;
+  box-shadow: none !important; /* plugin: coloured priority stripes (priority is the arrow now) */
+  color: inherit;
+}
+.controller-issues_panel #content .issue-card > div.hascontextmenu.context-menu-selection {
+  background: var(--gb-primary-soft) !important; /* core: white-on-blue selection */
+  color: var(--gb-text) !important;
+}
+.controller-issues_panel #content .issue-card:has(> .context-menu-selection) {
+  border-color: var(--gb-primary);
+  box-shadow: 0 0 0 1px var(--gb-primary);
+}
+.controller-issues_panel #content .issue-card > div.context-menu-selection a { color: inherit !important; }
+.controller-issues_panel #content .issue-card > div.context-menu-selection a.gb-issue-key { color: var(--gb-primary-strong) !important; }
+/* core paints everything inside a selection white; restore the card's own colours on the soft-green background */
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-card-foot,
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-card-due,
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-card-project,
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-card-project a,
+.controller-issues_panel #content .issue-card > div.context-menu-selection .js-contextmenu { color: var(--gb-text-2) !important; }
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-card-due.is-today { color: var(--gb-warning) !important; }
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-card-due.is-overdue { color: var(--gb-danger) !important; }
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-prio { color: var(--gb-text) !important; }
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-prio--high .gb-prio__arrow { color: var(--gb-prio-high) !important; }
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-prio--normal .gb-prio__arrow { color: var(--gb-prio-normal) !important; }
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-prio--low .gb-prio__arrow { color: var(--gb-prio-low) !important; }
+.controller-issues_panel #content .issue-card > div.context-menu-selection .subject .value a { color: var(--gb-text) !important; }
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-avatar { color: #fff !important; }
+/* core context_menu.css paints every icon in a selection white (stroke #fff !important) and loads after the
+   theme; the card's icons follow their own text colour instead, at full opacity */
+.controller-issues_panel #content .issue-card > div.context-menu-selection svg.icon-svg {
+  stroke: currentColor !important;
+  opacity: 1;
+}
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-card-prio,
+.controller-issues_panel #content .issue-card > div.context-menu-selection .gb-card-due,
+.controller-issues_panel #content .issue-card > div.context-menu-selection .card-content > .header .js-contextmenu { opacity: 1; }
+
+.controller-issues_panel #content .issue-card .card-content {
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: var(--gb-lh, 1.6);
+  text-align: left;
+}
+
+/* line 1: tracker pill + key + menu */
+.controller-issues_panel #content .issue-card .card-content > .header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+}
+.controller-issues_panel #content .issue-card .card-content > .header::after { content: none; }
+.controller-issues_panel #content .issue-card .card-content > .header a.gb-issue-key {
+  color: var(--gb-primary-strong);
+  font-size: 12px;
+  font-weight: var(--gb-fw-medium, 500);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.controller-issues_panel #content .issue-card .card-content > .header a.gb-issue-key:hover { text-decoration: underline; }
+.controller-issues_panel #content .issue-card .closed .card-content > .header a.gb-issue-key {
+  color: var(--gb-muted);
+  text-decoration: line-through;
+}
+.controller-issues_panel #content .issue-card .card-content > .header .js-contextmenu {
+  order: 3;
+  float: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: -2px -6px -2px auto;
+  border-radius: var(--gb-radius-sm, 4px);
+  color: var(--gb-text-2) !important; /* core link / selection colours made it faint */
+  opacity: 0;
+  transition: opacity var(--gb-dur-1, 120ms), background-color var(--gb-dur-1, 120ms);
+}
+.controller-issues_panel #content .issue-card .card-content > .header .js-contextmenu svg { width: 16px; height: 16px; margin: 0; }
+.controller-issues_panel #content .issue-card:hover .card-content > .header .js-contextmenu,
+.controller-issues_panel #content .issue-card:focus-within .card-content > .header .js-contextmenu,
+.controller-issues_panel #content .issue-card .context-menu-selection .card-content > .header .js-contextmenu { opacity: 1; }
+.controller-issues_panel #content .issue-card .card-content > .header .js-contextmenu:hover { background: var(--gb-surface-3); color: var(--gb-text) !important; }
+.controller-issues_panel #content .issue-card .card-content > .header .js-contextmenu:focus-visible { outline: none; opacity: 1; box-shadow: var(--gb-focus); }
+@media (hover: none) {
+  .controller-issues_panel #content .issue-card .card-content > .header .js-contextmenu { opacity: 1; }
+}
+
+/* tracker badge (§2.7) */
+.controller-issues_panel .gb-tracker {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-pill, 999px);
+  background: var(--gb-tr-default);
+  color: #fff;
+  font-size: 11px;
+  font-weight: var(--gb-fw-bold, 600);
+  line-height: 1;
+  white-space: nowrap;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.controller-issues_panel .gb-tracker-1 { background: var(--gb-tr-1); }
+.controller-issues_panel .gb-tracker-2 { background: var(--gb-tr-2); }
+.controller-issues_panel .gb-tracker-3 { background: var(--gb-tr-3); }
+
+/* line 2: subject */
+.controller-issues_panel #content .issue-card .card-content > .subject { margin: 6px 0 0; }
+.controller-issues_panel #content .issue-card .card-content > .subject .caption { display: none; }
+/* subject text and its 3-line clamp: C-issue-row (15-c-issue-row.css) */
+
+/* project (global board): one muted line under the subject, no caption */
+.controller-issues_panel #content .issue-card .card-content > div.gb-card-project {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--gb-text-2);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.controller-issues_panel #content .issue-card .card-content > div.gb-card-project .caption { display: none; }
+.controller-issues_panel #content .issue-card .card-content > div.gb-card-project .value { display: inline; }
+.controller-issues_panel #content .issue-card .card-content > div.gb-card-project a { color: var(--gb-text-2); text-decoration: none; }
+.controller-issues_panel #content .issue-card .card-content > div.gb-card-project a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+
+/* rows represented by the card layout; the plugin footer (watch link) is hidden */
+.controller-issues_panel #content .issue-card .card-content > .gb-card-hidden,
+.controller-issues_panel #content .issue-card .card-content > .footer { display: none; }
+
+/* other columns chosen in オプション → compact meta rows */
+.controller-issues_panel #content .issue-card .card-content > div:not(.header):not(.subject):not(.footer):not(.gb-card-foot):not(.gb-card-hidden):not(.gb-card-project) {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--gb-text);
+}
+.controller-issues_panel #content .issue-card .card-content > div:not(.header):not(.subject):not(.gb-card-foot) .caption {
+  float: none;
+  flex: none;
+  padding: 0;
+  color: var(--gb-text-2);
+}
+.controller-issues_panel #content .issue-card .card-content > div:not(.header):not(.subject):not(.gb-card-foot) .caption strong { font-weight: var(--gb-fw-normal, 400); }
+.controller-issues_panel #content .issue-card .card-content > div:not(.header):not(.subject):not(.gb-card-foot) .value { min-width: 0; }
+
+/* line 3: assignee + priority + due date */
+.controller-issues_panel #content .gb-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 20px;
+  margin-top: 8px;
+}
+/* §6.8: the footer row exists only for an assignee, a priority other than 通常 or a due date (no placeholder) */
+.controller-issues_panel #content .gb-card-foot:not(:has(> .gb-avatar, > .gb-card-due, .gb-prio--high, .gb-prio--low)) { display: none; }
+
+.controller-issues_panel .gb-avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--gb-av-0);
+  color: #fff;
+  font-size: 11px;
+  font-weight: var(--gb-fw-bold, 600);
+  line-height: 1;
+  font-style: normal;
+  user-select: none;
+}
+.controller-issues_panel .gb-avatar[data-av="1"] { background: var(--gb-av-1); }
+.controller-issues_panel .gb-avatar[data-av="2"] { background: var(--gb-av-2); }
+.controller-issues_panel .gb-avatar[data-av="3"] { background: var(--gb-av-3); }
+.controller-issues_panel .gb-avatar[data-av="4"] { background: var(--gb-av-4); }
+.controller-issues_panel .gb-avatar[data-av="5"] { background: var(--gb-av-5); }
+.controller-issues_panel .gb-avatar[data-av="6"] { background: var(--gb-av-6); }
+.controller-issues_panel .gb-avatar[data-av="7"] { background: var(--gb-av-7); }
+
+/* priority: the issue list's .gb-prio (40-issue-list.css) as is: coloured arrow, text in the text colour,
+   bold for 高め以上; only the size follows the card's 12px meta line */
+.controller-issues_panel .gb-card-prio {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.controller-issues_panel .gb-card-due {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  color: var(--gb-text-2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.controller-issues_panel .gb-card-due__icon { width: 14px; height: 14px; }
+.controller-issues_panel .gb-card-due.is-today { color: var(--gb-warning); font-weight: var(--gb-fw-bold, 600); }
+.controller-issues_panel .gb-card-due.is-overdue { color: var(--gb-danger); font-weight: var(--gb-fw-bold, 600); }
+.controller-issues_panel #content .issue-card .closed .gb-card-due { color: var(--gb-muted); font-weight: var(--gb-fw-normal, 400); }
+
+/* closed cards */
+.controller-issues_panel #content .issue-card:has(> .closed) { background: var(--gb-surface); }
+.controller-issues_panel #content .issue-card > .closed { opacity: .72; }
+
+/* ---------- 「新しい課題」 in-column button: full-width dashed secondary sm ----------
+   The plugin puts it only under the first column (one per lane when grouped). The header ＋ does the same
+   job on every layout, so this one is hidden; it only returns on phones in grouped mode, where lanes stack
+   their statuses and there is no header row (see the end of this file). */
+.controller-issues_panel #content .issue-cards > .add-issue-card { display: none; }
+.controller-issues_panel #content .issue-cards > .add-issue-card {
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 32px;
+  margin: 0 !important;
+  padding: 0;
+  background: transparent;
+  border: 1px dashed var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm, 4px);
+  box-shadow: none;
+  cursor: pointer;
+  transition: background-color var(--gb-dur-1, 120ms), border-color var(--gb-dur-1, 120ms);
+}
+.controller-issues_panel #content .issue-cards > .add-issue-card a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  color: var(--gb-text-2);
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium, 500);
+  text-decoration: none;
+}
+.controller-issues_panel #content .issue-cards > .add-issue-card a svg { width: 16px; height: 16px; margin: 0; }
+.controller-issues_panel #content .issue-cards > .add-issue-card:hover {
+  background: var(--gb-surface);
+  border-color: var(--gb-primary);
+}
+.controller-issues_panel #content .issue-cards > .add-issue-card:hover a { color: var(--gb-primary-strong); }
+.controller-issues_panel #content .issue-cards > .add-issue-card a:focus-visible {
+  outline: none;
+  border-radius: var(--gb-radius-sm, 4px);
+  box-shadow: var(--gb-focus);
+}
+
+/* ---------- description preview on subject hover (#issue_panel_issue_description) ---------- */
+.controller-issues_panel #issue_panel_issue_description {
+  box-sizing: border-box;
+  width: 400px;
+  max-width: calc(100vw - 32px);
+  max-height: 320px;
+  overflow: auto;
+  padding: 12px 16px;
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  box-shadow: var(--gb-shadow-md);
+  z-index: var(--gb-z-dropdown, 200);
+}
+.controller-issues_panel #issue_panel_issue_description .issue {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.controller-issues_panel #issue_panel_issue_description .issue .subject {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: var(--gb-fw-bold, 600);
+}
+.controller-issues_panel #issue_panel_issue_description .issue .description .wiki,
+.controller-issues_panel #issue_panel_issue_description .issue .description .wiki * {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--gb-text);
+}
+
+/* ---------- new-card modal (§2.16, 720px, Pattern S form) ---------- */
+.controller-issues_panel .ui-dialog.gb-card-modal,
+.controller-issues_panel .ui-dialog:has(#new-issue-card-modal) {
+  box-sizing: border-box;
+  padding: 0;
+  background: var(--gb-surface);
+  border: 0;
+  box-shadow: var(--gb-shadow-lg);
+  overflow: hidden;
+}
+/* from 600px: a centred 720px dialog with 16px room on each side (JS sizes and centres it). Below 600px it is
+   the shared full-screen sheet of 95-responsive.css (left 0, 100vw, square corners), so no cap here. */
+@media (min-width: 600px) {
+  .controller-issues_panel .ui-dialog.gb-card-modal,
+  .controller-issues_panel .ui-dialog:has(#new-issue-card-modal) {
+    max-width: calc(100vw - 32px);
+    border-radius: var(--gb-radius-lg, 12px);
+  }
+}
+.controller-issues_panel .ui-dialog:has(#new-issue-card-modal) .ui-dialog-titlebar {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--gb-border);
+  border-radius: 0;
+}
+.controller-issues_panel .ui-dialog:has(#new-issue-card-modal) .ui-dialog-title {
+  float: none;
+  width: auto;
+  margin: 0;
+  flex: 1;
+  color: var(--gb-text);
+  font-size: 16px;
+  font-weight: var(--gb-fw-bold, 600);
+}
+.controller-issues_panel .ui-dialog:has(#new-issue-card-modal) .ui-dialog-titlebar-close {
+  position: relative; /* in the flex row; still the positioning parent of its icon */
+  top: auto;
+  right: auto;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  margin: 0 -4px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--gb-radius-sm, 4px);
+  background: transparent;
+}
+.controller-issues_panel .ui-dialog:has(#new-issue-card-modal) .ui-dialog-titlebar-close:hover { background: var(--gb-surface-3); }
+.controller-issues_panel .ui-dialog:has(#new-issue-card-modal) .ui-dialog-titlebar-close:focus-visible { outline: none; box-shadow: var(--gb-focus); }
+
+.controller-issues_panel #new-issue-card-modal {
+  box-sizing: border-box;
+  padding: 0;
+  overflow: visible;
+}
+.controller-issues_panel #new-issue-card-modal > h3.title { display: none; } /* duplicate of the dialog title */
+
+.controller-issues_panel #new-issue-card-modal .box.tabular.issue-card-form {
+  margin: 0;
+  padding: 20px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes { display: block; }
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+  float: none;
+  width: auto;
+  padding: 0;
+}
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p:has(#issue_subject) {
+  grid-column: 1 / -1;
+}
+/* プライベート takes the next free cell (right of マイルストーン), its checkbox level with the selects */
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p#issue_is_private_wrap {
+  display: flex;
+  align-items: center;
+  align-self: end;
+  gap: 8px;
+  min-height: var(--gb-control-h, 36px);
+}
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p > label:not(.inline) {
+  float: none;
+  display: block;
+  box-sizing: border-box;
+  width: auto;
+  height: 24px; /* one fixed label line: the ＋ / 私が担当 helpers beside it never make a row taller */
+  margin: 0 0 6px;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--gb-text);
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold, 600);
+  line-height: 24px;
+}
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p#issue_is_private_wrap > input[type=checkbox] { order: 0; margin: 0; }
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p#issue_is_private_wrap > label {
+  order: 1;
+  margin: 0;
+  font-weight: var(--gb-fw-normal, 400);
+  cursor: pointer;
+}
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p > select,
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p > input[type=text] {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100% !important; /* plugin: max-width 85% on some selects */
+  min-height: var(--gb-control-h, 36px);
+}
+/* same field decorations as the full issue form (55-issue-form.css): tracker colour bar, status dot
+   (data-* set by 60-board.js; the muted 「未設定」 is C-form) */
+.controller-issues_panel #new-issue-card-modal #issue_tracker_id {
+  border-left: 4px solid var(--gb-card-tracker, var(--gb-tr-default, #6b8fb5));
+  font-weight: var(--gb-fw-bold, 600);
+}
+.controller-issues_panel #new-issue-card-modal p[data-tracker="1"] { --gb-card-tracker: var(--gb-tr-1); }
+.controller-issues_panel #new-issue-card-modal p[data-tracker="2"] { --gb-card-tracker: var(--gb-tr-2); }
+.controller-issues_panel #new-issue-card-modal p[data-tracker="3"] { --gb-card-tracker: var(--gb-tr-3); }
+
+/* rows with a helper (＋ カテゴリ / ＋ マイルストーン / 自分に割り当て): the helper sits on the label line,
+   right-aligned, and the control spans the full width below, so every select has the same width
+   (same layout as the full issue form, 55-issue-form.css) */
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p:is(:has(> a.icon-add), :has(> .assign-to-me-link)) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: 30px auto; /* 24px label line + 6px, same as the rows without a helper */
+  align-items: start;
+  column-gap: 8px;
+  row-gap: 0;
+}
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p:is(:has(> a.icon-add), :has(> .assign-to-me-link)) > label:not(.inline) {
+  grid-row: 1;
+  grid-column: 1;
+  min-width: 0;
+}
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p:is(:has(> a.icon-add), :has(> .assign-to-me-link)) > :is(a.icon-add, .assign-to-me-link) {
+  grid-row: 1;
+  grid-column: 2;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 24px;
+  margin: 0;
+}
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p:is(:has(> a.icon-add), :has(> .assign-to-me-link)) > :is(select, input[type=text], span) {
+  grid-row: 2;
+  grid-column: 1 / -1;
+}
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p > a.icon-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--gb-radius-sm, 4px);
+  color: var(--gb-text-2);
+}
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p > a.icon-add .icon-label { display: none; }
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p > a.icon-add:hover { background: var(--gb-primary-soft); color: var(--gb-primary-strong); }
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p > a.icon-add svg { width: 16px; height: 16px; margin: 0; }
+.controller-issues_panel #new-issue-card-modal .assign-to-me-link { font-size: 12px; line-height: 24px; white-space: nowrap; }
+.controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft > p > .assign-to-me-link:is(.hidden, [hidden]) { display: none; }
+
+/* footer: right-aligned [キャンセル] [作成]; JS puts キャンセル before 作成 in the DOM so Tab follows the eye */
+.controller-issues_panel #new-issue-card-modal form > p.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 20px;
+  border-top: 1px solid var(--gb-border);
+  background: var(--gb-surface);
+}
+.controller-issues_panel #new-issue-card-modal form > p.buttons > a {
+  display: inline-flex;
+  align-items: center;
+  height: var(--gb-control-h, 36px);
+  padding: 0 12px;
+  border-radius: var(--gb-radius-sm, 4px);
+  color: var(--gb-primary-strong);
+  font-weight: var(--gb-fw-bold, 600);
+  text-decoration: none;
+}
+.controller-issues_panel #new-issue-card-modal form > p.buttons > a:hover { background: var(--gb-primary-soft); }
+.controller-issues_panel #new-issue-card-modal form > p.buttons > input[type=submit] { min-width: 96px; }
+
+@media (max-width: 600px) {
+  .controller-issues_panel #new-issue-card-modal .issue-card-form > #all_attributes > .splitcontentleft { grid-template-columns: minmax(0, 1fr); }
+}
+/* phones: the dialog is the full-screen sheet of 95-responsive.css. The sheet body scrolls (the rule above
+   sets overflow: visible for the centred dialog) and the form fills it, so [キャンセル] [作成] sit on the sheet's
+   bottom edge however short the form is, and stay pinned there while a long form scrolls under them. */
+@media (max-width: 599px) {
+  html body.controller-issues_panel .ui-dialog.ui-widget > #new-issue-card-modal.ui-dialog-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0 !important; /* 95-responsive: same value with !important */
+    padding: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  html body.controller-issues_panel #new-issue-card-modal > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+  }
+  html body.controller-issues_panel #new-issue-card-modal > form > p.buttons {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin: auto 0 0;
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .controller-issues_panel #content .issue-card,
+  .controller-issues_panel #content table.issues-panel td.issue-card-receiver,
+  .controller-issues_panel #content .issue-cards > .add-issue-card { transition: none; }
+  .controller-issues_panel #content .issue-card.ui-draggable-dragging { transform: none !important; }
+}
+
+/* ---------- overflow cue when columns do not fit (JS toggles the classes on the form) ----------
+   A soft edge shadow no wider than the 12px gap between the scroller edge and the outer column, so it never
+   washes over a card, badge or avatar. Phones snap one column at a time and show the next one peeking in,
+   which is cue enough: no shadow there. */
+.controller-issues_panel #content form.gb-board-frame { position: relative; }
+.controller-issues_panel #content form.gb-board-frame::before,
+.controller-issues_panel #content form.gb-board-frame::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 8px;
+  width: var(--gb-board-gap);
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--gb-dur-2, 200ms);
+}
+.controller-issues_panel #content form.gb-board-frame::before {
+  left: calc(-1 * var(--gb-board-gap));
+  background: linear-gradient(to right, rgba(20, 40, 34, .10), rgba(20, 40, 34, 0));
+}
+.controller-issues_panel #content form.gb-board-frame::after {
+  right: calc(-1 * var(--gb-board-gap));
+  background: linear-gradient(to left, rgba(20, 40, 34, .10), rgba(20, 40, 34, 0));
+}
+.controller-issues_panel #content form.gb-board-frame--more-left::before,
+.controller-issues_panel #content form.gb-board-frame--more-right::after { opacity: 1; }
+@media (max-width: 767px) {
+  .controller-issues_panel #content form.gb-board-frame::before,
+  .controller-issues_panel #content form.gb-board-frame::after { content: none; }
+}
+.controller-issues_panel #content table.gb-board--grouped td.issue-card-receiver:not(:has(.issue-card:not(.add-issue-card))) > .issue-cards {
+  min-height: 40px;
+  border-color: transparent;
+}
+.controller-issues_panel #issue_panel_issue_description hr {
+  height: 0;
+  margin: 8px 0;
+  border: 0;
+  border-top: 1px solid var(--gb-border);
+  background: none;
+}
+.controller-issues_panel #issue_panel_issue_description .issue .subject a.issue { margin-right: 2px; color: var(--gb-primary-strong); font-weight: var(--gb-fw-medium, 500); }
+/* no description: no preview at all (the card already shows the key and subject); the plugin shows the box
+   with an inline display, hence !important */
+.controller-issues_panel #issue_panel_issue_description:has(> .issue.gb-preview--no-desc) { display: none !important; }
+
+/* ---------- filter bar: board-only option widths (the bar itself: 15-c-filter.css) ---------- */
+.controller-issues_panel #query_form #options select#group_by {
+  flex: 0 1 240px;
+  width: 240px;
+  max-width: 100%;
+}
+.controller-issues_panel #query_form #options select#query_issues_num_per_row {
+  flex: 0 0 96px;
+  width: 96px;
+}
+/* lane title (expander, avatar, name, count; wrapped in .gb-m-lane by 95-responsive.js) stays at the left
+   edge while the board scrolls sideways, so it always says whose row it is */
+html body.controller-issues_panel #content table.issues-panel.gb-board tr.group > td > .gb-m-lane {
+  display: inline-flex;
+  align-items: center;
+  position: sticky;
+  left: calc(var(--gb-board-gap) + 4px); /* where it sits unscrolled: outer gap + the cell's 4px padding */
+  max-width: none;
+}
+html body.controller-issues_panel #content table.issues-panel.gb-board tr.group > td > .gb-m-lane > .name { min-width: 0; }
+
+/* unassigned swimlane: same wording and dashed avatar as the cards */
+.controller-issues_panel #content table.issues-panel tr.group .name .gb-lane-empty { color: var(--gb-text-2); }
+
+/* ---------- phones ----------
+   Not grouped: the cells keep the desktop column look (grey cell, side borders, rounded bottom), so every
+   column reaches the bottom of the board, as tall as the longest one: no white area under a short column.
+   Grouped: the lanes stack their statuses (see the end of this file); there the cell is transparent and the
+   card list carries the column look, so each status box is only as tall as its own cards. */
+@media (max-width: 767px) {
+  .controller-issues_panel #content table.gb-board--grouped tr[class^="issue-card-receivers"] td.issue-card-receiver {
+    height: auto;
+    padding: 0 !important;
+    background: transparent;
+    border: 0 !important;
+    border-radius: 0;
+  }
+  .controller-issues_panel #content table.gb-board--grouped td.issue-card-receiver > .issue-cards,
+  .controller-issues_panel #content table.gb-board--grouped td.issue-card-receiver:not(:has(.issue-card:not(.add-issue-card))) > .issue-cards {
+    box-sizing: border-box;
+    align-content: flex-start;
+    min-height: 0;
+    padding: 8px;
+    background: var(--gb-surface-2);
+    border: 1px solid var(--gb-border);
+    border-radius: var(--gb-radius);
+  }
+  .controller-issues_panel #content table.gb-board--grouped td.issue-card-receiver.ui-droppable-active > .issue-cards { background: var(--gb-surface-3); }
+  .controller-issues_panel #content table.gb-board--grouped td.issue-card-receiver.ui-droppable-hover > .issue-cards {
+    background: var(--gb-primary-softer);
+    border-color: var(--gb-primary);
+    box-shadow: inset 0 0 0 1px var(--gb-primary);
+  }
+  .controller-issues_panel #content table.gb-board--grouped td.issue-card-receiver.ui-droppable-hover { box-shadow: none; }
+}
+
+/* ---------- phones: pinned copy of the column headers (60-board.js) ----------
+   Shown only once the real header row has gone under the top bar; slides sideways with the board. */
+.controller-issues_panel #content .gb-board-heads { display: none; }
+@media (max-width: 767px) {
+  .controller-issues_panel #content .gb-board-heads {
+    display: block;
+    position: sticky;
+    top: var(--gb-heads-top, 0px);
+    z-index: 6;
+    height: 0;
+    visibility: hidden;
+  }
+  .controller-issues_panel #content .gb-board-heads.is-shown { visibility: visible; }
+  .controller-issues_panel #content .gb-board-heads__view {
+    position: absolute;
+    top: 0;
+    left: calc(-1 * var(--gb-board-gap));
+    right: calc(-1 * var(--gb-board-gap));
+    height: 52px; /* 44px header + room for its shadow */
+    overflow: hidden;
+  }
+  .controller-issues_panel #content .gb-board-heads__track {
+    position: relative;
+    height: 44px;
+    will-change: transform;
+  }
+  .controller-issues_panel #content .gb-board-heads__col {
+    position: absolute;
+    top: 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 44px;
+    padding: 0 8px 0 12px;
+    background: var(--gb-surface-2);
+    border: 1px solid var(--gb-border);
+    border-radius: var(--gb-radius);
+    box-shadow: inset 0 3px 0 var(--gb-st-x, var(--gb-st-6)), 0 2px 6px rgba(20, 40, 34, .10);
+    color: var(--gb-text);
+    font-size: 13px;
+    font-weight: var(--gb-fw-bold, 600);
+    white-space: nowrap;
+  }
+  .controller-issues_panel #content .gb-board-heads__col::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: var(--gb-st-x, var(--gb-st-6));
+  }
+  .controller-issues_panel #content .gb-board-heads__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .controller-issues_panel #content .gb-board-heads__count {
+    flex: none;
+    box-sizing: border-box;
+    min-width: 20px;
+    height: 18px;
+    margin-left: 8px;
+    padding: 0 6px;
+    border-radius: var(--gb-radius-pill, 999px);
+    background: var(--gb-surface-3);
+    color: var(--gb-text-2);
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ---------- cell headings (60-board.js): only used by the stacked phone lanes below ---------- */
+.controller-issues_panel #content td.issue-card-receiver > .gb-cell-head { display: none; }
+
+/* ---------- phones, grouped: each lane lists its statuses one under another ----------
+   Sideways scrolling a grouped board on a phone left a tall blank area beside every short lane and a blank
+   screen under the last lane of a mostly empty column. Here the lane rows and cells become plain blocks:
+   lane title, then 「未対応 2」 heading + its cards, 「処理中 1」 + cards … Statuses without cards in that lane
+   are left out, except the one holding the plugin's 「新しい課題」 button (the lane's assignee filled in).
+   The header row and its pinned copy are not shown: every cell carries its own heading. */
+@media (max-width: 767px) {
+  .controller-issues_panel #content form[data-cm-url]:has(table.gb-board--grouped) > .autoscroll {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  .controller-issues_panel #content form[data-cm-url]:has(table.gb-board--grouped) > .gb-board-heads { display: none; }
+  .controller-issues_panel #content table.issues-panel.gb-board--grouped,
+  .controller-issues_panel #content table.issues-panel.gb-board--grouped > tbody,
+  .controller-issues_panel #content table.issues-panel.gb-board--grouped > tbody > tr,
+  .controller-issues_panel #content table.issues-panel.gb-board--grouped > tbody > tr > td {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .controller-issues_panel #content table.issues-panel.gb-board--grouped > thead { display: none; }
+  /* toggleRowGroup hides the lane's rows inline; that still wins over display: block */
+
+  /* lane title: a plain full-width row */
+  .controller-issues_panel #content table.issues-panel.gb-board--grouped tr.group > td {
+    position: static;
+    height: auto;
+    padding: 24px 0 12px !important;
+  }
+  .controller-issues_panel #content table.issues-panel.gb-board--grouped tbody tr.group:first-child > td { padding-top: 4px !important; }
+  html body.controller-issues_panel #content table.issues-panel.gb-board--grouped tr.group > td > .gb-m-lane {
+    position: static;
+    display: flex;
+    max-width: 100%;
+  }
+
+  /* status cells of a lane: 16px apart (a flex gap, so the left-out cells leave no margin behind) */
+  .controller-issues_panel #content table.issues-panel.gb-board--grouped > tbody > tr[class^="issue-card-receivers"] {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .controller-issues_panel #content table.gb-board--grouped tr[class^="issue-card-receivers"] td.issue-card-receiver {
+    height: auto;
+    padding: 0 !important;
+    margin: 0;
+  }
+  /* no cards and no 「新しい課題」: left out */
+  .controller-issues_panel #content table.gb-board--grouped tr[class^="issue-card-receivers"] td.issue-card-receiver:not(:has(.issue-card)) { display: none; }
+
+  .controller-issues_panel #content table.gb-board--grouped td.issue-card-receiver > .gb-cell-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 24px;
+    margin: 0 0 6px 4px;
+    color: var(--gb-text);
+    font-size: 13px;
+    font-weight: var(--gb-fw-bold, 600);
+    line-height: 24px;
+  }
+  .controller-issues_panel #content table.gb-board--grouped td.issue-card-receiver > .gb-cell-head::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gb-st-x, var(--gb-st-6));
+  }
+  .controller-issues_panel #content table.gb-board--grouped td.issue-card-receiver > .gb-cell-head .gb-cell-head__count {
+    box-sizing: border-box;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: var(--gb-radius-pill, 999px);
+    background: var(--gb-surface-3);
+    color: var(--gb-text-2);
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* the 「新しい課題」 button is always the last row inside the 未対応 box: a lane without 未対応 cards still shows
+     「● 未対応 0」 and the box, so the button has the same place and width in every lane */
+  .controller-issues_panel #content table.gb-board--grouped .issue-cards > .add-issue-card {
+    display: flex;
+    height: 40px;
+    background: var(--gb-surface);
+  }
+}
+

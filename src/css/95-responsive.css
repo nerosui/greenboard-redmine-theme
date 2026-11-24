@@ -1,0 +1,1741 @@
+/* ==========================================================================
+   95-responsive.css — narrow widths (DESIGN.md §3.9). owner: responsive
+   Layout overrides only, no new visual language. Everything sits inside
+   max-width media queries, so desktop (>= 900px) rendering is unchanged.
+
+   Note: core responsive.css is loaded AFTER the theme, so wherever core sets
+   the same property inside its (max-width: 899px) block, selectors here are
+   prefixed with `html body` to win on specificity.
+
+   Below 900px Redmine moves the project menu, global links, #sidebar and the
+   account links into its flyout menu (responsive.js). We keep that mechanism
+   and restyle it as a left drawer under our white top bar; the core toggle
+   button becomes the hamburger at the left of the bar.
+   ========================================================================== */
+
+@media screen and (max-width: 899px) {
+  /* no left nav column below 900px: everything offset by the nav width (sticky bars …) starts at 0 */
+  :root, html.gb-nav-collapsed { --gb-nav-w: 0px; }
+  :root {
+    --gb-m-gutter: 12px;
+    --gb-m-burger: 48px;
+    --gb-m-drawer-w: 280px;
+    --gb-m-icon-menu: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%232f3a37' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 6h16M4 12h16M4 18h16'/%3E%3C/svg%3E");
+    --gb-m-icon-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%232f3a37' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- frame ---------- */
+  /* clip (not hidden): keeps #wrapper from becoming a scroll container, so the sticky top bar still sticks */
+  html body #wrapper { overflow-x: clip; }
+  html body #main {
+    padding: 12px var(--gb-m-gutter) 8px;
+    gap: 12px;
+  }
+  html body #main.nosidebar #content,
+  html body div#content {
+    width: 100%;
+    max-width: none;
+    padding: 16px;
+  }
+  html body #footer { padding-left: var(--gb-m-gutter); padding-right: var(--gb-m-gutter); }
+
+  /* ---------- core mobile header -> just the hamburger, over the left end of the top bar ---------- */
+  html body #header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: auto;
+    width: var(--gb-m-burger);
+    height: var(--gb-topbar-h);
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    z-index: calc(var(--gb-z-topbar) + 3);
+  }
+  html body #header a.mobile-toggle-button {
+    display: block;
+    float: none;
+    width: var(--gb-m-burger);
+    height: var(--gb-topbar-h);
+    margin: 0;
+    border: 0;
+    border-right: 1px solid var(--gb-border);
+    background: var(--gb-m-icon-menu) no-repeat center / 22px 22px;
+    font-size: 0;
+    line-height: 0;
+    color: var(--gb-text);
+    transition: background-color var(--gb-dur-1) var(--gb-ease);
+  }
+  html body #header a.mobile-toggle-button::after { content: none; }
+  html body #header a.mobile-toggle-button:hover { background-color: var(--gb-surface-3); }
+  html body #header a.mobile-toggle-button:focus-visible { outline: none; box-shadow: var(--gb-focus-ring-inset); }
+  html.flyout-is-active body #header a.mobile-toggle-button { background-image: var(--gb-m-icon-close); background-color: var(--gb-surface-3); }
+  /* core slides the whole page sideways when the flyout opens; our drawer overlays instead */
+  html.flyout-is-active body #wrapper,
+  html.flyout-is-active body #header { right: auto; }
+  html.flyout-is-active body #wrapper { height: auto; overflow-x: clip; }
+  html.flyout-is-active body #main { cursor: default; }
+  /* core locks the page with `body { overflow: hidden }` while body is 100% tall, which clamps the scroll
+     position to 0 (the page jumped to the top behind the drawer). html alone keeps the page from scrolling
+     and the reading position is kept */
+  html.flyout-is-active body { overflow: visible; }
+  /* in-page jumps (anchors, focus moving into a form) land below the sticky top bar,
+     and on the issue page below the sticky issue title as well */
+  html { scroll-padding-top: calc(var(--gb-topbar-h) + 12px); }
+  html:has(> body.controller-issues.action-show) { scroll-padding-top: calc(var(--gb-topbar-h) + 56px); }
+
+  /* ---------- top bar ---------- */
+  html.gb-header-ready body #top-menu {
+    display: flex;
+    gap: 4px;
+    padding: 0 8px 0 var(--gb-m-burger);
+  }
+  html body #wrapper #top-menu a.gb-brand,
+  html body #wrapper #top-menu a.gb-brand:link,
+  html body #wrapper #top-menu a.gb-brand:visited {
+    width: auto;
+    min-width: 0;
+    padding: 0 8px 0 12px;
+    margin: 0;
+    background: transparent;
+    color: var(--gb-text);
+    font-size: var(--gb-fs-md);
+  }
+  html body #wrapper #top-menu a.gb-brand:hover { background: var(--gb-surface-3); color: var(--gb-text); }
+  html.gb-header-ready body .gb-topbar-tools { gap: 6px; padding-left: 4px; min-width: 0; }
+  html.gb-header-ready body #top-menu #quick-search { gap: 6px; min-width: 0; }
+
+  /* project jump: plain button in the bar (core turns it into a 64px full-width title) */
+  html body #project-jump.drdn,
+  html.gb-header-ready body #project-jump.drdn {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    min-width: 0;
+    max-width: 220px;
+    height: auto;
+    padding: 0;
+  }
+  html body #project-jump.drdn .drdn-trigger { max-width: 100%; }
+  html body #project-jump.drdn .drdn-trigger::before { content: none; }
+  html body #project-jump .drdn-content {
+    position: fixed;
+    top: calc(var(--gb-topbar-h) + 4px);
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-height: calc(100vh - var(--gb-topbar-h) - 16px);
+    overflow-y: auto;
+    font-size: var(--gb-fs-md);
+  }
+  html body #project-jump .drdn-content .autocomplete { height: 36px; font-size: 16px; }
+  html body #project-jump .drdn-content svg { width: 16px; height: 16px; }
+  html body #project-jump .drdn-content a { padding: 10px 12px; }
+
+  /* top bar: the avatar button never shrinks; the project jump is the only flexible item */
+  html body #top-menu .gb-user,
+  html body #top-menu button.gb-user__btn { flex: 0 0 auto; min-width: 0; }
+  html body #top-menu button.gb-user__btn .gb-avatar {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+  }
+  html body #project-jump.drdn,
+  html.gb-header-ready body #project-jump.drdn { flex: 0 1 auto; min-width: 0; }
+
+  /* ---------- flyout -> left drawer under the top bar ---------- */
+  html body .flyout-menu {
+    position: fixed;
+    top: var(--gb-topbar-h);
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: var(--gb-m-drawer-w);
+    max-width: 86vw;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* a quiet scrollbar that belongs to the dark panel (the default light track stood out) */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, .22) transparent;
+    padding: 0 0 24px;
+    background: var(--gb-nav-bg);
+    color: var(--gb-nav-text);
+    box-shadow: var(--gb-shadow-lg);
+    z-index: calc(var(--gb-z-topbar) + 2);
+    transform: translateX(-100%);
+    visibility: hidden;
+  }
+  html.gb-anim body .flyout-menu { transition: transform var(--gb-dur-2) var(--gb-ease), visibility 0s linear var(--gb-dur-2); }
+  html.flyout-is-active body .flyout-menu { transform: none; visibility: visible; }
+  html.gb-anim.flyout-is-active body .flyout-menu { transition: transform var(--gb-dur-2) var(--gb-ease), visibility 0s; }
+  /* overlay: a pseudo element of #wrapper, so a tap on it reaches #wrapper (95-responsive.js closes) */
+  html.flyout-is-active body #wrapper::before {
+    content: "";
+    position: fixed;
+    top: var(--gb-topbar-h);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gb-overlay);
+    z-index: calc(var(--gb-z-topbar) + 1);
+    cursor: pointer;
+  }
+
+  html body .flyout-menu h3 {
+    height: auto;
+    margin: 0;
+    padding: 16px 16px 6px;
+    border: 0;
+    background: transparent;
+    color: rgba(207, 224, 218, .62);
+    font-size: var(--gb-fs-xs);
+    font-weight: var(--gb-fw-bold);
+    line-height: 1.4;
+    letter-spacing: .08em;
+  }
+  html body .flyout-menu h4 { color: #fff; }
+  html body .flyout-menu a,
+  html body .flyout-menu a:link,
+  html body .flyout-menu a:visited { color: var(--gb-nav-text); }
+
+  html body .flyout-menu .flyout-menu__search {
+    height: auto;
+    padding: 12px 12px 4px;
+    line-height: normal;
+    position: relative;
+  }
+  html body .flyout-menu .flyout-menu__search form { position: relative; margin: 0; }
+  html body .flyout-menu .search-magnifier--flyout {
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    line-height: 0;
+  }
+  html body .flyout-menu .search-magnifier--flyout svg { stroke: var(--gb-muted); }
+  html body .flyout-menu .flyout-menu__search input[type=text] {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px 0 36px;
+    border: 0;
+    border-radius: var(--gb-radius-pill);
+    background: #fff;
+    color: var(--gb-text);
+    font-size: 16px;
+    line-height: normal;
+  }
+  html body .flyout-menu .flyout-menu__avatar {
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    padding: 8px 16px;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+  }
+  html body .flyout-menu .flyout-menu__avatar a { height: auto; line-height: 1.4; }
+  html body .flyout-menu .flyout-menu__avatar a:first-child { width: auto; line-height: 0; }
+  html body .flyout-menu .flyout-menu__avatar .avatar { width: 32px; height: 32px; }
+  html body .flyout-menu .flyout-menu__avatar .user { padding: 0; color: #fff; font-weight: var(--gb-fw-medium); }
+
+  /* menu rows: 44px touch targets (project / global / profile menus only) */
+  html body .flyout-menu :is(.js-project-menu, .js-general-menu, .js-profile-menu) ul li a,
+  html body .flyout-menu :is(.js-project-menu, .js-general-menu, .js-profile-menu) ul li:first-child a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px;
+    margin: 0;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 0;
+    line-height: 1.3;
+    color: var(--gb-nav-text);
+    font-weight: var(--gb-fw-medium);
+    background: transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  html body .flyout-menu :is(.js-project-menu, .js-general-menu, .js-profile-menu) ul li a:hover,
+  html body .flyout-menu :is(.js-project-menu, .js-general-menu, .js-profile-menu) ul li a:focus-visible {
+    background: var(--gb-nav-active);
+    color: #fff;
+    text-decoration: none;
+  }
+  html body .flyout-menu :is(.js-project-menu, .js-general-menu, .js-profile-menu) ul li a:focus-visible { box-shadow: var(--gb-focus-ring-inset); outline: none; }
+  html body .flyout-menu :is(.js-project-menu, .js-general-menu, .js-profile-menu) ul li a.selected {
+    background: var(--gb-nav-active);
+    color: #fff;
+    box-shadow: inset 3px 0 0 var(--gb-primary);
+  }
+  html body .flyout-menu :is(.js-project-menu, .js-general-menu, .js-profile-menu) ul li a svg { flex: none; width: 18px; height: 18px; stroke: currentColor; }
+  html body .flyout-menu .js-project-menu ul li a .gb-label { overflow: hidden; text-overflow: ellipsis; }
+  /* the new-object "+" dropdown has no place in the drawer (core hides it too) */
+  html body .flyout-menu .js-project-menu ul li:has(> a.new-object),
+  html body .flyout-menu .new-object ~ .menu-children { display: none; }
+  /* the drawer itself takes focus on open (no on-screen keyboard); no ring around the whole panel */
+  html body .flyout-menu.js-flyout-menu:is(:focus, :focus-visible) { outline: none; box-shadow: var(--gb-shadow-lg); }
+  html body .flyout-menu .js-general-menu ul li a.help { display: none; }
+
+  /* #sidebar contents (queries, watchers, wiki / version links, activity filters …) become one more
+     drawer section in the drawer's own dark style: muted section heading, 40px full-bleed link rows,
+     light text; form controls keep their white fields like the drawer search */
+  html body .flyout-menu .flyout-menu__sidebar { display: block; padding: 0; }
+  html body .flyout-menu .flyout-menu__sidebar > #sidebar-switch-panel { display: none; }
+  html body .flyout-menu .flyout-menu__sidebar #sidebar-wrapper {
+    margin: 8px 0 0;
+    padding: 0 16px 8px;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 0;
+    background: transparent;
+    color: var(--gb-nav-text);
+    font-size: var(--gb-fs-md);
+    line-height: var(--gb-lh);
+  }
+  html body .flyout-menu .flyout-menu__sidebar #sidebar-wrapper:empty,
+  html body .flyout-menu .flyout-menu__sidebar #sidebar-wrapper:not(:has(> *)) { display: none; }
+  html body .flyout-menu #sidebar-wrapper h3,
+  html body .flyout-menu #sidebar-wrapper form h3,
+  html body .flyout-menu #sidebar-wrapper form label.gb-act-filter__label {
+    display: block;
+    height: auto;
+    margin: 0;
+    padding: 16px 0 6px;
+    border: 0;
+    background: transparent;
+    color: rgba(207, 224, 218, .62);
+    font-size: var(--gb-fs-xs);
+    font-weight: var(--gb-fw-bold);
+    line-height: 1.4;
+    letter-spacing: .08em;
+  }
+  html body .flyout-menu #sidebar-wrapper > *,
+  html body .flyout-menu #sidebar-wrapper > form,
+  html body .flyout-menu #sidebar-wrapper > div { padding-left: 0; padding-right: 0; }
+  html body .flyout-menu #sidebar-wrapper p { margin: 0 0 8px; color: var(--gb-nav-text); }
+  html body .flyout-menu #sidebar-wrapper ul,
+  html body .flyout-menu #sidebar-wrapper form > ul { margin: 0; padding: 0; list-style: none; }
+  html body .flyout-menu #sidebar-wrapper ul li,
+  html body .flyout-menu #sidebar-wrapper ul.queries li,
+  html body .flyout-menu #sidebar-wrapper #watchers ul li,
+  html body .flyout-menu #sidebar-wrapper form > ul li { margin: 0; padding: 0; border: 0; line-height: var(--gb-lh); background: transparent; }
+  /* link rows: same 40px band, hover and selected state as the project menu above */
+  html body .flyout-menu #sidebar-wrapper ul li > a,
+  html body .flyout-menu #sidebar-wrapper ul li > a:link,
+  html body .flyout-menu #sidebar-wrapper ul li > a:visited {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    height: auto;
+    margin: 0 -16px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--gb-nav-text);
+    font-weight: var(--gb-fw-medium);
+    line-height: 1.4;
+    white-space: normal;
+    overflow: visible;
+    text-decoration: none;
+  }
+  html body .flyout-menu #sidebar-wrapper ul li > a:not(:has(svg, .gb-avatar, .avatar)) { padding-left: 44px; }
+  html body .flyout-menu #sidebar-wrapper :is(h3, form h3) { padding-left: 0; }
+  html body .flyout-menu #sidebar-wrapper ul li > a:hover,
+  html body .flyout-menu #sidebar-wrapper ul li > a:focus-visible { background: var(--gb-nav-active); color: #fff; text-decoration: none; }
+  html body .flyout-menu #sidebar-wrapper ul li > a:focus-visible { outline: none; box-shadow: var(--gb-focus-ring-inset); }
+  html body .flyout-menu #sidebar-wrapper ul li > a.selected {
+    background: var(--gb-nav-active);
+    color: #fff;
+    box-shadow: inset 3px 0 0 var(--gb-primary);
+  }
+  /* other links (追加 / 編集 / すべて表示 …) and icons */
+  html body .flyout-menu #sidebar-wrapper a:not(ul li > a),
+  html body .flyout-menu #sidebar-wrapper a:not(ul li > a):link,
+  html body .flyout-menu #sidebar-wrapper a:not(ul li > a):visited { color: var(--gb-primary-border); }
+  html body .flyout-menu #sidebar-wrapper :is(.icon, .icon-only) svg { stroke: currentColor; }
+  html body .flyout-menu #sidebar-wrapper label { color: var(--gb-nav-text); }
+  html body .flyout-menu #sidebar-wrapper ul li > label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    margin: 0;
+    cursor: pointer;
+  }
+  /* checkbox rows (activity filters: the checkbox sits outside its label) */
+  html body .flyout-menu #sidebar-wrapper ul li:has(> input[type=checkbox]) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+  }
+  html body .flyout-menu #sidebar-wrapper ul li > label > a,
+  html body .flyout-menu #sidebar-wrapper ul li > label > a:link,
+  html body .flyout-menu #sidebar-wrapper ul li > label > a:visited {
+    display: inline;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--gb-nav-text);
+    line-height: 1.4;
+    text-decoration: none;
+  }
+  html body .flyout-menu #sidebar-wrapper input[type=checkbox] { margin: 0; }
+  html body .flyout-menu #sidebar-wrapper :is(input[type=date], input[type=text], select) {
+    max-width: 100%;
+    height: 44px;
+    min-height: 44px;
+    color: var(--gb-text);
+    font-size: 16px;
+  }
+  html body .flyout-menu #sidebar-wrapper :is(input[type=submit], button) { min-height: 44px; font-size: var(--gb-fs-md); }
+  html body .flyout-menu #sidebar-wrapper p.buttons,
+  html body .flyout-menu #sidebar-wrapper form > p:last-child { margin: 8px 0 4px; }
+  html body .flyout-menu #sidebar-wrapper #watchers .user,
+  html body .flyout-menu #sidebar-wrapper #watchers a.user { color: var(--gb-nav-text); }
+  /* section actions (追加 / サイドバーを編集) sit on the heading line, right-aligned */
+  html body .flyout-menu .flyout-menu__sidebar #sidebar-wrapper,
+  html body .flyout-menu #sidebar-wrapper :is(#watchers, .gb-wiki-tree-section) { position: relative; }
+  html body .flyout-menu #sidebar-wrapper .contextual {
+    position: absolute;
+    top: 10px;
+    right: 0;
+    display: flex;
+    gap: 4px;
+    float: none;
+    margin: 0;
+  }
+  html body .flyout-menu #sidebar-wrapper .contextual a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 28px;
+    padding: 0 4px;
+    border: 0;
+    background: transparent;
+  }
+  html body .flyout-menu #sidebar-wrapper .contextual a.icon:has(svg) .icon-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  /* icons: one size; core's flyout separators between links do not belong to these rows */
+  html body .flyout-menu #sidebar-wrapper svg { flex: none; width: 16px; height: 16px; stroke: currentColor; }
+  html body .flyout-menu #sidebar-wrapper ul li > a svg { width: 18px; height: 18px; }
+  html body .flyout-menu #sidebar-wrapper a { border: 0; }
+  html body .flyout-menu #sidebar-wrapper h3 :is(.gb-wiki-tree-count, .gb-wiki-count, .gb-count) {
+    margin-left: 6px;
+    background: rgba(255, 255, 255, .12);
+    color: var(--gb-nav-text);
+  }
+  /* wiki page tree (65-wiki): dark rows like the menu, current page marked like the selected menu item */
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section { margin: 4px 0 0; padding: 0; border: 0; }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree { border-color: rgba(255, 255, 255, .12); }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-row {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-row > a,
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-row > a:link,
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-row > a:visited {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    height: auto;
+    padding: 0;
+    background: transparent;
+    color: var(--gb-nav-text);
+    font-weight: var(--gb-fw-medium);
+    line-height: 1.4;
+  }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-row:hover { background: var(--gb-nav-active); }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-row:hover > a { color: #fff; }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-row.gb-current {
+    background: var(--gb-nav-active);
+    box-shadow: inset 3px 0 0 var(--gb-primary);
+  }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-row.gb-current > a { color: #fff; }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-toggle {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border: 0;
+    background: transparent;
+    color: var(--gb-nav-text);
+  }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-toggle:hover { background: rgba(255, 255, 255, .08); }
+  html body .flyout-menu .contextual { float: none; }
+  /* sections whose menu ended up empty (the profile links live in the top bar's user menu);
+     marked by 95-responsive.js because :has() cannot be nested */
+  html body .flyout-menu h3.gb-m-empty-section,
+  html body .flyout-menu .gb-m-empty-section + :is(.js-project-menu, .js-general-menu, .js-profile-menu) { display: none; }
+
+  /* ---------- page header row: title and actions wrap instead of overflowing ---------- */
+  html body #content > .contextual {
+    float: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin: 0 0 12px;
+    padding: 0;
+    white-space: normal;
+  }
+  html body #content > .contextual:not(:has(*)) { display: none; }
+  /* actions that come first in the DOM share one row with the title (h2) or the breadcrumb:
+     actions float right, the title takes the remaining width, the next block starts below both */
+  html body #content > .contextual:first-of-type:has(+ h2, + p.breadcrumb) {
+    float: right;
+    width: auto;
+    max-width: 68%;
+    justify-content: flex-end;
+    margin: 0 0 8px 12px;
+  }
+  html body #content > .contextual:first-of-type + :is(h2, p.breadcrumb) { display: flow-root; }
+  html body #content > .contextual:first-of-type + :is(h2, p.breadcrumb) + * { clear: both; }
+  /* the title would wrap beside the actions (measured by 95-responsive.js): title on its own row,
+     actions right-aligned below it */
+  html body #content.gb-m-title-stack { display: flex; flex-direction: column; }
+  html body #content.gb-m-title-stack > * { order: 3; min-width: 0; }
+  html body #content.gb-m-title-stack > .contextual:first-of-type + h2 { order: 1; margin-bottom: 8px; }
+  html body #wrapper #content.gb-m-title-stack > .contextual:first-of-type {
+    order: 2;
+    float: none;
+    width: 100%;
+    max-width: none;
+    justify-content: flex-end;
+    margin: 0 0 12px;
+  }
+  html body #content.gb-m-title-stack > .contextual:first-of-type > form:not(:has(*)) { display: none; }
+  /* undo core's 9px bordered mobile buttons; the theme's own button styles apply again */
+  html body #content > .contextual > a,
+  html body p.buttons a {
+    margin: 0;
+    padding: 0 8px;
+    border: 0;
+    font-weight: var(--gb-fw-medium);
+  }
+  html body #content > .contextual .drdn {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+  }
+  html body #content > .contextual .drdn-content { top: calc(100% + 4px); left: auto; right: 0; }
+  html body #content > .contextual .drdn .drdn-content a { padding-top: 0; padding-bottom: 0; }
+
+  /* ---------- tables: scroll sideways inside their card, never the page ---------- */
+  html body #content .autoscroll,
+  html body .gb-m-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  html body .gb-m-scroll { display: block; }
+  html body #content .autoscroll > table.list,
+  html body .gb-m-scroll > table { min-width: 100%; }
+  html body #content table.list td.subject { min-width: 200px; }
+  /* roadmap / version related issues: the subject shrinks (ellipsis) so the row fits without scrolling */
+  html body #content table.list.related-issues td.subject {
+    min-width: 0;
+    max-width: 0;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* ---------- forms: single column, full-width controls ---------- */
+  html body #content .splitcontent { flex-wrap: wrap; }
+  html body .splitcontentleft,
+  html body .splitcontentright { width: 100%; float: none; }
+  html body .tabular p, html body .tabular.settings p { padding-left: 0; }
+  html body .tabular label, html body .tabular.settings label { float: none; width: auto; margin-left: 0; text-align: left; }
+  html body #content input[type=text], html body #content input[type=password], html body #content input[type=email],
+  html body #content input[type=url], html body #content input[type=number], html body #content select,
+  html body #content textarea { max-width: 100%; }
+  html body #content pre { max-width: 100%; overflow-x: auto; }
+  html body #content img { max-width: 100%; height: auto; }
+
+  /* sticky issue header sits under our 52px bar (core assumes its 64px header) */
+  html body div#sticky-issue-header { top: var(--gb-topbar-h); }
+  html body.controller-issues.action-show div#sticky-issue-header { padding: 0 var(--gb-m-gutter); }
+
+  /* modals: full width (beats 10-global's `.ui-dialog.ui-widget.ui-widget-content` max-width) */
+  html body .ui-dialog,
+  html body .ui-dialog.ui-widget.ui-widget-content { max-width: calc(100vw - 16px); margin: 0; }
+
+  /* tab bars (settings, project settings, issue history …): one scrollable row with a right-edge fade,
+     core's ‹ › scroll buttons are not needed. render_tabs always prints .tabs-buttons (editor tabs never do) */
+  html body #wrapper #content div.tabs:has(> .tabs-buttons) > ul {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    white-space: nowrap;
+  }
+  html body #wrapper #content div.tabs:has(> .tabs-buttons) > ul::-webkit-scrollbar { display: none; }
+  html body #wrapper #content div.tabs:has(> .tabs-buttons) > ul > li { flex: none; display: block; }
+  html body #wrapper #content div.tabs:has(> .tabs-buttons) > ul > li:last-child { padding-right: 24px; }
+  html body #wrapper #content div.tabs:has(> .tabs-buttons) > .tabs-buttons { display: none !important; /* core toggles inline display */ }
+
+}
+
+/* issue page, 子課題 / 関連する課題 rows while the section is wide enough for one-line rows (50-issue-detail switches
+   to two-line rows at a 600px container): undo core's < 900 phone layout (floated block cells, the actions
+   absolutely positioned over the due date, 1em row spacing), so the rows are the desktop table rows */
+@media screen and (max-width: 899px) {
+  @container (min-width: 601px) {
+    html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues { table-layout: auto; border-spacing: 0; }
+    html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues > tbody > tr > td:is(.subject, .status, .assigned_to, .due_date, .buttons) {
+      display: table-cell;
+      float: none;
+    }
+    /* the subject gets all the room; the other cells shrink to their content (the fixed 84 / 36 / 88px
+       columns broke 「ログイン画面のデザイン調整」 into two lines and cut 「2026/11/18」) */
+    html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues > tbody > tr > td.subject { width: 100%; padding-right: 8px; }
+    html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues > tbody > tr > td:is(.status, .assigned_to, .due_date, .buttons) { width: 1%; white-space: nowrap; }
+    html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues > tbody > tr > td:is(.status, .assigned_to, .due_date) { padding-left: 8px; padding-right: 0; }
+    html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues > tbody > tr > td.due_date { padding-right: 4px; }
+    /* empty assignee / due: no 「– –」 pair squeezed next to the pill, the cell simply takes no room */
+    html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues > tbody > tr > td:is(.assigned_to, .due_date):empty { padding: 0; }
+    html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues > tbody > tr > td:is(.assigned_to, .due_date):empty::before { content: none; }
+    html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues > tbody > tr > td.buttons { position: static; }
+  }
+}
+
+/* ---------- 768–899: the closed drawer stays on screen as the 56px icon rail (DESIGN §3.9) ----------
+   Inside a project the drawer's project menu shows as icons only in a fixed dark column under the hamburger
+   (same width, so the two line up); the hamburger still expands it to the full 280px drawer with labels,
+   search, sidebar and the global links. Outside a project (no project menu) nothing changes. */
+@media screen and (min-width: 768px) and (max-width: 899px) {
+  :root { --gb-m-burger: 56px; }
+  html:has(body .flyout-menu .js-project-menu > ul > li),
+  html.gb-nav-collapsed:has(body .flyout-menu .js-project-menu > ul > li) { --gb-nav-w: var(--gb-sidebar-rail); }
+  html:has(body .flyout-menu .js-project-menu > ul > li) body #main,
+  html:has(body .flyout-menu .js-project-menu > ul > li) body #footer { margin-left: var(--gb-nav-w); }
+
+  html:not(.flyout-is-active) body .flyout-menu:has(.js-project-menu > ul > li) {
+    width: var(--gb-nav-w);
+    padding: 8px 0 24px;
+    box-shadow: none;
+    transform: none;
+    visibility: visible;
+    scrollbar-width: none;
+  }
+  html:not(.flyout-is-active) body .flyout-menu:has(.js-project-menu > ul > li)::-webkit-scrollbar { display: none; }
+  html.gb-anim body .flyout-menu { transition: width var(--gb-dur-2) var(--gb-ease), box-shadow var(--gb-dur-2) var(--gb-ease); }
+  html:not(.flyout-is-active) body .flyout-menu:has(.js-project-menu > ul > li) > :not(.js-project-menu) { display: none; }
+  html:not(.flyout-is-active) body .flyout-menu .js-project-menu ul li a,
+  html:not(.flyout-is-active) body .flyout-menu .js-project-menu ul li:first-child a {
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+  }
+  html:not(.flyout-is-active) body .flyout-menu .js-project-menu ul li a .gb-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  html:not(.flyout-is-active) body .flyout-menu .js-project-menu ul li a svg { width: 20px; height: 20px; }
+}
+
+/* roadmap / version pages: #content is not a card there, so the title row gets the card inset itself
+   (12px: the same x as the titles inside the card pages) */
+@media screen and (max-width: 899px) {
+  html body.controller-versions #wrapper #content > h2 { padding-left: 12px; }
+  html body.controller-versions #wrapper #content > .contextual:first-of-type { margin-right: 4px; margin-left: 8px; gap: 0; }
+  html body.controller-versions #wrapper #content > .contextual:first-of-type > .drdn > .drdn-trigger { width: 36px; min-width: 36px; }
+
+  /* project settings: the identifier is as wide as the other fields (it kept its 320px desktop cap) */
+  html body.controller-projects.action-settings #content #tab-content-info :is(input#project_identifier, select#project_parent_id) { width: 100%; max-width: none; box-sizing: border-box; }
+  html body.controller-versions #content .gb-filter-note__link { display: inline-block; white-space: nowrap; }
+}
+
+/* board swimlane title wrapper (95-responsive.js): no box of its own on wider screens */
+.controller-issues_panel #content table.issues-panel tr.group > td > .gb-m-lane { display: contents; }
+.controller-issues_panel #content table.issues-panel tr.group > td > .gb-m-lane > * { vertical-align: middle; }
+@media screen and (max-width: 767px) {
+  /* phones: the lane title stays at the left edge while the board snaps to the 2nd, 3rd … column */
+  html body.controller-issues_panel #content table.issues-panel tr.group > td > .gb-m-lane {
+    display: inline-flex;
+    align-items: center;
+    position: sticky;
+    left: 16px;
+    max-width: calc(84vw - 8px);
+  }
+  html body.controller-issues_panel #content table.issues-panel tr.group > td > .gb-m-lane > .name { min-width: 0; }
+}
+
+/* ---------- < 768: issue list as stacked cards (DESIGN §3.9) ---------- */
+@media screen and (max-width: 767px) {
+  html body.controller-issues.action-index #content .autoscroll:has(> table.list.issues) {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  html body.controller-issues.action-index #content table.list.issues,
+  html body.controller-issues.action-index #content table.list.issues > tbody {
+    display: block;
+    width: 100%;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    overflow: visible;
+  }
+  html body.controller-issues.action-index #content table.list.issues > thead { display: none; }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: flex-start;
+    gap: 6px 8px;
+    height: auto;
+    min-height: 0;
+    margin: 0 0 8px;
+    padding: 12px 8px 12px 12px;
+    border: 1px solid var(--gb-border);
+    border-radius: var(--gb-radius);
+    background: var(--gb-surface);
+  }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td {
+    display: none;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    height: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    white-space: nowrap;
+  }
+  /* line 1: tracker badge + key … status pill + "…" */
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.tracker { display: block; order: 1; }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.id { display: block; order: 2; font-size: var(--gb-fs-sm); }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.status { display: block; order: 3; margin-left: auto; }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.buttons {
+    display: block;
+    order: 4;
+    position: static;
+    width: auto;
+    margin: -4px 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.buttons a.icon-only { width: 32px; height: 32px; }
+  /* line 2: subject */
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.subject {
+    display: block;
+    order: 5;
+    flex: 1 0 100%;
+    padding: 0;
+    white-space: normal;
+    font-size: 15px;
+    font-weight: var(--gb-fw-medium);
+    line-height: 1.5;
+  }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.subject a { font-size: inherit; font-weight: inherit; }
+  /* line 3: assignee, due date, priority */
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td:is(.assigned_to, .due_date, .priority) {
+    display: block;
+    font-size: var(--gb-fs-sm);
+    color: var(--gb-text-2);
+  }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.assigned_to { order: 6; max-width: 60%; overflow: hidden; text-overflow: ellipsis; }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.assigned_to .gb-user-chip { max-width: 100%; }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.due_date { order: 7; }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.priority { order: 8; }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td:is(.assigned_to, .due_date):empty { display: none; }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.due_date:not(:empty)::before { content: "期限日 "; color: var(--gb-muted); }
+  /* group headers and description / last-notes rows: full-width blocks */
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.group { display: block; margin: 16px 0 8px; background: transparent; }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.group > td {
+    display: block;
+    height: auto;
+    padding: 4px 2px;
+    border: 0;
+    background: transparent;
+    white-space: normal;
+  }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue + tr:not(.issue):not(.group) {
+    display: block;
+    margin: -8px 0 8px;
+    padding: 0 12px 12px;
+    border: 1px solid var(--gb-border);
+    border-top: 0;
+    border-radius: 0 0 var(--gb-radius) var(--gb-radius);
+    background: var(--gb-surface);
+  }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue:has(+ tr:not(.issue):not(.group)) { border-radius: var(--gb-radius) var(--gb-radius) 0 0; border-bottom: 0; }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue + tr:not(.issue):not(.group) > td { display: block; padding: 0; border: 0; }
+
+  /* subtasks / relations on the issue page (2-line rows from 50-issue-detail.css): the unlink / … buttons
+     sit at the right of line 1 next to the subject; status, assignee and due date fill line 2 */
+  html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues > tbody > tr[data-gb-sub] > td.subject {
+    order: 1;
+    flex: 1 1 calc(100% - 80px);
+    min-width: 0;
+  }
+  html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues > tbody > tr[data-gb-sub] > td.subject > :is(.gb-rel-type, .gb-tracker, a.gb-issue-key) {
+    white-space: nowrap;
+  }
+  html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues > tbody > tr[data-gb-sub] > td.buttons {
+    order: 2;
+    position: static;
+    flex: none;
+    margin: 0 0 0 auto;
+    padding: 0 0 4px;
+    background: transparent;
+    box-shadow: none;
+  }
+  html body.controller-issues.action-show #content :is(#issue_tree, #relations) table.list.issues > tbody > tr[data-gb-sub] > td:not(.subject):not(.buttons) { order: 3; }
+  /* the last section before the history tabs ends like 子課題 does — 16px under its content and a 1px rule —
+     whether it lists issues or is empty (no :has(table) condition); the tab labels then start 24px under
+     the rule (the 40px tab row centres its 13px label: 11px + 13px) */
+  html body.controller-issues.action-show #content div.issue > #relations:last-child {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--gb-border);
+  }
+  html body.controller-issues.action-show #content > div.issue:has(> #relations:last-child) + #history > div.tabs:first-child { margin-top: 11px; }
+
+  html body.controller-issues.action-show #content > div.issue div.subject h3 { font-size: 20px; line-height: 1.4; }
+
+  /* issue detail: secondary actions live in the … menu (mirrored there by 95-responsive.js) */
+  html body #content .gb-issue-head > .contextual:has(.gb-m-mirror) > a.gb-m-secondary { display: none; }
+  html body #content .gb-issue-head > .contextual { flex-wrap: nowrap; }
+}
+/* issue detail, narrow issue column (< 640px: right sidebar open at 1024, tablets; marked .gb-m-np-head by
+   95-responsive.js): the prev / next pager leaves the subject row and sits at the right end of header row 1
+   (tracker · key · status … actions), so the subject gets the full width and no row is left holding the pager
+   alone. The header keeps that corner free. Phones (<= 480) put it on the author line (50-issue-detail). */
+@media screen and (min-width: 481px) {
+  html body.controller-issues.action-show #content:has(> div.issue.gb-m-np-head) { position: relative; }
+  /* >= 768 the secondary actions are visible: they take row 2 as a whole (as they already do when wrapped),
+     the title bar keeps the pager's corner of row 1 free */
+  html body.controller-issues.action-show #content:has(> div.issue.gb-m-np-head) > .gb-issue-head > .gb-issue-titlebar { padding-right: 156px; }
+  html body.controller-issues.action-show #content:has(> div.issue.gb-m-np-head) > .gb-issue-head > .contextual { flex: 1 0 100%; justify-content: flex-start; }
+  html body.controller-issues.action-show #content > div.issue.gb-m-np-head > .next-prev-links:not(.gb-np--inline) {
+    position: absolute;
+    top: 26px;
+    right: 24px;
+    float: none;
+    margin: 0;
+  }
+}
+@media screen and (min-width: 481px) and (max-width: 899px) {
+  html body.controller-issues.action-show #content > div.issue.gb-m-np-head > .next-prev-links:not(.gb-np--inline) { top: 18px; right: 16px; }
+}
+/* 481–767: only 「編集」 and … are left in the action bar; they stay on row 1, left of the pager */
+@media screen and (min-width: 481px) and (max-width: 767px) {
+  html body.controller-issues.action-show #content:has(> div.issue.gb-m-np-head) > .gb-issue-head { flex-wrap: nowrap; padding-right: 156px; }
+  html body.controller-issues.action-show #content:has(> div.issue.gb-m-np-head) > .gb-issue-head > .gb-issue-titlebar { padding-right: 0; }
+  html body.controller-issues.action-show #content:has(> div.issue.gb-m-np-head) > .gb-issue-head > .contextual { flex: none; }
+}
+@media screen and (min-width: 768px) {
+  html body #content .contextual .drdn-items > a.gb-m-mirror { display: none; }
+}
+/* issue list in table layout (>= 768) whose card is narrower than 900px — 768–899 with the icon rail, but also
+   900–1279 with the left nav expanded (a container query, so both cases get it): the date-time columns are the
+   widest and least needed ones and go; the subject gets the rest of the row: the assignee shows its avatar only
+   (name as tooltip / for screen readers) and the priority its arrow only (the 「優先度」 / 「担当者」 header texts
+   stay for screen readers), so subjects stay on one line instead of breaking mid-word next to half-empty columns */
+@media screen and (min-width: 768px) {
+  html body.controller-issues.action-index #content .autoscroll:has(> table.list.issues) { container: gb-issue-list / inline-size; }
+}
+@media screen and (min-width: 768px) {
+  @container gb-issue-list (max-width: 899px) {
+    html body.controller-issues.action-index #content table.list.issues :is(th, td):is(.updated_on, .created_on, .closed_on) { display: none; }
+    html body.controller-issues.action-index #content table.list.issues td.subject {
+      width: 100%;
+      min-width: 280px;
+    }
+    html body.controller-issues.action-index #content table.list.issues :is(th, td):is(.id, .tracker, .status, .priority, .assigned_to, .due_date, .start_date, .done_ratio) {
+      width: 1%;
+      padding-left: 6px;
+      padding-right: 6px;
+      white-space: nowrap;
+    }
+    html body.controller-issues.action-index #content table.list.issues :is(th, td).assigned_to { min-width: 0; max-width: none; text-align: center; text-overflow: clip; }
+    html body.controller-issues.action-index #content table.list.issues td.assigned_to .gb-user-chip { position: relative; display: inline-flex; vertical-align: middle; max-width: none; }
+    html body.controller-issues.action-index #content table.list.issues td.assigned_to .gb-user-chip > .gb-avatar { margin: 0; }
+    html body.controller-issues.action-index #content table.list.issues td.assigned_to .gb-user-chip > a.user {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border-radius: 50%;
+      color: transparent;
+      font-size: 0;
+    }
+    html body.controller-issues.action-index #content table.list.issues td.assigned_to .gb-user-chip > a.user:focus-visible { box-shadow: var(--gb-focus); }
+    /* priority: a 32px column holding the arrow, centred on the row like the pills and the key */
+    html body.controller-issues.action-index #content table.list.issues :is(th, td).priority {
+      width: 28px;
+      min-width: 28px;
+      max-width: 28px;
+      padding-left: 4px;
+      padding-right: 4px;
+      text-align: center;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    html body.controller-issues.action-index #content table.list.issues td.priority .gb-prio {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      height: 20px;
+      font-size: 0;
+      line-height: 1;
+    }
+    html body.controller-issues.action-index #content table.list.issues td.priority .gb-prio__arrow { display: flex; align-items: center; }
+    html body.controller-issues.action-index #content table.list.issues th:is(.priority, .assigned_to) > a {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+  }
+}
+
+/* 600–767 top bar: 課題の追加 is the icon-only square already (as on phones) and the search pill gives way,
+   so the project jump keeps its full label instead of being squeezed under the add button */
+@media screen and (min-width: 600px) and (max-width: 767px) {
+  html.gb-header-ready body #top-menu #quick-search { flex: 1 1 auto; }
+  html.gb-header-ready body #top-menu #quick-search form { flex: 1 1 auto; min-width: 0; }
+  html.gb-header-ready body #top-menu #quick-search input#q { width: 100%; min-width: 0; }
+  html body #project-jump.drdn,
+  html.gb-header-ready body #project-jump.drdn { flex: none; }
+  html body #top-menu a.gb-add-issue,
+  html body #top-menu a.gb-add-issue:link,
+  html body #top-menu a.gb-add-issue:visited {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+  html body #top-menu a.gb-add-issue span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* dashboard issue blocks: once a block is narrow enough that its rows are two-line cards (status folded into
+   the subject cell: 70-dashboard's 419px container step) the lone 「題名」 header row has nothing to label;
+   it stays for screen readers. Same condition as the cards, so it also applies in the 2-column grid at 1024 */
+@container (max-width: 419px) {
+  html body.controller-my.action-page #my-page .mypage-box table.list:has(.gb-subj__status) > thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* calendar as a day list (< 900): one chip look on every day — white card, 1px border, 6px radius, the status
+   stripe at the left — so the chips keep their outline on today's tint, weekends and other-month days
+   (the grey chip vanished into those backgrounds). The list has the room: every issue of a day is shown,
+   no 「+n件」 toggle */
+@media screen and (max-width: 899px) {
+  html body.controller-calendars #content ul.cal div.issue {
+    padding-right: 12px;
+    border: 1px solid var(--gb-border);
+    border-radius: 6px;
+    background: var(--gb-surface);
+  }
+  html body.controller-calendars #content ul.cal div.issue:hover { background: var(--gb-primary-softer); }
+  html body.controller-calendars #content ul.cal li.calbody div.issue.gb-cal-chip--extra { display: grid; }
+  html body.controller-calendars #content ul.cal li > .gb-cal-more { display: none; }
+}
+
+/* time report toolbar (< 768): the two 44px select rows are 12px apart like every other form row
+   (8px read as touching); クリア stays centred on the 追加 select */
+@media screen and (max-width: 767px) {
+  html body.controller-timelog.action-report #content #query_form > p:has(#columns) { row-gap: 12px; align-items: center; }
+}
+
+/* (text editor heights < 768px: C-editor, 15-c-editor.css) */
+
+/* ---------- phones ---------- */
+@media screen and (max-width: 599px) {
+  html body .gb-brand__name { display: none; }
+  html body #wrapper #top-menu a.gb-brand,
+  html body #wrapper #top-menu a.gb-brand:link,
+  html body #wrapper #top-menu a.gb-brand:visited { padding: 0 6px 0 10px; }
+  html.gb-header-ready body #top-menu { padding-right: 6px; }
+
+  /* search pill collapses to an icon; focusing it expands it across the whole bar */
+  html.gb-header-ready body #quick-search form { position: static; }
+  html.gb-header-ready body #quick-search input#q {
+    width: 36px;
+    height: 36px;
+    padding: 0 0 0 36px;
+    background-position: 10px 50%;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  html.gb-header-ready body #quick-search input#q::placeholder { color: transparent; }
+  html.gb-header-ready body #quick-search input#q:focus {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    padding: 0 12px 0 36px;
+    background-position: 12px 50%;
+    cursor: text;
+    z-index: 4;
+  }
+  html.gb-header-ready body #quick-search input#q:focus::placeholder { color: var(--gb-muted); }
+
+  html body #project-jump.drdn,
+  html.gb-header-ready body #project-jump.drdn { max-width: none; flex: 0 1 auto; }
+  html body #project-jump.drdn .drdn-trigger { height: 36px; line-height: 34px; padding: 0 28px 0 10px; background-position: right 6px center; }
+
+  /* 課題の追加: icon-only square */
+  html body #top-menu a.gb-add-issue,
+  html body #top-menu a.gb-add-issue:link,
+  html body #top-menu a.gb-add-issue:visited {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+  html body #top-menu a.gb-add-issue span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  html body #top-menu button.gb-user__btn { padding: 0 4px; }
+  html body .gb-user__menu { position: fixed; top: calc(var(--gb-topbar-h) + 4px); right: 8px; }
+
+  html body #main { padding: 8px 8px 8px; }
+
+  /* issue author line and journal headers: name on line 1, 「さんが…前に更新」 on line 2 (as one run of text,
+     so it never breaks inside 「1日前」 the way separate flex items did) */
+  html body.controller-issues.action-show #content div.issue p.author {
+    display: block;
+    position: relative;
+    min-height: 28px;
+    padding-left: 36px;
+    line-height: 1.5;
+  }
+  html body.controller-issues.action-show #content div.issue p.author > .gb-avatar {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+  }
+  html body.controller-issues.action-show #content div.issue p.author > a.user,
+  html body.controller-issues.action-show #content .journal-header .journal-info > a.user { display: block; }
+  html body.controller-issues.action-show #content .journal-header .journal-info { display: block; min-width: 0; line-height: 1.5; }
+  html body #content > h2 { font-size: var(--gb-fs-xl); line-height: 1.4; }
+  html body #content #issue-form .gb-form-actions input[type=submit][name=commit],
+  html body #content #bulk_edit_form .gb-form-actions input[type=submit]:first-of-type { flex: 1 1 auto; }
+
+  /* touch: 16px inputs (no iOS zoom), 44px controls. Two IDs so the per-feature 14px rules
+     (`#issue-form select:not([multiple])` …) lose */
+  html body #wrapper #content :is(input:is([type=text], [type=password], [type=email], [type=url], [type=number], [type=date], [type=search], [type=tel], :not([type])), select, textarea),
+  html body .ui-dialog #ajax-modal :is(input:is([type=text], [type=password], [type=email], [type=url], [type=number], [type=date], [type=search], [type=tel], :not([type])), select, textarea),
+  html body .ui-dialog .ui-dialog-content :is(input:is([type=text], [type=password], [type=email], [type=url], [type=number], [type=date], [type=search], [type=tel], :not([type])), select, textarea),
+  html body #wrapper #top-menu #quick-search input#q,
+  html body #wrapper .flyout-menu input#flyout-search { font-size: 16px; }
+  html body #content input[type=text], html body #content input[type=password], html body #content input[type=email],
+  html body #content input[type=url], html body #content input[type=number], html body #content input[type=date],
+  html body #content select:not([multiple]) { min-height: 44px; }
+
+  /* attachment lists: each file wraps onto its own lines instead of a wide table row */
+  html body div.attachments table,
+  html body div.attachments table > tbody { display: block; width: 100%; }
+  html body div.attachments table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+    padding: 6px 0;
+  }
+  html body div.attachments table td { display: block; height: auto; padding: 0; border: 0; min-width: 0; max-width: 100%; }
+  /* line 1: file name + size + download … delete; line 2: author, date (under the file name) */
+  html body div.attachments table tr { height: auto; padding: 8px 0 12px; border-bottom: 1px solid var(--gb-border); }
+  html body div.attachments table tr:last-child { border-bottom: 0; padding-bottom: 4px; }
+  html body div.attachments table td:first-child { flex: 1 1 0; order: 1; }
+  html body div.attachments table td:empty { display: none; }
+  html body div.attachments table td:has(> a.delete, > a.icon-del) { order: 2; flex: none; margin-left: auto; }
+  html body div.attachments table td:has(> span.author) {
+    order: 3;
+    flex: 1 0 100%;
+    width: 100%;
+    padding-left: 26px;
+    line-height: 1.5;
+  }
+  html body div.attachments table td > span.author { display: block; white-space: normal; }
+
+  /* modals: full-screen sheet; jQuery UI writes width / left / top inline, hence !important */
+  html body .ui-dialog,
+  html body .ui-dialog.ui-widget.ui-widget-content {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: 100vw !important;
+    max-width: 100vw;
+    height: 100vh !important;
+    height: 100dvh !important;
+    margin: 0;
+    border-radius: 0;
+    overflow: hidden;
+  }
+  html body .ui-dialog .ui-dialog-titlebar { flex: none; padding: 14px 56px 14px 16px; }
+  html body .ui-dialog.ui-widget > .ui-dialog-content.ui-widget-content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 16px 16px 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  html body .ui-dialog.ui-widget > .ui-dialog-content > form { display: flex; flex-direction: column; flex: 1 0 auto; }
+  html body .ui-dialog.ui-widget > .ui-dialog-content :is(input, select, textarea):not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]) { max-width: 100%; box-sizing: border-box; }
+  html body .ui-dialog.ui-widget > .ui-dialog-content .tabular p { padding-left: 0; }
+  html body .ui-dialog.ui-widget > .ui-dialog-content .tabular label { float: none; display: block; width: auto; margin: 0 0 6px; text-align: left; }
+  html body .ui-dialog.ui-widget > .ui-dialog-content .tabular input[type=text],
+  html body .ui-dialog.ui-widget > .ui-dialog-content .tabular select { width: 100%; }
+  html body .ui-dialog.ui-widget > .ui-dialog-content :is(input:is([type=text], [type=date], [type=number], [type=email], :not([type])), select:not([multiple])) { min-height: 44px; }
+  /* footer: sticky at the bottom of the sheet, primary button fills the row */
+  html body .ui-dialog.ui-widget > .ui-dialog-content p.buttons {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin: auto -16px 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: var(--gb-surface);
+    border-top: 1px solid var(--gb-border);
+  }
+  html body .ui-dialog.ui-widget > .ui-dialog-content p.buttons > input[type=submit]:first-of-type { flex: 1; min-height: 44px; }
+  html body .ui-dialog.ui-widget > .ui-dialog-content p.buttons > :is(a, button, input:not(:first-of-type)) { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  html body .ui-dialog .ui-dialog-buttonpane { flex: none; padding: 12px 16px; }
+
+  /* search results: line 1 project + date, line 2 title, line 3 excerpt */
+  html body #wrapper #content #search-results > dt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 2px;
+  }
+  html body #wrapper #content #search-results > dt > svg { order: 0; flex: none; }
+  html body #wrapper #content #search-results > dt > .project {
+    order: 1;
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: var(--gb-text-2);
+  }
+  html body #wrapper #content #search-results > dt > .author {
+    order: 2;
+    flex: none;
+    width: auto;
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--gb-muted);
+    white-space: nowrap;
+  }
+  html body #wrapper #content #search-results > dt > a {
+    order: 3;
+    flex: 1 0 100%;
+    width: 100%;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: var(--gb-fw-medium);
+    line-height: 1.5;
+    white-space: normal;
+  }
+  html body #wrapper #content #search-results > dd { margin-left: 0; padding-left: 0; }
+
+  /* calendar / gantt query bar: 月・年 (and ヶ月分) on the first row, 適用 / クリア on the second with the save
+     icon at the right, like the issue list; the selects match the 36px filter controls above them
+     (they were 44px next to 28px buttons, 「適用」 broke into two lines and クリア ran off the card) */
+  html body:is(.controller-calendars, .controller-gantts) #content #query_form p.buttons {
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 12px;
+  }
+  html body:is(.controller-calendars, .controller-gantts) #content #query_form p.buttons::before {
+    content: "";
+    order: 1;
+    flex: 0 0 100%;
+    height: 0;
+  }
+  html body:is(.controller-calendars, .controller-gantts) #content #query_form p.buttons > a.icon { order: 2; flex: none; white-space: nowrap; }
+  html body:is(.controller-calendars, .controller-gantts) #wrapper #content #query_form p.buttons :is(select, input[type=number]) {
+    height: 36px;
+    min-height: 36px;
+  }
+
+  /* roadmap / version: related issues as grid rows. The cell placement (row 1 = avatar, tracker, key … status, …;
+     row 2 = subject) is 75-project-pages' (three ids); this only turns the table into a stack of rows */
+  html body.controller-versions #wrapper #content table.list.related-issues,
+  html body.controller-versions #wrapper #content table.list.related-issues > tbody { display: block; width: 100%; }
+  html body.controller-versions #wrapper #content table.list.related-issues tr {
+    display: grid;
+    height: auto;
+    border-bottom: 1px solid var(--gb-border);
+  }
+  /* the card ends with its own padding: no rule under the last row */
+  html body.controller-versions #wrapper #main #content table.list.related-issues > tbody > tr:last-child { border-bottom: 0; }
+  html body.controller-versions #wrapper #content table.list.related-issues tr > td {
+    display: block;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    height: auto;
+    padding: 0;
+    border: 0;
+  }
+  html body.controller-versions #wrapper #content table.list.related-issues tr > td.checkbox { display: none; }
+  html body.controller-versions #wrapper #content table.list.related-issues > caption { display: block; width: auto; text-align: left; }
+
+  /* dashboard / project overview: #content is not a card there, so its blocks are the cards. They line up
+     with the card edge of every other page (8px from the screen) instead of sitting 20px in; the title row
+     keeps the 20px text inset of the card pages */
+  html body:is(.controller-my.action-page, .controller-projects.action-show) #main #content { padding-left: 0; padding-right: 0; }
+  /* 13px = card border + card padding: the page title starts on the same line as the card headings */
+  html body:is(.controller-my.action-page, .controller-projects.action-show) #content > :is(h2, .contextual) { margin-left: 13px; margin-right: 13px; }
+  html body:is(.controller-my.action-page, .controller-projects.action-show) #content > .contextual:first-of-type { max-width: calc(68% - 24px); }
+  html body.controller-my.action-page #wrapper #content .mypage-box,
+  html body.controller-projects.action-show #wrapper #content .splitcontent :is(.box, .wiki.gb-desc) { padding-left: 12px; padding-right: 12px; }
+  /* the issue tables bleed to the card edges by the card padding (70-dashboard uses 24px) */
+  html body.controller-my.action-page #wrapper #my-page .mypage-box .autoscroll { margin-left: -12px; margin-right: -12px; padding-left: 12px; padding-right: 12px; }
+
+}
+
+/* ---------- small phones ---------- */
+@media screen and (max-width: 479px) {
+  html body #main.nosidebar #content,
+  html body div#content { padding: 16px 12px; }
+  /* sticky submit bar: flush with the card edges (card padding 12px) and its bottom corners */
+  html body #content #issue-form .gb-form-actions,
+  html body #content #bulk_edit_form .gb-form-actions {
+    margin-left: -12px;
+    margin-right: -12px;
+    margin-bottom: -16px;
+    padding-left: 12px;
+    padding-right: 12px;
+    border-radius: 0 0 var(--gb-radius) var(--gb-radius);
+  }
+  html body #content #update.gb-compact #issue-form .gb-form-actions { margin-bottom: 0; border-radius: 0; }
+
+  /* date fields in the two-column form grid (~140px): the full yyyy/mm/dd must fit next to the picker icon */
+  html body #wrapper #content input[type=date] {
+    padding-left: 8px;
+    padding-right: 6px;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  html body #wrapper #content input[type=date]::-webkit-datetime-edit { padding: 0; }
+  html body #wrapper #content input[type=date]::-webkit-calendar-picker-indicator { margin: 0 0 0 2px; padding: 0; }
+
+  /* dashboard: the add-block select gets its own full-width row under the title */
+  html body.controller-my.action-page div#content { display: flex; flex-direction: column; }
+  html body.controller-my.action-page div#content > * { order: 3; min-width: 0; }
+  html body.controller-my.action-page div#content > h2 { order: 1; }
+  html body.controller-my.action-page #content > .contextual:first-of-type {
+    float: none;
+    width: 100%;
+    max-width: none;
+    margin: 0 0 12px;
+    order: 2;
+  }
+  html body.controller-my.action-page #content > .contextual:first-of-type #block-form,
+  html body.controller-my.action-page #content > .contextual:first-of-type #block-form select { width: 100%; flex: 1 1 auto; }
+  /* card headers: the title keeps one line (ellipsis), すべて見る stays at its right end */
+  html body.controller-my.action-page .mypage-box > h3 { min-width: 0; }
+  html body.controller-my.action-page .mypage-box > h3 > a:not(.gb-box-link) {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 15px;
+  }
+  html body.controller-my.action-page .mypage-box > h3 > .gb-count { flex: none; }
+  /* a title without its own link (最近の更新) stays on one line next to すべて見る */
+  html body.controller-my.action-page .mypage-box > h3 { white-space: nowrap; }
+  /* issue blocks are stacked two-line rows here: the lone 「題名」 column header has nothing to label */
+  html body.controller-my.action-page .mypage-box table.list.issues > thead { display: none; }
+  /* one left edge per card: the issue rows start on the card heading's line (the cell padding put the
+     tracker badges 8px inside it) and end on its right edge */
+  html body.controller-my.action-page #wrapper #my-page .mypage-box table.list.issues > tbody > tr > td.subject { padding-left: 0; }
+  html body.controller-my.action-page #wrapper #my-page .mypage-box table.list.issues > tbody > tr > td.buttons { padding-right: 0; }
+  /* the drop zones' 1px (transparent) border sat between the screen gutter and the cards: the cards line up
+     with the full-width add-block select above them */
+  html body.controller-my.action-page #wrapper #my-page .block-receiver { margin-left: -1px; margin-right: -1px; }
+}
+
+@media screen and (max-width: 374px) {
+  html body #project-jump.drdn .drdn-trigger { max-width: 110px; }
+}
+
+/* ---------- round 3 ---------- */
+
+/* time entries (< 768): every entry is a card instead of a squeezed table row —
+   line 1: tracker badge + key … hours (bold) + 「…」, line 2: the whole subject at full width (no clamp),
+   line 3: avatar + date + comment (one line, 12px grey). The header row stays for screen readers only */
+@media screen and (max-width: 767px) {
+  html body.controller-timelog #content table.time-entries,
+  html body.controller-timelog #content table.time-entries > tbody { display: block; width: 100%; min-width: 0; }
+  html body.controller-timelog #content table.time-entries > thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 6px;
+    height: auto;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--gb-border);
+  }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry > td {
+    display: none;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    height: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry > td.issue,
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry > td.issue > .gb-te-issue { display: contents; }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry .gb-te-issue > .gb-tracker { order: 1; flex: none; margin: 0; vertical-align: baseline; }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry .gb-te-issue > a.issue { order: 2; flex: none; line-height: 20px; }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry > td.hours {
+    display: block;
+    order: 3;
+    margin-left: auto;
+    font-size: 15px;
+    line-height: 20px;
+  }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry > td.buttons {
+    display: block;
+    order: 4;
+    flex: none;
+    margin: -10px -6px -10px -4px;
+  }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry > td.buttons a.icon-only.icon-actions {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+  }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry .gb-te-issue > .gb-te-subj {
+    order: 5;
+    flex: 0 0 100%;
+    width: auto;
+    min-width: 0;
+    margin: 0;
+    font-size: 15px;
+    font-weight: var(--gb-fw-medium);
+    line-height: 1.5;
+    color: var(--gb-text);
+  }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry > td.spent_on {
+    display: flex;
+    order: 6;
+    flex: none;
+    align-items: center;
+    font-size: var(--gb-fs-sm);
+    line-height: 18px;
+    color: var(--gb-text-2);
+  }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry > td.spent_on .gb-te-day-avatar { display: inline-grid; margin: 0 6px 0 0; }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry > td.spent_on .gb-te-year { display: none; }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry > td.issue .gb-te-note {
+    display: block;
+    order: 7;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    margin: 0;
+    font-size: var(--gb-fs-sm);
+    line-height: 18px;
+  }
+  html body.controller-timelog #content table.time-entries > tbody > tr.time-entry > td.issue .gb-te-note:empty { display: none; }
+}
+
+/* calendar day list (< 768): the date is the heading of its day block (full width, 13px/600, 8px above
+   the chips) and the chips take the whole card width; key and subject run on as one text
+   (「DEMO-15 [UIテスト] ボードレビュー用カード」), wrapping only where the line is full */
+@media screen and (max-width: 767px) {
+  html body.controller-calendars #content ul.cal > li.calbody {
+    display: block;
+    padding: 12px 10px;
+  }
+  html body.controller-calendars #content ul.cal > li.calbody > p.day-num {
+    display: block;
+    height: auto;
+    margin: 0 0 8px;
+    line-height: 20px;
+  }
+  html body.controller-calendars #content ul.cal > li.calbody > p.day-num .gb-cal-date {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  html body.controller-calendars #content ul.cal > li.calbody.gb-cal-empty { padding-top: 10px; padding-bottom: 10px; min-height: 0; }
+  html body.controller-calendars #content ul.cal > li.calbody.gb-cal-empty > p.day-num { margin-bottom: 0; }
+  html body.controller-calendars #content ul.cal > li.calbody div.issue,
+  html body.controller-calendars #content ul.cal > li.calbody div.issue:has(> svg) {
+    display: block;
+    padding: 7px 10px 7px 8px;
+    font-size: 13px;
+    line-height: 20px;
+    white-space: normal;
+  }
+  html body.controller-calendars #content ul.cal > li.calbody div.issue.gb-cal-chip--extra { display: block; }
+  html body.controller-calendars #content ul.cal > li.calbody div.issue > svg {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin: 0 4px 0 0;
+    vertical-align: -1px;
+  }
+  html body.controller-calendars #content ul.cal > li.calbody div.issue > a.issue {
+    display: inline;
+    overflow: visible;
+    white-space: nowrap;
+    font-size: 13px;
+    line-height: 20px;
+  }
+  html body.controller-calendars #content ul.cal > li.calbody div.issue .gb-cal-chip__subject { margin-top: 2px; }
+}
+/* milestone markers in the day list: the same 34px chip height, radius and text size as the issue chips */
+@media screen and (max-width: 767px) {
+  html body.controller-calendars #content ul.cal > li.calbody > span.icon-package {
+    padding: 7px 10px 7px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 20px;
+  }
+  html body.controller-calendars #content ul.cal > li.calbody > span.icon-package > svg { width: 14px; height: 14px; }
+}
+
+/* issue detail, compact comment panel (< 768): a bottom sheet over a dimmed page — fixed to the bottom
+   edge, 12px top corners, at most 85% of the screen; 閉じる / 登録 stay visible at its bottom while the
+   sheet scrolls. One white surface: no card inside the sheet. The dimmed backdrop (tap = 閉じる) and the
+   page scroll lock come from 95-responsive.js (html.gb-m-sheet-open) */
+@media screen and (max-width: 767px) {
+  html body.controller-issues #content #update.gb-compact:has(> #issue-form) {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: calc(var(--gb-z-modal) + 1);
+    max-height: 85vh;
+    max-height: 85dvh;
+    margin: 0;
+    padding: 16px 16px 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 0;
+    border-radius: 12px 12px 0 0;
+    background: var(--gb-surface);
+    box-shadow: 0 -8px 32px rgba(20, 30, 27, .18);
+    overscroll-behavior: contain;
+  }
+  html body #content #update.gb-compact #issue-form .box {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  html body #content #update.gb-compact #issue-form .gb-form-actions,
+  html body #wrapper #content #update.gb-compact #issue-form .gb-form-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin: 16px -16px 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--gb-border);
+    border-radius: 0;
+    background: var(--gb-surface);
+  }
+  /* one row: すべての項目を編集 (text link) at the left, 閉じる + 登録 at the right */
+  html body #wrapper #content #update.gb-compact #issue-form .gb-form-actions { flex-wrap: nowrap; column-gap: 8px; }
+  html body #wrapper #content #update.gb-compact #issue-form .gb-form-actions > .gb-edit-all {
+    flex: 0 1 auto;
+    min-width: 0;
+    margin: 0 auto 0 -8px;
+    padding: 0 8px;
+    white-space: nowrap;
+  }
+  html body #wrapper #content #update.gb-compact #issue-form .gb-form-actions > input[type=submit] { flex: none; min-width: 88px; }
+  html body #wrapper #content #update.gb-compact #issue-form .gb-form-actions > a.gb-cancel { flex: none; }
+  html.gb-m-sheet-open,
+  html.gb-m-sheet-open body { overflow: hidden; }
+  .gb-m-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--gb-z-modal);
+    background: rgba(20, 30, 27, .45);
+  }
+}
+@media screen and (min-width: 768px) {
+  .gb-m-sheet-backdrop { display: none; }
+}
+
+/* dashboard (< 768): the block header keeps 「すべて見る」 at its right end on every width; the drag handle
+   and × (block layout editing) are desktop tools and go — the options gear stays, as a 40px button at
+   the header's right end */
+@media screen and (max-width: 767px) {
+  html body.controller-my.action-page #my-page .mypage-box > .contextual:has(.sort-handle) { display: none; }
+  html body.controller-my.action-page #my-page .mypage-box > .contextual:has(.icon-settings) {
+    top: 14px;
+    right: 6px;
+    opacity: 1;
+  }
+  html body.controller-my.action-page #my-page .mypage-box > .contextual:has(.icon-settings) > a {
+    width: 40px;
+    height: 40px;
+  }
+  html body.controller-my.action-page #my-page .mypage-box > h3 .gb-box-link { display: inline-flex; flex: none; margin-right: 0; }
+  html body.controller-my.action-page #my-page .mypage-box:has(> .contextual .icon-settings) > h3 .gb-box-link { margin-right: 36px; }
+}
+
+/* dashboard issue cards (block <= 419px): the … button sits on the first line (the subject clamp is C-issue-row) */
+@container (max-width: 419px) {
+  html body.controller-my.action-page #my-page .mypage-box table.list tr:has(td.subject .gb-subj__status) > td.buttons { vertical-align: top; padding-top: 0; }
+}
+
+/* gantt on phones (<= 480): the subject column is min(62vw, 240px) and shows key + subject on one line
+   (the tracker name is in the title); rows end on the column edge */
+@media screen and (max-width: 480px) {
+  html body.controller-gantts #content table.gantt-table td.gantt_subjects_column {
+    width: min(62vw, 240px) !important; /* beats the inline width 75-project-pages.js / core write */
+    min-width: min(62vw, 240px) !important;
+  }
+  html body.controller-gantts #content table.gantt-table .gantt_subjects_container,
+  html body.controller-gantts #content table.gantt-table .gantt_subjects_container > .gantt_hdr {
+    width: calc(min(62vw, 240px) - 1px) !important; /* beats inline widths */
+  }
+  html body.controller-gantts #content .gantt_subjects :is(.issue-subject, .project-name, .version-name) {
+    right: 0;
+    width: auto !important; /* beats the inline row width */
+  }
+  html body.controller-gantts #content .gantt_subjects .issue-subject > span { font-size: 13px; }
+}
+/* gantt toolbar 481–899: 「[年] [月] から [6] ヶ月分」 + 適用 / クリア / save (icon) on one row,
+   zoom and 「« 10月」「12月 »」 on the next, right-aligned */
+@media screen and (min-width: 481px) and (max-width: 899px) {
+  html body.controller-gantts #content #query_form p.buttons::before { display: none; }
+  html body.controller-gantts #content #query_form p.buttons { flex-wrap: wrap; column-gap: 8px; }
+  html body.controller-gantts #query_form_with_buttons > p.contextual {
+    flex: 0 0 100%;
+    justify-content: flex-end;
+    margin-left: 0;
+  }
+}
+
+/* time report toolbar (< 768): 詳細 and 追加 are one label column + one full-width select column, so both
+   selects end on the same right edge; クリア sits under them at the right */
+@media screen and (max-width: 767px) {
+  html body.controller-timelog.action-report #content #query_form > p:has(#columns) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 12px 8px;
+  }
+  html body.controller-timelog.action-report #content #query_form > p:has(#columns) > .gb-report-pair { display: contents; }
+  html body.controller-timelog.action-report #content #query_form > p:has(#columns) select {
+    width: 100% !important; /* beats core's inline width: 200px */
+    min-width: 0;
+    max-width: none;
+  }
+  html body.controller-timelog.action-report #content #query_form > p:has(#columns) > a.icon-reload {
+    grid-column: 2;
+    justify-self: end;
+    margin: -4px 0 0;
+  }
+}
+
+/* ---------- print ---------- */
+@media print {
+  #top-menu, #header .mobile-toggle-button, #main-menu, #sidebar, .flyout-menu, #footer,
+  .gb-form-actions, #content > .contextual { display: none !important; }
+  #main, #content { padding: 0 !important; margin: 0 !important; border: 0 !important; box-shadow: none !important; max-width: none !important; }
+  body, #main { background: #fff !important; }
+}
+
+/* ==========================================================================
+   Round 7 (strict review round 4, 2026-11-24)
+   ========================================================================== */
+@media screen and (max-width: 767px) {
+  /* issue titles on /search, as the mobile issue card (DESIGN 3.9):
+     line 1 = tracker badge + status pill, line 2 = key + subject from the left edge */
+  html body dl#search-results > dt > .gb-issue-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 6px;
+  }
+  html body dl#search-results > dt > .gb-issue-title > :is(.gb-tracker, .gb-status) { margin: 0; }
+  html body dl#search-results > dt > .gb-issue-title > .gb-tracker { order: 1; }
+  html body dl#search-results > dt > .gb-issue-title > .gb-status { order: 2; }
+  html body dl#search-results > dt > .gb-issue-title > a,
+  html body dl#search-results > dt > .gb-issue-title > a:is(:link, :visited) {
+    order: 3;
+    flex: 1 1 100%;
+    display: block;
+  }
+}
+
+/* ---------- .autoscroll edge fades (DESIGN §3.9): users, admin projects, settings lists … ----------
+   95-responsive.js marks an .autoscroll that is wider than its box (.gb-scroll-x) and which edge it is
+   scrolled to (.gb-scroll-start / .gb-scroll-end). Content cut at an edge fades out instead of ending
+   mid-glyph. Only active while a table overflows, so lists that fit render exactly as before. */
+html body #content .autoscroll.gb-scroll-x {
+  --gb-fade-l: 0px;
+  --gb-fade-r: 0px;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--gb-fade-l), #000 calc(100% - var(--gb-fade-r)), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--gb-fade-l), #000 calc(100% - var(--gb-fade-r)), transparent);
+}
+html body #content .autoscroll.gb-scroll-x:not(.gb-scroll-end) { --gb-fade-r: 40px; }
+html body #content .autoscroll.gb-scroll-x:not(.gb-scroll-start) { --gb-fade-l: 24px; }
+html body #content .autoscroll.gb-scroll-x.gb-scroll-start.gb-scroll-end {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* ---------- page-title action bar on phones: one rule for every page ----------
+   The primary create action keeps its label (as on /users, settings/members, settings/versions); a secondary
+   link beside it becomes a 32px outlined icon button (same as the lock on settings/versions): /projects 管理, settings/members 管理 ….
+   /projects: 80-account-search-misc collapsed 新しいプロジェクト to an icon — undone here, 管理 collapses instead. */
+/* an empty helper form in the action bar (/projects renders one) is not a flex item: no phantom 8px gap */
+@media screen and (max-width: 899px) {
+  html body #content > .contextual > form:not(:has(*)) { display: none; }
+}
+@media screen and (max-width: 600px) {
+  /* 「プロジェクト」 + both actions fit one 375px row with an 8px (not 12px) gap before the actions */
+  html body.controller-projects.action-index #wrapper #content > .contextual:first-of-type { margin-left: 8px; }
+  html body.controller-projects.action-index #wrapper #content > .contextual > a.icon-add {
+    width: auto;
+    padding: 0 14px 0 10px;
+    gap: 4px;
+  }
+  html body.controller-projects.action-index #wrapper #content > .contextual > a.icon-add .icon-label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+  }
+  html body.controller-projects.action-index #wrapper #content > .contextual > a.icon-add .icon-svg { width: 16px; height: 16px; }
+  html body.controller-projects.action-index #wrapper #content > .contextual > a.icon-settings,
+  html body.controller-projects.action-settings #content .tab-content:has(> p > a.icon-add) > .contextual > a.icon {
+    box-sizing: border-box;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    justify-content: center;
+    border: 1px solid var(--gb-border);
+    border-radius: var(--gb-radius-sm);
+    background: var(--gb-surface);
+  }
+  html body.controller-projects.action-index #wrapper #content > .contextual > a.icon-settings .icon-label,
+  html body.controller-projects.action-settings #content .tab-content:has(> p > a.icon-add) > .contextual > a.icon .icon-label {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  html body.controller-projects.action-index #wrapper #content > .contextual > a.icon-settings .icon-svg,
+  html body.controller-projects.action-settings #content .tab-content:has(> p > a.icon-add) > .contextual > a.icon .icon-svg { margin: 0; }
+}
+@media screen and (max-width: 599px) {
+  /* search: the issue title takes line 2 under 「icon  project … date」, as every other result's title does */
+  html body #wrapper #content #search-results > dt > .gb-issue-title {
+    order: 3;
+    flex: 1 0 100%;
+    width: 100%;
+    margin-top: 2px;
+    font-size: 15px;
+  }
+}
+
+/* ---------- tables wider than their card (marked by 95-responsive.js below 1280, e.g. settings → マイルストーン
+   in a clipping tab panel): their own thin scroller with the same edge fade as .autoscroll ---------- */
+@media screen and (max-width: 1279px) {
+  html body #content table.gb-m-wide {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+  }
+  html body #content table.gb-m-wide.gb-m-end {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}

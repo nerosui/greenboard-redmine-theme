@@ -1,0 +1,1560 @@
+/* ==========================================================================
+   55-issue-form — issue new / copy / edit / inline edit / compact comment
+   panel / bulk edit. The editor unit is C-editor: 15-c-editor.css.
+   Scoped to #issue-form, #bulk_edit_form, #update and the .gb-* hooks that
+   55-issue-form.js adds.
+   ========================================================================== */
+
+/* ---------- private aliases (fall back to DESIGN §1 values) ---------- */
+#issue-form, #bulk_edit_form, #bulk-selection, #new-watcher-form,
+body.controller-issues #content > h2 {
+  --f-strong: var(--gb-primary-strong, #1a7f5e);
+  --f-hover: var(--gb-primary-hover, #146b4f);
+  --f-soft: var(--gb-primary-soft, #e8f6f1);
+  --f-softer: var(--gb-primary-softer, #f3faf7);
+  --f-pborder: var(--gb-primary-border, #b9e0d2);
+  --f-s2: var(--gb-surface-2, #f7f9f8);
+  --f-s3: var(--gb-surface-3, #eef1f0);
+  --f-bs: var(--gb-border-strong, #c9d1ce);
+  --f-text2: var(--gb-text-2, #55625e);
+  --f-muted: var(--gb-muted, #74807c);
+  --f-danger: var(--gb-danger, #d64545);
+  --f-danger-soft: var(--gb-danger-soft, #fdeceb);
+  --f-focus: var(--gb-focus, 0 0 0 3px rgba(63, 174, 138, .30));
+  --f-focus-danger: 0 0 0 3px rgba(214, 69, 69, .2);
+  --f-shadow-md: var(--gb-shadow-md, 0 4px 16px rgba(20, 40, 34, .12));
+  --f-ctl: var(--gb-control-h, 36px);
+  --f-ctl-sm: var(--gb-control-h-sm, 28px);
+  --f-dur: var(--gb-dur-1, 120ms);
+  --f-font: var(--gb-font, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif);
+}
+
+/* 1. The shared editor unit lives in 15-c-editor.css (C-editor). */
+
+/* ==========================================================================
+   2. Pattern S on the issue forms (labels above fields, no grey box)
+   ========================================================================== */
+#issue-form .box,
+#bulk_edit_form .box {
+  max-width: var(--gb-form-max, 960px);
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+#issue-form .box.fileover,
+#issue-form div.fileover { background: transparent; }
+
+#issue-form .tabular p,
+#bulk_edit_form .tabular p {
+  min-height: 0;
+  margin: 0 0 20px;
+  padding: 0;
+  overflow: visible;
+  clear: none;
+}
+#issue-form .tabular p > label:where(:not(.inline):not(.floating):not(.block):not(.no-css)),
+#bulk_edit_form .tabular p > label:where(:not(.inline):not(.floating):not(.block):not(.no-css)) {
+  float: none;
+  display: block;
+  width: auto;
+  margin: 0 0 6px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--gb-text);
+  text-align: left;
+}
+#issue-form em.info,
+#bulk_edit_form em.info {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-style: normal;
+  color: var(--f-text2);
+}
+
+/* controls (36px, our border, focus ring) */
+#issue-form :is(input[type=text], input[type=date], input[type=number], input:not([type])):not(.filename):not(.description),
+#bulk_edit_form :is(input[type=text], input[type=date], input[type=number], input:not([type])),
+#issue-form select:not([multiple]),
+#bulk_edit_form select:not([multiple]) {
+  box-sizing: border-box;
+  height: var(--f-ctl);
+  max-width: 100%;
+  margin: 0;
+  font-family: inherit;
+  font-size: 14px;
+  background-color: var(--gb-surface, #fff);
+  border: 1px solid var(--f-bs);
+  border-radius: var(--gb-radius-sm, 4px);
+  transition: border-color var(--f-dur), box-shadow var(--f-dur);
+}
+#issue-form :is(input[type=text], input[type=date], input[type=number], input:not([type])):not(.filename):not(.description),
+#bulk_edit_form :is(input[type=text], input[type=date], input[type=number], input:not([type])) { padding: 0 10px; }
+#issue-form select:not([multiple]),
+#bulk_edit_form select:not([multiple]) { padding-left: 10px; }
+#issue-form select[multiple],
+#bulk_edit_form select[multiple] {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-height: 96px;
+  font-size: 14px;
+  border: 1px solid var(--f-bs);
+  border-radius: var(--gb-radius-sm, 4px);
+}
+#issue-form :is(input, select):not([type=checkbox]):not([type=radio]):not([type=file]):not(.filename):not(.description):not(:disabled):hover,
+#bulk_edit_form :is(input, select):not([type=checkbox]):not([type=radio]):not(:disabled):hover { border-color: #aab5b1; }
+#issue-form :is(input, select):not([type=checkbox]):not([type=radio]):not([type=file]):not(.filename):focus,
+#bulk_edit_form :is(input, select):not([type=checkbox]):not([type=radio]):focus {
+  outline: none;
+  border-color: var(--gb-primary);
+  box-shadow: var(--f-focus);
+}
+#issue-form :is(input, select):disabled,
+#bulk_edit_form :is(input, select):disabled {
+  background-color: var(--f-s2);
+  color: var(--f-text2);
+  cursor: not-allowed;
+}
+#issue-form input::placeholder,
+#bulk_edit_form input::placeholder { color: var(--f-muted); }
+
+/* autocomplete inputs (親課題): icon inside left; core forces padding-left with !important */
+#issue-form input.autocomplete,
+#bulk_edit_form input.autocomplete {
+  background-position: 9px 50%;
+  background-size: 16px 16px;
+  text-indent: 13px;
+}
+
+/* ---------- 2.1 header row: (プロジェクト) トラッカー … プライベート ---------- */
+#issue-form #all_attributes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  column-gap: 16px;
+}
+#issue-form #all_attributes > * { flex: 1 1 100%; min-width: 0; order: 2; }
+#issue-form #all_attributes > p:has(> #issue_project_id),
+#issue-form #all_attributes > p:has(> #issue_tracker_id) { flex: 0 1 240px; order: 0; }
+#issue-form #all_attributes > p:has(> #issue_project_id) select,
+#issue-form #all_attributes > p:has(> #issue_tracker_id) select { width: 100%; }
+#issue-form #all_attributes > #issue_is_private_wrap {
+  flex: 0 0 auto;
+  order: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--f-ctl);
+  margin: 0 0 20px auto;
+  padding: 0 12px;
+  float: none;
+  border-radius: var(--gb-radius-sm, 4px);
+}
+#issue-form #all_attributes > #issue_is_private_wrap:has(input:checked) { background: var(--f-danger-soft); }
+#issue-form #issue_is_private_wrap > input[type=checkbox] { order: 0; }
+#issue-form #issue_is_private_wrap label.inline {
+  order: 1;
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  min-height: 0;
+  margin: 0 !important; /* beats core `.tabular label.inline {margin-left:5px !important}` */
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--f-text2);
+  line-height: 1;
+  cursor: pointer;
+}
+#issue-form #issue_is_private_wrap:has(input:checked) label.inline { color: var(--f-danger); }
+
+/* tracker = 種別: coloured marker on the select */
+#issue-form #all_attributes > p:has(> #issue_tracker_id) select {
+  border-left: 4px solid var(--gbf-tracker, var(--gb-tr-default, #6b8fb5));
+  font-weight: 600;
+}
+#issue-form p[data-tracker="1"] { --gbf-tracker: var(--gb-tr-1, #e0625b); }
+#issue-form p[data-tracker="2"] { --gbf-tracker: var(--gb-tr-2, #7fa32b); }
+#issue-form p[data-tracker="3"] { --gbf-tracker: var(--gb-tr-3, #e09a2f); }
+
+/* ---------- 2.2 題名 ---------- */
+#issue-form input#issue_subject {
+  width: 100%;
+  height: var(--gb-control-h-lg, 44px);
+  padding: 0 14px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* ---------- 2.3 説明 ---------- */
+#issue-form #issue_description_and_toolbar { display: block; }
+#issue-form { --gb-editor-min: 240px; } /* C-editor heights (§6.11): 説明 new 240 / edit 200 */
+#issue-form.edit_issue { --gb-editor-min: 200px; }
+#issue-form #issue_description_and_toolbar + .gb-desc-peek { margin-top: 0; }
+#issue-form .gb-desc-peek {
+  margin: 0 0 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--f-text2);
+  background: var(--f-s2);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius, 8px);
+  cursor: pointer;
+}
+#issue-form .gb-desc-peek > span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  max-height: calc(1.7em * 3);
+  overflow: hidden;
+  white-space: pre-line;
+}
+#issue-form .gb-desc-peek:hover { border-color: var(--gb-primary); }
+/* rendered description (copied from the issue page): 3 lines, fades out */
+#issue-form .gb-desc-peek > .gb-desc-peek__wiki {
+  max-height: calc(1.7em * 3);
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--f-text2);
+  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent);
+  mask-image: linear-gradient(to bottom, #000 60%, transparent);
+  pointer-events: none;
+}
+#issue-form .gb-desc-peek > .gb-desc-peek__wiki > :first-child { margin-top: 0; }
+#issue-form .gb-desc-peek > .gb-desc-peek__wiki :is(p, ul, ol, pre, blockquote, table, h1, h2, h3, h4) { margin: 0 0 4px; }
+#issue-form .gb-desc-peek > .gb-desc-peek__wiki :is(h1, h2, h3, h4) { font-size: 14px; }
+#issue-form a.gb-desc-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--f-ctl-sm);
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gb-text);
+  background: var(--gb-surface, #fff);
+  border: 1px solid var(--f-bs);
+  border-radius: var(--gb-radius-sm, 4px);
+  text-decoration: none;
+}
+#issue-form a.gb-desc-edit > span { display: inline-flex; align-items: center; gap: 6px; }
+#issue-form a.gb-desc-edit:hover {
+  color: var(--f-strong);
+  background: var(--f-s2);
+  border-color: var(--gb-primary);
+}
+#issue-form a.gb-desc-edit svg { width: 14px; height: 14px; }
+
+/* ---------- 2.4 attribute grid card ---------- */
+#issue-form #attributes {
+  margin: 4px 0 24px;
+  padding: 20px 24px 4px;
+  background: var(--f-s2);
+  border-radius: var(--gb-radius, 8px);
+}
+#issue-form #attributes .splitcontent,
+#bulk_edit_form .attributes .splitcontent {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 32px;
+  overflow: visible;
+}
+#issue-form #attributes :is(.splitcontentleft, .splitcontentright),
+#bulk_edit_form .attributes :is(.splitcontentleft, .splitcontentright) {
+  float: none;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+/* right column: 親課題 full, 開始日|期限日, 予定工数|進捗率 */
+#issue-form #attributes .splitcontentright {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 16px;
+  align-content: start;
+}
+#issue-form #attributes .splitcontentright > * { grid-column: 1 / -1; }
+#issue-form #attributes .splitcontentright > :is(#start_date_area, #due_date_area, p:has(> #issue_estimated_hours), p:has(> #issue_done_ratio)) { grid-column: auto; }
+
+/* every attribute row: label (+ helper on the label line) / control below */
+#issue-form #attributes p,
+#bulk_edit_form .attributes p {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+  margin: 0 0 16px;
+}
+#issue-form #attributes p > label:first-child,
+#bulk_edit_form .attributes p > label:first-child { grid-column: 1; grid-row: 1; align-self: end; }
+#issue-form #attributes p > :not(label:first-child),
+#bulk_edit_form .attributes p > :not(label:first-child) { grid-column: 1 / -1; }
+#issue-form #attributes p > :is(select, input:not([type=checkbox]):not([type=radio])),
+#bulk_edit_form .attributes p > :is(select, input:not([type=checkbox]):not([type=radio])) { width: 100%; }
+#issue-form #attributes p > :is(input[type=checkbox], input[type=radio]) { justify-self: start; }
+#issue-form #attributes p > :is(.assign-to-me-link, .gb-quick, a.icon-add, label.inline),
+#bulk_edit_form .attributes p > :is(.assign-to-me-link, .gb-quick, a.icon-add, label.inline) {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  align-self: end;
+  margin: 0 0 6px;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+#issue-form #attributes p > :is(.assign-to-me-link, .gb-quick) { color: var(--f-strong); text-decoration: none; }
+#issue-form #attributes p > :is(.assign-to-me-link, .gb-quick):hover { color: var(--f-hover); text-decoration: underline; }
+#bulk_edit_form .attributes p > label.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px !important; /* beats core `.tabular label.inline` !important margin */
+  font-weight: 500;
+  color: var(--f-text2);
+  cursor: pointer;
+}
+/* ＋ new category / version: 24px icon button on the label line */
+#issue-form #attributes p > a.icon-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: 0 0 3px;
+  border-radius: var(--gb-radius-sm, 4px);
+  color: var(--f-strong);
+}
+#issue-form #attributes p > a.icon-add:hover { background: var(--f-soft); }
+#issue-form #attributes p > a.icon-add svg { width: 16px; height: 16px; margin: 0; stroke: currentColor; opacity: 1; }
+
+/* hours (+ 時間 suffix) are a flex row so the text node stays beside the input */
+#issue-form p:has(> #issue_estimated_hours),
+#issue-form p:has(> #time_entry_hours) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 8px;
+  font-size: 13px;
+  color: var(--f-text2);
+}
+#issue-form p:has(> #issue_estimated_hours) > label:first-child,
+#issue-form p:has(> #time_entry_hours) > label:first-child { flex: 0 0 100%; }
+#issue-form p:has(> #issue_estimated_hours) > #issue_estimated_hours,
+#issue-form p:has(> #time_entry_hours) > #time_entry_hours { flex: 1 1 0; width: auto; min-width: 0; max-width: 140px; }
+
+#issue-form #attributes input[type=date] { width: 100%; }
+
+/* status colour dot inside the select: C-issue-row (15-c-issue-row.css, p[data-status]) */
+
+/* custom fields: long text spans both columns, check box groups */
+#issue-form #attributes > p { margin-bottom: 16px; }
+#issue-form .check_box_group,
+#bulk_edit_form .check_box_group {
+  box-sizing: border-box;
+  width: 100%;
+  max-height: 160px;
+  padding: 6px 10px;
+  background: var(--gb-surface, #fff);
+  border: 1px solid var(--f-bs);
+  border-radius: var(--gb-radius-sm, 4px);
+}
+#issue-form .check_box_group label,
+#bulk_edit_form .check_box_group label { display: flex; align-items: center; gap: 8px; min-height: 28px; font-weight: 400; }
+
+/* ---------- 2.5 copy options (関連 / 添付 / 子課題): checkbox + label rows ---------- */
+#issue-form > .box > p:has(> input[type=checkbox]) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+#issue-form > .box > p:has(> input[type=checkbox]) > input[type=checkbox] { order: 0; }
+#issue-form > .box > p:has(> input[type=checkbox]) > label {
+  order: 1;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+#issue-form > .box > p:has(> input[type=checkbox]) + p:not(:has(> input[type=checkbox])) { margin-top: 20px; }
+
+/* ---------- 2.6 watchers ---------- */
+#issue-form #watchers_form { margin-bottom: 8px; }
+#issue-form #watchers_inputs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 4px 16px;
+  width: auto;
+  overflow: visible;
+}
+#issue-form #watchers_inputs label.floating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  float: none;
+  width: auto;
+  min-height: 32px;
+  margin: 0;
+  padding: 0 8px;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: left;
+  border-radius: var(--gb-radius-sm, 4px);
+  cursor: pointer;
+}
+#issue-form #watchers_inputs label.floating:hover { background: var(--f-softer); }
+#issue-form #watchers_inputs label.floating:has(input:checked) { background: var(--f-soft); font-weight: 500; }
+#issue-form #watchers_inputs :is(.gb-avatar, .gb-f-avatar) { flex: none; }
+#issue-form span.search_for_watchers { display: block; margin-top: 4px; line-height: 1.4; font-size: 13px; }
+#issue-form span.search_for_watchers a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--f-ctl-sm);
+  padding: 0 8px;
+  font-weight: 600;
+  color: var(--f-strong);
+  border-radius: var(--gb-radius-sm, 4px);
+  text-decoration: none;
+}
+#issue-form span.search_for_watchers a:hover { background: var(--f-soft); }
+
+/* watcher search modal (＋ ウォッチャーを検索して追加) */
+#new-watcher-form p:has(> #user_search) { margin: 0 0 8px; }
+#new-watcher-form p:has(> #user_search) > label { display: block; margin: 0 0 6px; font-size: 13px; font-weight: 600; }
+#new-watcher-form #user_search { box-sizing: border-box; width: 100%; max-width: none; }
+#new-watcher-form #users_for_watcher {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px 12px;
+  max-height: 280px;
+  overflow: auto;
+  margin: 0 0 8px;
+}
+#new-watcher-form #users_for_watcher label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 8px;
+  font-size: 14px;
+  font-weight: 400;
+  border-radius: var(--gb-radius-sm, 4px);
+  cursor: pointer;
+}
+#new-watcher-form #users_for_watcher label:hover { background: var(--gb-primary-softer, #f3faf7); }
+#new-watcher-form #users_for_watcher label:has(input:checked) { background: var(--gb-primary-soft, #e8f6f1); font-weight: 500; }
+#new-watcher-form #users_for_watcher input[type=checkbox] { margin: 0; accent-color: var(--gb-primary-strong, #1a7f5e); }
+
+
+/* ==========================================================================
+   3. Attachments dropzone + file list (DESIGN §2.12)
+   ========================================================================== */
+#issue-form span.attachments_form { display: block; }
+#issue-form #new-attachments { display: block !important; /* core writes inline-block */ width: 100%; }
+#issue-form span.add_attachment.gb-drop {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 10px;
+  width: 100%;
+  min-height: 72px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--f-text2);
+  background: var(--f-s2);
+  border: 1.5px dashed var(--f-bs);
+  border-radius: var(--gb-radius, 8px);
+  cursor: pointer;
+  transition: border-color var(--f-dur), background-color var(--f-dur);
+}
+#issue-form span.add_attachment.gb-drop:hover { border-color: var(--gb-primary); background: var(--f-softer); }
+#issue-form .fileover span.add_attachment.gb-drop,
+#issue-form.fileover span.add_attachment.gb-drop {
+  border-style: solid;
+  border-color: var(--gb-primary);
+  background: var(--f-soft);
+}
+#issue-form .gb-drop > input.file_selector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+}
+#issue-form .gb-drop__icon { display: inline-flex; color: var(--f-muted); }
+#issue-form .gb-drop .gb-drop__compact { display: none; }
+#update.gb-compact .gb-drop .gb-drop__full { display: none; }
+#update.gb-compact .gb-drop .gb-drop__compact { display: inline; }
+#issue-form .gb-drop__icon svg { width: 20px; height: 20px; stroke: currentColor; }
+#issue-form .gb-drop__btn {
+  display: inline-flex;
+  width: auto;
+  margin: 0;
+  align-items: center;
+  height: var(--f-ctl-sm);
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gb-text);
+  background: var(--gb-surface, #fff);
+  border: 1px solid var(--f-bs);
+  border-radius: var(--gb-radius-sm, 4px);
+  cursor: pointer;
+  transition: border-color var(--f-dur), color var(--f-dur);
+}
+#issue-form .gb-drop__btn:hover { color: var(--f-strong); border-color: var(--gb-primary); }
+#issue-form .gb-drop:has(> input.file_selector:focus-visible) .gb-drop__btn {
+  border-color: var(--gb-primary);
+  box-shadow: var(--f-focus);
+}
+#issue-form .gb-drop__limit {
+  flex: 0 0 100%;
+  font-size: 12px;
+  color: var(--f-text2);
+  text-align: center;
+}
+
+/* uploaded / queued files */
+#issue-form .attachments_fields:has(> span) {
+  display: block;
+  margin: 0 0 8px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius, 8px);
+  overflow: hidden;
+}
+#issue-form .attachments_fields > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 6px 0 12px;
+  white-space: nowrap;
+  background: var(--gb-surface, #fff);
+  border-bottom: 1px solid var(--gb-border);
+}
+#issue-form .attachments_fields > span:last-child { border-bottom: 0; }
+#issue-form .attachments_fields > span > svg { flex: none; width: 16px; height: 16px; color: var(--f-muted); }
+#issue-form .attachments_fields input.filename {
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 80px;
+  max-width: 45% !important; /* beats core `.tabular input.filename` !important */
+  height: 28px;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gb-text);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  text-overflow: ellipsis;
+  field-sizing: content;
+}
+#issue-form .attachments_fields input.description {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  height: 28px;
+  margin: 0;
+  padding: 0 8px;
+  font-size: 13px;
+  color: var(--gb-text);
+  background: var(--gb-surface, #fff);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius-sm, 4px);
+  box-sizing: border-box;
+}
+#issue-form .attachments_fields input.description::placeholder { color: var(--f-muted); }
+#issue-form .attachments_fields input.description:hover { border-color: var(--f-bs); }
+#issue-form .attachments_fields input.description:focus { outline: none; background: #fff; border-color: var(--gb-primary); box-shadow: var(--f-focus); }
+#issue-form .attachments_fields a.remove-upload {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  border-radius: var(--gb-radius-sm, 4px);
+  color: var(--f-text2);
+}
+#issue-form .attachments_fields a.remove-upload:hover { background: var(--f-danger-soft); color: var(--f-danger); }
+#issue-form .attachments_fields a.remove-upload svg { width: 16px; height: 16px; margin: 0; }
+#issue-form .attachments_fields div.ui-progressbar {
+  flex: 0 0 96px;
+  height: 4px;
+  margin: 0;
+  background: var(--f-s3);
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+#issue-form .attachments_fields div.ui-progressbar .ui-progressbar-value { margin: 0; background: var(--gb-primary); border: 0; }
+
+/* existing attachments on edit (添付ファイルの編集) */
+#issue-form #existing-attachments {
+  margin: 0 0 12px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius, 8px);
+  overflow: hidden;
+}
+#issue-form #existing-attachments > span.existing-attachment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--gb-border);
+}
+#issue-form #existing-attachments > span.existing-attachment > svg { width: 16px; height: 16px; flex: none; color: var(--f-muted); }
+#issue-form #existing-attachments input.filename {
+  flex: 1 1 auto;
+  height: 28px;
+  padding: 0;
+  font-size: 14px;
+  color: var(--gb-text);
+  background: transparent;
+  border: 0;
+}
+#issue-form #existing-attachments label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--f-danger); cursor: pointer; }
+#issue-form #existing-attachments hr { display: none; }
+
+/* ==========================================================================
+   4. Edit form: stacked sections (プロパティの変更 / 時間を記録 / コメント / ファイル)
+   ========================================================================== */
+#issue-form .box > fieldset {
+  min-width: 0;
+  margin: 24px 0 0;
+  padding: 20px 0 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--gb-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+#issue-form .box > fieldset:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+#issue-form .box > fieldset > legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 14px;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--gb-text);
+}
+#issue-form .box > fieldset > legend + * { clear: both; }
+#issue-form .box > fieldset > .contextual {
+  float: right;
+  position: relative;
+  z-index: 1;
+  margin: -34px 0 0;
+  padding: 0;
+  font-size: 12px;
+}
+#issue-form .box > fieldset > .contextual a {
+  display: inline-flex;
+  align-items: center;
+  height: var(--f-ctl-sm);
+  padding: 0 8px;
+  font-weight: 600;
+  color: var(--f-strong);
+  background: transparent;
+  border-radius: var(--gb-radius-sm, 4px);
+  text-decoration: none;
+}
+#issue-form .box > fieldset > .contextual a:hover { background: var(--f-soft); }
+
+/* 時間を記録: one row, collapsible */
+/* core's edit.js writes style="display:block" on #log_time after every form update */
+#issue-form fieldset#log_time:not([style*="none"]) { display: grid !important; }
+#issue-form fieldset#log_time {
+  grid-template-columns: 140px minmax(160px, 220px) minmax(0, 1fr);
+  column-gap: 16px;
+  align-items: start;
+}
+/* stays floated so it is not the fieldset's rendered legend (no border line through it) */
+#issue-form fieldset#log_time > legend { grid-column: 1 / -1; }
+#issue-form fieldset#log_time > .splitcontent,
+#issue-form fieldset#log_time > .splitcontent > div { display: contents; }
+#issue-form fieldset#log_time p { margin-bottom: 4px; }
+#issue-form fieldset#log_time p > :is(select, input#time_entry_comments) { width: 100%; }
+#issue-form fieldset#log_time p:has(> #time_entry_hours) > #time_entry_hours { max-width: none; }
+#issue-form fieldset#log_time > p:not(:has(#time_entry_comments)) { grid-column: 1 / -1; }
+#issue-form fieldset#log_time > p:has(#time_entry_comments) { grid-column: auto; }
+#issue-form fieldset.gb-collapsible > legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--gb-radius-sm, 4px);
+}
+#issue-form fieldset.gb-collapsible > legend::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin: 0 4px 2px 2px;
+  border-right: 2px solid var(--f-text2);
+  border-bottom: 2px solid var(--f-text2);
+  transform: rotate(45deg);
+  transition: transform var(--f-dur);
+}
+#issue-form fieldset.gb-collapsible.gb-collapsed > legend::before { transform: rotate(-45deg); margin-bottom: 0; }
+#issue-form fieldset.gb-collapsible > legend:hover { color: var(--f-strong); }
+#issue-form fieldset.gb-collapsible > legend:focus-visible { outline: none; box-shadow: var(--f-focus); }
+#issue-form fieldset.gb-collapsible > legend .gb-legend-hint { font-size: 12px; font-weight: 400; color: var(--f-muted); }
+#issue-form#issue-form fieldset.gb-collapsible.gb-collapsed > :not(legend) { display: none; }
+#issue-form fieldset.gb-collapsible.gb-collapsed > legend { margin-bottom: 0; }
+
+/* コメント */
+#issue-form fieldset#add_notes { --gb-editor-min: 160px; }
+#issue-form fieldset#add_notes > .jstBlock + * { margin-top: 10px; }
+#issue-form fieldset#add_notes > label[for=issue_private_notes] {
+  display: inline;
+  margin-left: 8px; /* JS drops the whitespace node before it → 8px checkbox-to-text, same as bulk edit */
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gb-text);
+  cursor: pointer;
+}
+#issue-form fieldset#add_notes > #issue_private_notes { margin-top: 12px; }
+
+/* ==========================================================================
+   5. Sticky action bar (new / copy / edit / inline edit / bulk)
+   ========================================================================== */
+#issue-form .gb-form-actions,
+#bulk_edit_form .gb-form-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--gb-z-sticky, 20);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 24px -24px 0;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, .96);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border-top: 1px solid var(--gb-border);
+}
+#issue-form .gb-form-actions input[type=submit],
+#bulk_edit_form .gb-form-actions input[type=submit] {
+  box-sizing: border-box;
+  height: var(--f-ctl);
+  min-width: 96px;
+  margin: 0;
+  padding: 0 20px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  color: #fff;
+  background-color: var(--f-strong);
+  background-repeat: no-repeat;
+  border: 1px solid var(--f-strong);
+  border-radius: var(--gb-radius-sm, 4px);
+  cursor: pointer;
+  transition: background-color var(--f-dur), border-color var(--f-dur);
+}
+#issue-form .gb-form-actions input[type=submit]:hover,
+#bulk_edit_form .gb-form-actions input[type=submit]:hover { background-color: var(--f-hover); border-color: var(--f-hover); }
+#issue-form .gb-form-actions input[type=submit]:focus-visible,
+#bulk_edit_form .gb-form-actions input[type=submit]:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--gb-primary); }
+/* secondary submit (連続作成) */
+#issue-form .gb-form-actions input[type=submit][name=continue] {
+  color: var(--gb-text);
+  background-color: var(--gb-surface, #fff);
+  border-color: var(--f-bs);
+}
+#issue-form .gb-form-actions input[type=submit][name=continue]:hover {
+  color: var(--f-strong);
+  background-color: var(--f-s2);
+  border-color: var(--gb-primary);
+}
+/* in-flight: every submit disabled; the spinner only on the pressed one (.gb-submitting, JS) */
+#issue-form .gb-form-actions input[type=submit]:disabled,
+#bulk_edit_form .gb-form-actions input[type=submit]:disabled {
+  color: var(--gb-disabled, #a9b3b0);
+  background-color: var(--f-s3);
+  border-color: var(--f-s3);
+  cursor: progress;
+}
+#issue-form .gb-form-actions input[type=submit].gb-submitting:disabled,
+#bulk_edit_form .gb-form-actions input[type=submit].gb-submitting:disabled {
+  padding-right: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23a9b3b0' stroke-width='2' stroke-dasharray='26 12'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 8 8' to='360 8 8' dur='.8s' repeatCount='indefinite'/%3E%3C/circle%3E%3C/svg%3E");
+  background-position: right 12px center;
+  background-size: 14px 14px;
+  background-repeat: no-repeat;
+}
+/* キャンセル = text button */
+#issue-form .gb-form-actions a.gb-cancel,
+#bulk_edit_form .gb-form-actions a.gb-cancel {
+  display: inline-flex;
+  align-items: center;
+  height: var(--f-ctl);
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--f-strong);
+  border-radius: var(--gb-radius-sm, 4px);
+  text-decoration: none;
+}
+#issue-form .gb-form-actions a.gb-cancel:hover,
+#bulk_edit_form .gb-form-actions a.gb-cancel:hover { background: var(--f-soft); color: var(--f-hover); }
+#issue-form .gb-kbd-hint,
+#bulk_edit_form .gb-kbd-hint {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--f-muted);
+  white-space: nowrap;
+}
+#issue-form .gb-kbd-hint kbd,
+#bulk_edit_form .gb-kbd-hint kbd {
+  display: inline-block;
+  min-width: 18px;
+  padding: 1px 5px;
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 16px;
+  text-align: center;
+  color: var(--f-text2);
+  background: var(--f-s2);
+  border: 1px solid var(--gb-border);
+  border-radius: 4px;
+}
+#issue-form .gb-edit-all { display: none; }
+/* keep the focused field above the sticky bar */
+html:has(#issue-form .gb-form-actions, #bulk_edit_form .gb-form-actions) { scroll-padding-bottom: 88px; }
+
+/* ==========================================================================
+   6. Validation (DESIGN §3.2.7)
+   ========================================================================== */
+/* doubled ids: must beat the control rules above */
+#issue-form .tabular label.error,
+#bulk_edit_form .tabular label.error,
+#issue-form p.gb-invalid > label:first-child { color: var(--f-danger); }
+#issue-form#issue-form .tabular label.error + :is(input, select),
+#bulk_edit_form#bulk_edit_form .tabular label.error + :is(input, select),
+#issue-form#issue-form [aria-invalid=true]:is(input, select) { border-color: var(--f-danger); }
+#issue-form#issue-form [aria-invalid=true]:is(input, select):focus,
+#issue-form#issue-form .tabular label.error + :is(input, select):focus { border-color: var(--f-danger); box-shadow: var(--f-focus-danger); }
+#issue-form .gb-field-error,
+#bulk_edit_form .gb-field-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 100%;
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--f-danger);
+}
+#issue-form .gb-field-error::before {
+  content: "!";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--f-danger);
+  border-radius: 50%;
+}
+#issue-form #errorExplanation:focus,
+#bulk_edit_form #errorExplanation:focus { outline: none; box-shadow: var(--f-focus-danger); }
+#issue-form #errorExplanation { max-width: var(--gb-form-max, 960px); box-sizing: border-box; margin-bottom: 20px; }
+
+/* ==========================================================================
+   7. Page title (edit: tracker badge + key + subject)
+   ========================================================================== */
+body.controller-issues #content > h2.gb-form-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+body.controller-issues #content > h2 .gb-form-tracker {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--gbf-tracker, var(--gb-tr-default, #6b8fb5));
+  border-radius: 999px;
+}
+body.controller-issues #content > h2[data-tracker="1"] { --gbf-tracker: var(--gb-tr-1, #e0625b); }
+body.controller-issues #content > h2[data-tracker="2"] { --gbf-tracker: var(--gb-tr-2, #7fa32b); }
+body.controller-issues #content > h2[data-tracker="3"] { --gbf-tracker: var(--gb-tr-3, #e09a2f); }
+body.controller-issues #content > h2 .gb-form-eyebrow {
+  flex: 0 0 100%;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--f-muted);
+  letter-spacing: .02em;
+}
+body.controller-issues #content > h2 .gb-form-key { color: var(--f-strong); font-variant-numeric: tabular-nums; }
+
+/* ==========================================================================
+   8. Bulk edit
+   ========================================================================== */
+#bulk-selection {
+  max-width: var(--gb-form-max, 960px);
+  box-sizing: border-box;
+  margin: 0 0 24px;
+  padding: 4px 0;
+  list-style: none;
+  background: var(--f-s2);
+  border-radius: var(--gb-radius, 8px);
+}
+#bulk-selection > li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#bulk-selection > li + li { border-top: 1px solid var(--gb-border); }
+#bulk-selection > li.gb-more-hidden { display: none; }
+#bulk-selection .gb-bulk-tracker {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--gbf-tracker, var(--gb-tr-default, #6b8fb5));
+  border-radius: 999px;
+}
+#bulk-selection .gb-bulk-tracker[data-tracker="1"] { --gbf-tracker: var(--gb-tr-1, #e0625b); }
+#bulk-selection .gb-bulk-tracker[data-tracker="2"] { --gbf-tracker: var(--gb-tr-2, #7fa32b); }
+#bulk-selection .gb-bulk-tracker[data-tracker="3"] { --gbf-tracker: var(--gb-tr-3, #e09a2f); }
+#bulk-selection a.issue { flex: none; font-weight: 500; color: var(--f-strong); font-variant-numeric: tabular-nums; }
+#bulk-selection .gb-bulk-subject { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--gb-text); }
+#bulk-selection .gb-bulk-more {
+  height: var(--f-ctl-sm);
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--f-strong);
+  background: transparent;
+  border: 0;
+  border-radius: var(--gb-radius-sm, 4px);
+  cursor: pointer;
+}
+#bulk-selection .gb-bulk-more:hover { background: var(--f-soft); }
+
+#bulk_edit_form .box > fieldset {
+  min-width: 0;
+  margin: 24px 0 0;
+  padding: 20px 0 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--gb-border);
+  border-radius: 0;
+}
+#bulk_edit_form .box > fieldset:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+#bulk_edit_form .box > fieldset > legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 14px;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gb-text);
+}
+#bulk_edit_form .box > fieldset > legend + * { clear: both; }
+#bulk_edit_form .box > fieldset.attributes > legend + * { margin-top: 0; }
+#bulk_edit_form .box > fieldset.attributes .splitcontent {
+  padding: 20px 24px 4px;
+  background: var(--f-s2);
+  border-radius: var(--gb-radius, 8px);
+}
+#bulk_edit_form select.gb-unchanged { color: var(--f-muted); }
+#bulk_edit_form { --gb-editor-min: 160px; }
+#bulk_edit_form fieldset > label.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0 !important; /* beats core `.tabular label.inline` !important margin */
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+#bulk_edit_form > p.gb-form-actions { max-width: none; }
+
+/* ==========================================================================
+   9. Issue page: comment entry + compact comment panel (DESIGN §3.2.6)
+   ========================================================================== */
+div.issue.gb-desc-first > div.description { margin: 8px 0 4px; }
+div.issue.gb-desc-first > div.description .wiki { font-size: 14px; line-height: 1.8; }
+
+/* the collapsed 「コメントを追加…」 row is the C-comment component (15-c-comment.css) */
+/* fallback avatar (until GB.avatar exists in 00-core.js) — same formula/colours as DESIGN §2.9 */
+.gb-f-avatar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  color: #fff;
+  background: var(--gb-av-0, #4a9d7c);
+  border-radius: 50%;
+}
+.gb-f-avatar--20 { width: 20px; height: 20px; font-size: 11px; }
+.gb-f-avatar[data-av="1"] { background: var(--gb-av-1, #4488c5); }
+.gb-f-avatar[data-av="2"] { background: var(--gb-av-2, #c9772e); }
+.gb-f-avatar[data-av="3"] { background: var(--gb-av-3, #8a6bb8); }
+.gb-f-avatar[data-av="4"] { background: var(--gb-av-4, #c85a7c); }
+.gb-f-avatar[data-av="5"] { background: var(--gb-av-5, #3d93a8); }
+.gb-f-avatar[data-av="6"] { background: var(--gb-av-6, #8a9a2e); }
+.gb-f-avatar[data-av="7"] { background: var(--gb-av-7, #b06045); }
+
+/* the inline edit (#update) is a card under the issue body */
+body.controller-issues.action-show #update:has(> #issue-form) {
+  margin: 16px 0;
+}
+body.controller-issues.action-show #update:not(.gb-compact) > h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#update.gb-compact {
+  position: sticky;
+  bottom: 16px;
+  z-index: var(--gb-z-sticky, 20);
+  box-sizing: border-box;
+  max-height: min(70vh, 560px);
+  overflow: auto;
+  margin: 12px 0 16px;
+  padding: 20px 20px 16px;
+  background: var(--gb-surface, #fff);
+  border: 1px solid var(--gb-primary-border, #b9e0d2);
+  border-radius: var(--gb-radius-lg, 12px);
+  box-shadow: var(--gb-shadow-md, 0 4px 16px rgba(20, 40, 34, .12));
+  overscroll-behavior: contain;
+}
+#update.gb-compact #issue-form fieldset#log_time { display: none !important; /* beats core's inline display:block */ }
+#update.gb-compact > h3,
+#update.gb-compact fieldset > legend,
+#update.gb-compact fieldset > .contextual,
+#update.gb-compact #existing-attachments,
+#update.gb-compact #all_attributes > :not(#attributes),
+#update.gb-compact #attributes > :not(.splitcontent),
+#update.gb-compact #attributes p:not(:has(#issue_status_id, #issue_assigned_to_id, #issue_fixed_version_id, #issue_due_date)),
+#update.gb-compact #attributes a.icon-add,
+#update.gb-compact .gb-kbd-hint { display: none; }
+#update.gb-compact #issue-form .box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  grid-template-areas: "notes attrs" "files attrs";
+  gap: 12px 24px;
+  align-items: start;
+  max-width: none;
+}
+#update.gb-compact #issue-form .box > fieldset { margin: 0; padding: 0; border: 0; }
+#update.gb-compact #issue-form .box > fieldset > legend + * { clear: none; }
+#update.gb-compact #add_notes { grid-area: notes; }
+#update.gb-compact #add_attachments { grid-area: files; }
+#update.gb-compact #issue-form .box > fieldset:has(> #all_attributes) { grid-area: attrs; }
+#update.gb-compact fieldset#add_notes { --gb-editor-min: 120px; } /* C-editor height (§6.11) */
+#update.gb-compact #all_attributes { display: block; }
+#update.gb-compact #attributes { margin: 0; padding: 0; background: transparent; }
+#update.gb-compact #attributes .splitcontent { display: block; }
+#update.gb-compact #attributes .splitcontentright { display: block; }
+#update.gb-compact #attributes p { margin: 0 0 12px; }
+#update.gb-compact #attributes p:has(#issue_due_date) { margin-bottom: 0; }
+
+/* compact attachments: chips + small button */
+#update.gb-compact span.add_attachment.gb-drop {
+  justify-content: flex-start;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-size: 12px;
+}
+#update.gb-compact .fileover span.add_attachment.gb-drop { background: transparent; }
+#update.gb-compact .gb-drop__icon,
+#update.gb-compact .gb-drop__limit { display: none; }
+#update.gb-compact .gb-drop__text { order: 2; color: var(--f-muted); }
+#update.gb-compact .gb-drop__btn { order: 1; }
+#update.gb-compact .fileover .gb-drop__btn { border-color: var(--gb-primary); background: var(--f-soft); }
+#update.gb-compact #issue-form .box.fileover { outline: 2px dashed var(--gb-primary); outline-offset: 6px; border-radius: 4px; }
+#update.gb-compact .attachments_fields:has(> span) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+#update.gb-compact .attachments_fields > span {
+  min-height: 28px;
+  padding: 0 2px 0 10px;
+  gap: 4px;
+  background: var(--f-s3);
+  border: 0;
+  border-radius: 999px;
+}
+#update.gb-compact .attachments_fields input.filename { max-width: 200px !important; height: 26px; font-size: 12px; }
+#update.gb-compact .attachments_fields input.description { display: none !important; /* core writes display:inline-flex inline */ }
+#update.gb-compact .attachments_fields a.remove-upload { width: 24px; height: 24px; border-radius: 50%; }
+#update.gb-compact .attachments_fields div.ui-progressbar { flex-basis: 48px; }
+#update.gb-compact .attachments_fields > span > svg { width: 14px; height: 14px; }
+
+/* private notes in compact */
+#update.gb-compact fieldset#add_notes > #issue_private_notes { margin-top: 10px; }
+
+/* compact footer: すべての項目を編集 left, 閉じる + 登録 right */
+#update.gb-compact .gb-form-actions {
+  position: static;
+  justify-content: flex-end;
+  margin: 16px 0 0;
+  padding: 12px 0 0;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-top: 1px solid var(--gb-border);
+}
+#update.gb-compact .gb-edit-all {
+  display: inline-flex;
+  align-items: center;
+  height: var(--f-ctl);
+  margin-right: auto;
+  margin-left: -8px; /* text starts on the editor's left edge; hover pill extends into the gutter */
+  padding: 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--f-strong);
+  border-radius: var(--gb-radius-sm, 4px);
+  text-decoration: none;
+}
+#update.gb-compact .gb-edit-all:hover { background: var(--f-soft); }
+#update.gb-compact .gb-form-actions a.gb-cancel {
+  min-width: 80px;
+  justify-content: center;
+  padding: 0 16px;
+  color: var(--gb-text);
+  background: var(--gb-surface, #fff);
+  border: 1px solid var(--f-bs);
+  box-sizing: border-box;
+}
+#update.gb-compact .gb-form-actions a.gb-cancel:hover { color: var(--f-strong); background: var(--f-s2); border-color: var(--gb-primary); }
+
+/* ==========================================================================
+   9b. Review round 1 fixes
+   ========================================================================== */
+
+/* label line of every attribute row has one fixed height, with or without a
+   helper (自分に割り当て / ＋ / クリア), so both grid columns stay in step */
+#issue-form #attributes p > label:first-child,
+#bulk_edit_form .attributes p > label:first-child {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  margin: 0 0 6px;
+  align-self: center;
+}
+#issue-form #attributes p > :is(.assign-to-me-link, .gb-quick, a.icon-add, label.inline),
+#bulk_edit_form .attributes p > :is(.assign-to-me-link, .gb-quick, a.icon-add, label.inline) {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 24px;
+  align-self: start;
+}
+#issue-form #attributes p > a.icon-add { margin: 0 0 6px; }
+/* 「私が担当」 hides while the issue is already mine (core .hidden / [hidden]; beats inline-flex above) */
+#issue-form #attributes p > .assign-to-me-link:is(.hidden, [hidden]) { display: none; }
+#bulk_edit_form .attributes p > label.inline { margin: 0 0 6px !important; /* beats core `.tabular label.inline` !important margin */ }
+
+/* bulk 予定工数: same Pattern S grid as 親課題 — label + 「クリア」 on the label line,
+   96px input + 「時間」 below (no `order`, DOM order is kept) */
+#bulk_edit_form .attributes p:has(> #issue_estimated_hours) {
+  grid-template-columns: 96px max-content minmax(0, 1fr) auto;
+  font-size: 13px;
+  color: var(--f-text2);
+}
+#bulk_edit_form .attributes p:has(> #issue_estimated_hours) > label:first-child { grid-column: 1 / 4; grid-row: 1; }
+#bulk_edit_form .attributes p:has(> #issue_estimated_hours) > label.inline { grid-column: 4; grid-row: 1; }
+#bulk_edit_form .attributes p:has(> #issue_estimated_hours) > #issue_estimated_hours { grid-column: 1; grid-row: 2; width: 96px; }
+#bulk_edit_form .attributes p:has(> #issue_estimated_hours) > .gb-hours-suffix { grid-column: 2; grid-row: 2; }
+
+/* server errors: no bullet for a single message */
+#issue-form #errorExplanation ul:has(> li:only-child),
+#bulk_edit_form #errorExplanation ul:has(> li:only-child) { padding-left: 0; list-style: none; }
+
+/* inline full edit on the issue page: its own section below the history */
+body.controller-issues.action-show #update:not(.gb-compact):has(> #issue-form) {
+  margin: 32px 0 16px;
+  padding-top: 24px;
+  border-top: 1px solid var(--gb-border);
+}
+body.controller-issues.action-show #update,
+body.controller-issues.action-show #update #issue-form fieldset { scroll-margin-top: 80px; }
+body.controller-issues.action-show #update:not(.gb-compact) > h3 {
+  margin: 0 0 20px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--gb-text);
+}
+
+/* edit page title: subject first-class, key as secondary metadata (like the show page) */
+body.controller-issues #content > h2.gb-form-title { row-gap: 4px; }
+body.controller-issues #content > h2 .gb-form-key {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--f-text2);
+}
+/* edit: a single title line 「課題の編集 [種別] DEMO-3」 (the subject is shown once, in 題名) */
+body.controller-issues #content > h2.gb-form-title--edit { flex-wrap: nowrap; gap: 10px; }
+body.controller-issues #content > h2.gb-form-title--edit .gb-form-heading {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--gb-text);
+}
+
+/* watcher search modal (＋ ウォッチャーを検索して追加) */
+#new-watcher-form #user_search {
+  height: var(--gb-control-h, 36px);
+  padding-left: 32px !important; /* beats core `input.autocomplete` !important padding */
+  background-position: 10px 50%;
+}
+#new-watcher-form #users_for_watcher { gap: 0 12px; align-content: start; }
+#new-watcher-form #users_for_watcher label {
+  box-sizing: border-box;
+  height: 36px;
+  min-height: 36px;
+  min-width: 0;
+  white-space: nowrap;
+}
+#new-watcher-form #users_for_watcher .gb-w-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#new-watcher-form #users_for_watcher span.avatar:not(.gb-avatar) { display: none; }
+#new-watcher-form #users_for_watcher .gb-avatar { flex: none; }
+
+/* ==========================================================================
+   10. Narrow widths
+   ========================================================================== */
+/* compact panel, single column (.gb-stack — 55-issue-form.js sets it when the viewport is ≤ 1000px
+   OR the panel itself is narrower than 680px, e.g. 1001–1200px with both sidebars open, where two
+   columns left the editor ~110px wide): no inner scroll trap, the panel just flows */
+#update.gb-compact.gb-stack { position: static; max-height: none; overflow: visible; }
+#update.gb-compact.gb-stack #issue-form .box {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "notes" "files" "attrs";
+}
+/* quick fields: one even 2×2 grid across both halves (ステータス/担当者, マイルストーン/期限日) */
+#update.gb-compact.gb-stack #attributes .splitcontent {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+#update.gb-compact.gb-stack #attributes .splitcontentleft,
+#update.gb-compact.gb-stack #attributes .splitcontentright { display: contents; }
+#update.gb-compact.gb-stack #attributes .splitcontent p { margin: 0; }
+@media screen and (max-width: 899px) {
+  #issue-form #attributes .splitcontent,
+  #bulk_edit_form .attributes .splitcontent { grid-template-columns: minmax(0, 1fr); }
+  #issue-form #attributes { padding: 16px 16px 4px; }
+  #issue-form fieldset#log_time { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  #issue-form fieldset#log_time > p:has(#time_entry_comments) { grid-column: 1 / -1; }
+  #issue-form .gb-form-actions,
+  #bulk_edit_form .gb-form-actions { margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; }
+  #issue-form .gb-kbd-hint,
+  #bulk_edit_form .gb-kbd-hint { display: none; }
+}
+@media screen and (max-width: 599px) {
+  #issue-form #all_attributes > p:has(> #issue_project_id),
+  #issue-form #all_attributes > p:has(> #issue_tracker_id) { flex: 1 1 100%; }
+  #issue-form #all_attributes > #issue_is_private_wrap { margin-left: 0; padding-left: 0; }
+  #issue-form .gb-form-actions input[type=submit][name=commit] { flex: 1; }
+  #update.gb-compact #attributes .splitcontent { grid-template-columns: minmax(0, 1fr); }
+  #update.gb-compact .gb-edit-all { flex: 0 0 100%; margin: 0 0 4px; padding: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #issue-form, #bulk_edit_form, #bulk-selection { --f-dur: 0ms; }
+}
+
+/* ==========================================================================
+   11. Review round 2 — polish (R6, R7 and the visual pass on every form)
+   ========================================================================== */
+
+/* ---------- R6: edit forms — no 「プロパティの変更」 under the page title ----------
+   (kept for screen readers; the page / inline title already says 課題の編集) */
+#issue-form.edit_issue .box > fieldset:has(> #all_attributes) > legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- attribute card: one balanced grid, no empty half column ----------
+   4 tracks; regular fields take 2, dates / 予定工数 / 進捗率 take 1. Fields flow in DOM order
+   (= tab order) left→right, top→bottom: ステータス|優先度, 担当者|カテゴリ, マイルストーン|親課題,
+   開始日|期限日|予定工数|進捗率 — no blank area at the bottom right any more. */
+#issue-form#issue-form #attributes .splitcontent,
+#bulk_edit_form#bulk_edit_form .attributes .splitcontent {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 24px;
+}
+#issue-form#issue-form #attributes :is(.splitcontentleft, .splitcontentright),
+#bulk_edit_form#bulk_edit_form .attributes :is(.splitcontentleft, .splitcontentright) { display: contents; }
+#issue-form#issue-form #attributes .splitcontent p,
+#bulk_edit_form#bulk_edit_form .attributes .splitcontent p { grid-column: span 2; }
+#issue-form#issue-form #attributes .splitcontent :is(#start_date_area, #due_date_area, p:has(> #issue_estimated_hours, > #issue_done_ratio)),
+#bulk_edit_form#bulk_edit_form .attributes .splitcontent p:has(> #issue_start_date, > #issue_due_date, > #issue_estimated_hours, > #issue_done_ratio) { grid-column: span 1; }
+
+/* 予定工数 / 作業時間: full-width input, 「時間」 inside its right edge */
+#issue-form#issue-form p:has(> #issue_estimated_hours, > #time_entry_hours),
+#bulk_edit_form#bulk_edit_form .attributes p:has(> #issue_estimated_hours) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+}
+#issue-form#issue-form p > :is(#issue_estimated_hours, #time_entry_hours),
+#bulk_edit_form#bulk_edit_form .attributes p > #issue_estimated_hours {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 100%;
+  max-width: none;
+  padding-right: 44px;
+}
+#issue-form#issue-form p > .gb-hours-suffix,
+#bulk_edit_form#bulk_edit_form .attributes p > .gb-hours-suffix {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-self: end;
+  margin-right: 12px;
+  font-size: 13px;
+  color: var(--f-muted);
+  pointer-events: none;
+}
+#bulk_edit_form#bulk_edit_form .attributes p:has(> #issue_estimated_hours) > label:first-child { grid-column: 1; grid-row: 1; }
+#bulk_edit_form#bulk_edit_form .attributes p:has(> #issue_estimated_hours) > label.inline { grid-column: 2; grid-row: 1; }
+
+/* empty values read as placeholders: 「未設定」 selects and 「年/月/日」 dates are muted */
+#issue-form#issue-form input[type=date].gb-empty { color: var(--f-muted); }
+
+/* watchers: checkboxes line up with the ウォッチャー label and every field edge
+   (the 8px hover padding moves outside the column) */
+#issue-form #watchers_inputs { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); margin: 0 -8px; }
+#issue-form #watchers_inputs label.floating { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#issue-form span.search_for_watchers { margin: 4px 0 0 -8px; }
+
+/* ファイル section title and 「添付ファイルの編集」 share one centre line */
+#issue-form .box > fieldset > .contextual { margin-top: -38px; }
+
+/* sticky bar: the ⌘ + Enter hint ends on the form's right edge, not the card's */
+#issue-form .gb-kbd-hint,
+#bulk_edit_form .gb-kbd-hint { margin-right: max(0px, calc(100% - var(--gb-form-max, 960px))); }
+
+/* copy: 「DEMO-3 をコピー」 eyebrow over the title, and a label for the copy options */
+body.controller-issues #content > h2 .gb-form-main { flex: 0 0 100%; }
+#issue-form .gb-copy-title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--gb-text);
+}
+#issue-form > .box > p:has(> input[type=checkbox]) { min-height: 28px; margin: 0 0 4px; }
+#issue-form > .box > p:has(> input[type=checkbox]):not(:has(+ p > input[type=checkbox])) { margin-bottom: 24px; }
+#issue-form > .box > p:has(> input[type=checkbox]) + p:not(:has(> input[type=checkbox])) { margin-top: 0; }
+
+/* compact panel: the quick fields keep their own 1- / 2-column layouts */
+#update.gb-compact #issue-form#issue-form #attributes .splitcontent { display: block; }
+#update.gb-compact #issue-form#issue-form #attributes .splitcontent p { grid-column: auto; }
+
+#update.gb-compact.gb-stack #issue-form#issue-form #attributes .splitcontent {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+@media screen and (max-width: 599px) {
+  /* phones — 2 tracks: regular fields full width, dates / hours / % side by side */
+  #issue-form#issue-form #attributes .splitcontent,
+  #bulk_edit_form#bulk_edit_form .attributes .splitcontent { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 16px; }
+  /* bulk 予定工数 has no 進捗率 partner: full width instead of a lone half */
+  #bulk_edit_form#bulk_edit_form .attributes .splitcontent p:has(> #issue_estimated_hours):not(:has(~ p > #issue_done_ratio)) { grid-column: 1 / -1; }
+}
+@media screen and (max-width: 599px) {
+  /* トラッカー and プライベート share the first row (no lone checkbox row) */
+  #issue-form #all_attributes > p:has(> #issue_tracker_id) { flex: 1 1 0; }
+  #issue-form #all_attributes > #issue_is_private_wrap {
+    height: var(--gb-control-h-touch, 44px); /* same centre line as the 44px touch select beside it */
+    margin-left: 0;
+    padding: 0 0 0 4px;
+  }
+  #update.gb-compact #issue-form#issue-form #attributes .splitcontent { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* watcher search modal: the list is as tall as its rows (core fixes it at 200px, which left
+   a large blank area under 4 users); min 2 rows so filtering does not make the dialog jump much */
+#new-watcher-form #users_for_watcher { height: auto; min-height: 72px; max-height: 280px; }
+
+/* ==========================================================================
+   12. Review round 3 — alignment / consistency pass
+   ========================================================================== */
+
+/* ---------- ＋ (カテゴリ / マイルストーン): glyph's right edge on the field's right edge */
+#issue-form#issue-form #attributes p > a.icon-add { margin-right: -7.5px; } /* 24px box, 16px icon, circle r=9 of 24 */
+
+/* ---------- 「添付ファイルの編集」: text ends on the dropzone's right edge */
+#issue-form .box > fieldset > .contextual { margin-right: -8px; }
+
+/* ---------- watchers: flush with the form's left edge, no tinted rows
+   (the checkbox + weight carry the state); columns are balanced by 55-issue-form.js */
+#issue-form#issue-form #watchers_inputs { margin: 0; column-gap: 24px; }
+#issue-form#issue-form #watchers_inputs[style*="--gb-w-cols"] { grid-template-columns: repeat(var(--gb-w-cols), minmax(0, 1fr)); }
+#issue-form#issue-form #watchers_inputs label.floating { padding: 0; gap: 8px; background: transparent; }
+#issue-form#issue-form #watchers_inputs label.floating:hover { color: var(--f-strong); }
+#issue-form span.search_for_watchers { margin-left: -8px; }
+
+/* ---------- watcher search modal: list starts on the search field's left edge */
+#new-watcher-form#new-watcher-form #users_for_watcher { column-gap: 24px; }
+#new-watcher-form#new-watcher-form #users_for_watcher label { padding: 0; background: transparent; }
+#new-watcher-form#new-watcher-form #users_for_watcher label:hover { color: var(--gb-primary-strong, #1a7f5e); }
+#new-watcher-form#new-watcher-form #users_for_watcher label:has(input:checked) { font-weight: 500; }
+
+/* ---------- sub-dialogs (新しいカテゴリ / 新しいマイルストーン …): same controls as the form body */
+#ajax-modal#ajax-modal input[type=date].gb-empty { color: var(--gb-muted, #74807c); }
+
+/* ---------- bulk edit ---------- */
+/* every field takes half the card (予定工数 is no longer a lone quarter-width box) */
+#bulk_edit_form#bulk_edit_form .attributes .splitcontent p,
+#bulk_edit_form#bulk_edit_form .attributes .splitcontent p:has(> #issue_start_date, > #issue_due_date, > #issue_estimated_hours, > #issue_done_ratio) { grid-column: span 2; }
+/* 「クリア」 does not make its row taller than the others */
+#bulk_edit_form#bulk_edit_form .attributes p > label.inline { height: 24px; min-height: 0; line-height: 20px; }
+/* no 「プロパティの変更」 sub-heading under 「課題の一括編集」 (kept for screen readers) */
+#bulk_edit_form .box > fieldset.attributes > legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- touch: no drag & drop wording (there is nothing to drag from) */
+@media (hover: none) {
+  #issue-form .gb-drop .gb-drop__text { display: none; }
+}
+
+@media screen and (max-width: 599px) {
+  /* compact panel footer divider spans the content width, as on desktop */
+  #content #update.gb-compact #issue-form .gb-form-actions { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
+  /* watcher search modal: one column, full names */
+  #new-watcher-form#new-watcher-form #users_for_watcher { grid-template-columns: minmax(0, 1fr); }
+  #new-watcher-form#new-watcher-form #users_for_watcher label { white-space: normal; height: auto; }
+  #new-watcher-form#new-watcher-form #users_for_watcher .gb-w-name { overflow: visible; text-overflow: clip; }
+  /* sub-dialog dates are as wide as every other field */
+  .ui-dialog #ajax-modal#ajax-modal input[type=date] { width: 100%; }
+}
+@media screen and (max-width: 899px) {
+  /* bulk attribute card: same inner padding as the issue form's card on narrow screens */
+  #bulk_edit_form .box > fieldset.attributes .splitcontent { padding: 16px 16px 4px; }
+}
+
+/* ==========================================================================
+   Round 3 polish
+   ========================================================================== */
+/* required 「*」: C-form (15-c-form.css) */
+
+/* edit / inline edit: the attribute card's own 24px bottom margin doubled the gap before
+   「時間を記録」 (48px); every section now reads 内容 → 24px → 区切り線 → 20px → 見出し */
+#issue-form.edit_issue .box > fieldset:has(> #all_attributes) #all_attributes > #attributes { margin-bottom: 0; }
+
+/* compact comment panel, one column: separate 「コメント入力」 from 「項目変更」 with a rule */
+#update.gb-compact.gb-stack #issue-form .box > fieldset:has(> #all_attributes) {
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--gb-border);
+}
+/* …and no stray bottom space inside a section either: 時間を記録's fields keep no 4px tail and the
+   プライベートコメント row is exactly the checkbox's height (the 22px line strut left 4–5px under it) */
+#issue-form fieldset#log_time p { margin-bottom: 0; }
+#issue-form#issue-form fieldset#add_notes { line-height: 16px; }
+#issue-form#issue-form fieldset#add_notes > :is(#issue_private_notes, label[for=issue_private_notes]) {
+  display: inline-block;
+  margin-bottom: 0;
+  line-height: 16px;
+  vertical-align: bottom;
+}
+@media screen and (max-width: 899px) {
+  #issue-form fieldset#log_time > p:has(#time_entry_comments) { margin-top: 16px; } /* same row gap as the attribute grid */
+}
+
+/* bulk edit: プライベートコメント row matches the edit form exactly — 12px under the editor,
+   a 16px-tall row (no 28px min-height pushing the checkbox 6px down), 8px checkbox-to-text */
+#bulk_edit_form fieldset > label.inline:has(> #issue_private_notes) {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 8px;
+  min-height: 0;
+  height: 16px;
+  margin: 12px 0 0;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--gb-text);
+  vertical-align: bottom;
+  cursor: pointer;
+}
+#bulk_edit_form fieldset > label.inline > #issue_private_notes { margin: 0; }
+#bulk_edit_form fieldset:has(> label.inline > #issue_private_notes) > .jstBlock + * { margin-top: 0; }

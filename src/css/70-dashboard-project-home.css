@@ -1,0 +1,972 @@
+/* ==========================================================================
+   70 — Dashboard (/my/page) + project home (/projects/:id)   owner: project-pages
+   DESIGN.md §3.7, §2.6 cards, §2.17 timeline
+   ========================================================================== */
+
+/* ---------- shared: page canvas with separate cards ---------- */
+.controller-my.action-page #content,
+.controller-projects.action-show #content {
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  padding: 0;
+  min-height: 0;
+}
+.controller-my.action-page #content > h2,
+.controller-projects.action-show #content > h2 {
+  font-size: var(--gb-fs-xl);
+  font-weight: var(--gb-fw-bold);
+  line-height: 36px;
+  margin: 0 0 16px;
+}
+.controller-my.action-page #content > .contextual,
+.controller-projects.action-show #content > .contextual {
+  margin: 0;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* card */
+.mypage-box,
+.controller-projects.action-show #content .splitcontent > div > .box {
+  position: relative;
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  box-shadow: var(--gb-shadow);
+  padding: 20px 24px;
+  margin: 0 0 16px;
+  min-width: 0;
+}
+
+/* card title */
+.mypage-box > h3,
+.controller-projects.action-show #content .splitcontent > div > .box > h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-bold);
+  line-height: var(--gb-lh-tight);
+  color: var(--gb-text);
+}
+.mypage-box > h3 a:not(.gb-box-link),
+.controller-projects.action-show .box > h3 a:not(.gb-box-link):not(.icon-only) { color: var(--gb-text); text-decoration: none; }
+.mypage-box > h3 a:not(.gb-box-link):hover { color: var(--gb-primary-strong); }
+.controller-projects.action-show .box > h3 > svg.icon-svg { width: 18px; height: 18px; color: var(--gb-text-2); stroke: currentColor; flex: none; }
+.controller-projects.action-show .box > h3 .icon-label { font-size: inherit; }
+
+/* count badge after a card title */
+.gb-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-xs);
+  font-weight: var(--gb-fw-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* "すべて見る" text button in a card header */
+.gb-box-link,
+a.gb-box-link {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-primary-strong);
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color var(--gb-dur-1) var(--gb-ease);
+}
+.gb-box-link:hover { background: var(--gb-primary-soft); color: var(--gb-primary-hover); text-decoration: none; }
+
+/* empty states inside cards */
+.mypage-box p.nodata,
+.controller-projects.action-show .box p.nodata {
+  margin: 0;
+  padding: 24px 8px;
+  border: 0;
+  background: none;
+  text-align: center;
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-md);
+}
+
+/* ---------- avatars (same component as GB.avatar, §2.9) ---------- */
+.gb-members .gb-avatar,
+.gb-proj-avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  color: #fff;
+  font-weight: var(--gb-fw-bold);
+  line-height: 1;
+  background: var(--gb-av-0);
+  user-select: none;
+}
+.gb-members .gb-avatar { border-radius: 50%; }
+.gb-members .gb-avatar--20 { width: 20px; height: 20px; font-size: 11px; }
+.gb-members .gb-avatar--anon { background: var(--gb-surface-3); color: var(--gb-text-2); }
+.gb-members .gb-avatar[data-av="1"], .gb-proj-avatar[data-av="1"] { background: var(--gb-av-1); }
+.gb-members .gb-avatar[data-av="2"], .gb-proj-avatar[data-av="2"] { background: var(--gb-av-2); }
+.gb-members .gb-avatar[data-av="3"], .gb-proj-avatar[data-av="3"] { background: var(--gb-av-3); }
+.gb-members .gb-avatar[data-av="4"], .gb-proj-avatar[data-av="4"] { background: var(--gb-av-4); }
+.gb-members .gb-avatar[data-av="5"], .gb-proj-avatar[data-av="5"] { background: var(--gb-av-5); }
+.gb-members .gb-avatar[data-av="6"], .gb-proj-avatar[data-av="6"] { background: var(--gb-av-6); }
+.gb-members .gb-avatar[data-av="7"], .gb-proj-avatar[data-av="7"] { background: var(--gb-av-7); }
+.gb-proj-avatar { border-radius: 8px; }
+.gb-proj-avatar--36 { width: 36px; height: 36px; font-size: 16px; }
+
+/* ==========================================================================
+   Dashboard (/my/page)
+   ========================================================================== */
+.controller-my.action-page #content > .contextual { float: right; }
+.controller-my.action-page #block-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.controller-my.action-page #block-form > label {
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-text-2);
+}
+.controller-my.action-page #block-form > label.gb-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.controller-my.action-page #block-select {
+  height: var(--gb-control-h-sm);
+  min-width: 200px;
+  font-size: 13px;
+}
+
+#my-page.splitcontent {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: "top top" "left right";
+  column-gap: 16px;
+  align-items: start;
+}
+#my-page > #list-top { grid-area: top; }
+#my-page > #list-left { grid-area: left; }
+#my-page > #list-right { grid-area: right; }
+#my-page > .block-receiver {
+  float: none;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  /* core draws a dashed drop zone at all times: keep it invisible until a block is dragged */
+  border: 1.5px dashed transparent;
+}
+#my-page .block-receiver:empty { min-height: 0; }
+body.controller-my.action-page #my-page .block-receiver.ui-sortable:empty,
+#my-page .block-receiver.gb-dragging { min-height: 80px; }
+#my-page .block-receiver.gb-dragging,
+#my-page:has(.ui-sortable-placeholder) > .block-receiver {
+  border: 1.5px dashed var(--gb-border-strong);
+  border-radius: var(--gb-radius);
+  margin-bottom: 16px;
+}
+#my-page .mypage-box.ui-sortable-helper { box-shadow: var(--gb-shadow-md); }
+#my-page .ui-sortable-placeholder {
+  visibility: visible !important;
+  border: 1.5px dashed var(--gb-primary-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-primary-softer);
+  margin-bottom: 16px;
+}
+
+/* block header actions: drag handle, close, options — icon buttons shown on hover */
+.mypage-box > .contextual {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  z-index: 2;
+  float: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--gb-dur-1) var(--gb-ease);
+}
+.mypage-box > .contextual + .contextual { right: 84px; }
+.mypage-box:hover > .contextual,
+.mypage-box:focus-within > .contextual { opacity: 1; }
+@media (hover: none) { .mypage-box > .contextual { opacity: 1; } }
+.mypage-box > .contextual > a,
+.mypage-box > .contextual > span {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-text-2);
+  background: var(--gb-surface);
+  cursor: pointer;
+}
+.mypage-box > .contextual .sort-handle { cursor: grab; }
+.mypage-box > .contextual > a:hover,
+.mypage-box > .contextual > span:hover { background: var(--gb-surface-3); color: var(--gb-text); }
+.mypage-box > .contextual svg { width: 16px; height: 16px; stroke: currentColor; }
+.mypage-box > .contextual .icon-label { display: none; }
+/* keep the title clear of the hover actions */
+.mypage-box > h3 { padding-right: 0; }
+.mypage-box:hover > h3 .gb-box-link,
+.mypage-box:focus-within > h3 .gb-box-link { margin-right: 64px; }
+.mypage-box:has(> .contextual + .contextual):hover > h3 .gb-box-link,
+.mypage-box:has(> .contextual + .contextual):focus-within > h3 .gb-box-link { margin-right: 96px; }
+@media (hover: none) {
+  .mypage-box > h3 .gb-box-link { margin-right: 64px; }
+  .mypage-box:has(> .contextual + .contextual) > h3 .gb-box-link { margin-right: 96px; }
+}
+
+/* block settings panel (column chooser etc.) */
+.mypage-box > div[id$="-settings"] {
+  margin: 0 0 16px;
+  padding: 16px;
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface-2);
+}
+.mypage-box > div[id$="-settings"] .box { background: transparent; border: 0; padding: 0; margin: 0 0 12px; }
+.mypage-box > div[id$="-settings"] p { margin: 0; display: flex; align-items: center; gap: 8px; }
+/* column chooser: available | → ← | selected | sort buttons aligned to the top of the selected list */
+.mypage-box > div[id$="-settings"] #list-definition > .box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+}
+.mypage-box > div[id$="-settings"] #list-definition .query-columns { display: flex; flex-direction: column; }
+.mypage-box > div[id$="-settings"] #list-definition .query-columns label { line-height: 20px; margin: 0 0 4px; }
+.mypage-box > div[id$="-settings"] #list-definition .buttons { align-self: center; align-items: center; }
+.mypage-box > div[id$="-settings"] #list-definition .query-columns ~ .query-columns + .buttons { align-self: flex-start; margin-top: 24px; }
+.mypage-box > div[id$="-settings"] form > p { margin-top: 12px; }
+.mypage-box > div[id$="-settings"] #list-definition .buttons button { margin: 0; }
+
+/* issue tables inside blocks: compact §2.5 */
+/* max-width:none: the phone rules cap .autoscroll at 100%, which cancels the bleed and leaves a 48px gap */
+#my-page .mypage-box .autoscroll { max-width: none; margin: 0 -24px; padding: 0 24px; overflow-x: auto; }
+#my-page .mypage-box table.list {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  table-layout: auto;
+}
+#my-page .mypage-box table.list thead th {
+  height: 32px;
+  padding: 0 8px;
+  background: transparent;
+  border-bottom: 1px solid var(--gb-border);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text-2);
+  text-align: left;
+  white-space: nowrap;
+}
+#my-page .mypage-box table.list thead th a { color: inherit; }
+#my-page .mypage-box table.list tbody td {
+  height: 40px;
+  padding: 6px 8px;
+  font-size: 13px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--gb-border);
+}
+#my-page .mypage-box table.list tbody tr:last-child td { border-bottom: 0; }
+#my-page .mypage-box table.list td.id,
+#my-page .mypage-box table.list td.checkbox { white-space: nowrap; width: 1%; font-variant-numeric: tabular-nums; }
+#my-page .mypage-box table.list td.id a { color: var(--gb-primary-strong); font-weight: var(--gb-fw-medium); }
+#my-page .mypage-box table.list td.project,
+#my-page .mypage-box table.list td.tracker,
+#my-page .mypage-box table.list td.status { white-space: nowrap; width: 1%; }
+#my-page .mypage-box table.list td.project a {
+  display: inline-block;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  color: var(--gb-text-2);
+}
+/* subject cell (width, 2-line clamp, tracker + link): C-issue-row (15-c-issue-row.css) */
+#my-page .mypage-box table.list td.subject > .gb-subj__meta {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-top: 2px;
+}
+#my-page .mypage-box table.list td.subject .gb-subj__project {
+  display: none;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--gb-fs-sm);
+  line-height: 18px;
+  color: var(--gb-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#my-page .mypage-box table.list td.subject .gb-subj__status { display: none; flex: none; }
+#my-page .mypage-box table.list td.buttons { width: 36px; padding-right: 0; text-align: right; }
+/* DESIGN §3.7: no coloured priority stripes in dashboard tables */
+#my-page table.list.issues tr td.id,
+#my-page table.list.issues tr td.checkbox,
+#my-page table.list.issues tr td:first-child { box-shadow: none; }
+#my-page table.list.issues tr td { border-left: 0; }
+.mypage-box .gb-block-foot { margin: 8px 0 0; text-align: right; }
+
+/* プロジェクト block: project cards */
+.gb-project-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.gb-project-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface);
+  transition: border-color var(--gb-dur-1) var(--gb-ease), box-shadow var(--gb-dur-1) var(--gb-ease);
+}
+.gb-project-card:hover,
+.gb-project-card:focus-within { border-color: var(--gb-primary-border); box-shadow: var(--gb-shadow); }
+.gb-project-card__head,
+.gb-project-card__head:link,
+.gb-project-card__head:visited {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: var(--gb-text);
+  text-decoration: none;
+  border-radius: var(--gb-radius-sm);
+}
+.gb-project-card__head:hover .gb-project-card__title { color: var(--gb-primary-strong); text-decoration: underline; }
+.gb-project-card__name { display: flex; flex-direction: column; min-width: 0; line-height: 1.35; }
+.gb-project-card__title {
+  font-size: 15px;
+  font-weight: var(--gb-fw-bold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gb-project-card__name small {
+  margin-top: 2px;
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-muted);
+  letter-spacing: .04em;
+}
+.gb-project-card__stats {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 14px 0 6px;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+}
+.gb-project-card__stat strong {
+  margin-right: 4px;
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+  font-variant-numeric: tabular-nums;
+}
+.gb-project-card__pct { margin-left: auto; font-weight: var(--gb-fw-bold); font-variant-numeric: tabular-nums; }
+.gb-project-card__bar,
+.gb-progress,
+.gb-categories__bar {
+  display: block;
+  height: 6px;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-3);
+  overflow: hidden;
+}
+.gb-project-card__bar > span,
+.gb-progress > span,
+.gb-categories__bar > span {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-primary);
+}
+.gb-project-card__links {
+  display: flex;
+  gap: 4px;
+  margin: 12px -8px -6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--gb-border);
+}
+.gb-project-card__links a,
+.gb-project-card__links a:link,
+.gb-project-card__links a:visited {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-primary-strong);
+  text-decoration: none;
+}
+.gb-project-card__links a:hover { background: var(--gb-primary-soft); color: var(--gb-primary-hover); }
+
+/* other core blocks on the dashboard (news, documents, calendar, timelog, activity) */
+.mypage-box h4 { font-size: 13px; color: var(--gb-text-2); }
+.mypage-box table.cal { width: 100%; }
+
+/* ==========================================================================
+   Project home (/projects/:id)
+   ========================================================================== */
+.controller-projects.action-show #content > .contextual { float: right; }
+.controller-projects.action-show #content .splitcontent {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  column-gap: 16px;
+  align-items: start;
+}
+.controller-projects.action-show #content .splitcontent > .splitcontentleft,
+.controller-projects.action-show #content .splitcontent > .splitcontentright {
+  float: none;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* project description (rendered .wiki) as the first card */
+.controller-projects.action-show .splitcontentleft > .wiki {
+  order: -2;
+  margin: 0 0 16px;
+  padding: 20px 24px;
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  box-shadow: var(--gb-shadow);
+}
+.controller-projects.action-show .splitcontentleft > .wiki:empty { display: none; }
+.controller-projects.action-show .splitcontentleft > ul:not(.gb-timeline__list) {
+  order: -1;
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 16px 24px;
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  box-shadow: var(--gb-shadow);
+  font-size: 13px;
+  color: var(--gb-text-2);
+}
+.controller-projects.action-show .splitcontentleft > ul:not(.gb-timeline__list) li { padding: 2px 0; }
+.controller-projects.action-show .splitcontentleft > ul:not(.gb-timeline__list) .label { font-weight: var(--gb-fw-bold); color: var(--gb-text); }
+.controller-projects.action-show .gb-activity { order: 0; }
+.controller-projects.action-show .splitcontentleft > .issues.box { order: 1; }
+.controller-projects.action-show .splitcontentleft > .spent_time.box { order: 2; }
+
+/* right column order: 状態, マイルストーン, カテゴリー, 課題, 時間管理, ニュース, メンバー */
+.controller-projects.action-show .splitcontentright > .gb-status-box { order: 1; }
+.controller-projects.action-show .splitcontentright > .gb-milestone-box { order: 2; }
+.controller-projects.action-show .splitcontentright > .gb-category-box { order: 3; }
+.controller-projects.action-show .splitcontentright > .issues.box { order: 4; }
+.controller-projects.action-show .splitcontentright > .spent_time.box { order: 5; }
+.controller-projects.action-show .splitcontentright > .news.box { order: 6; }
+.controller-projects.action-show .splitcontentright > .members.box { order: 7; }
+.controller-projects.action-show #content .splitcontent > .splitcontentright > .box { padding: 16px 20px; }
+
+/* status card */
+.gb-stackbar {
+  display: flex;
+  gap: 2px;
+  height: 12px;
+  margin: 4px 0 12px;
+  border-radius: var(--gb-radius-pill);
+  overflow: hidden;
+  background: var(--gb-surface-3);
+}
+.gb-stackbar__seg { display: block; height: 100%; min-width: 4px; }
+.gb-st-bg-1 { background: var(--gb-st-1); }
+.gb-st-bg-2 { background: var(--gb-st-2); }
+.gb-st-bg-3 { background: var(--gb-st-3); }
+.gb-st-bg-4 { background: var(--gb-st-4); }
+.gb-st-bg-5 { background: var(--gb-st-5); }
+.gb-st-bg-6 { background: var(--gb-st-6); }
+.gb-legend,
+.gb-milestones,
+.gb-categories { list-style: none; margin: 0; padding: 0; }
+.gb-legend { margin: 0 -8px; }
+.gb-legend__row,
+.gb-legend__row:link,
+.gb-legend__row:visited {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  font-size: var(--gb-fs-md);
+  color: var(--gb-text);
+  text-decoration: none;
+}
+.gb-legend__row:hover { background: var(--gb-primary-softer); }
+.gb-legend__row:hover .gb-legend__name { color: var(--gb-primary-strong); text-decoration: underline; }
+.gb-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.gb-legend__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gb-legend__count { margin-left: auto; font-weight: var(--gb-fw-bold); font-variant-numeric: tabular-nums; }
+.gb-legend__pct {
+  width: 40px;
+  text-align: right;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* milestones card */
+.gb-milestones li { padding: 12px 0; border-bottom: 1px solid var(--gb-border); }
+.gb-milestones li:first-child { padding-top: 4px; }
+.gb-milestones li:last-child { border-bottom: 0; padding-bottom: 0; }
+.gb-milestones__head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; min-width: 0; }
+.gb-milestones__name,
+.gb-milestones__name:link,
+.gb-milestones__name:visited {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+}
+.gb-milestones__name:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+.gb-milestones__due {
+  margin-left: auto;
+  flex: none;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+  font-variant-numeric: tabular-nums;
+}
+.gb-milestones__due.is-late { color: var(--gb-danger); font-weight: var(--gb-fw-bold); }
+.gb-milestone-box .gb-progress { height: 8px; }
+.gb-milestones__meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+  font-variant-numeric: tabular-nums;
+}
+.gb-milestones__pct { font-weight: var(--gb-fw-bold); color: var(--gb-text); }
+.gb-milestones__sep { color: var(--gb-muted); }
+
+/* categories card */
+.gb-categories li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px 48px;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+}
+.gb-categories__name,
+.gb-categories__name:link,
+.gb-categories__name:visited {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--gb-fs-md);
+  color: var(--gb-text);
+}
+.gb-categories__name:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+.gb-categories__count {
+  text-align: right;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* core 課題トラッキング card: tracker × open/closed table */
+.controller-projects.action-show .issues.box table.list.issue-report {
+  width: 100%;
+  margin: 0 0 8px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.controller-projects.action-show .issues.box table.issue-report th {
+  height: 28px;
+  padding: 0 4px;
+  background: transparent;
+  border-bottom: 1px solid var(--gb-border);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text-2);
+  text-align: right;
+}
+.controller-projects.action-show .issues.box table.issue-report td {
+  height: 32px;
+  padding: 0 4px;
+  font-size: 13px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--gb-border);
+}
+.controller-projects.action-show .issues.box table.issue-report tbody tr:last-child td { border-bottom: 0; }
+.controller-projects.action-show .issues.box table.issue-report td.name { text-align: left; font-weight: var(--gb-fw-medium); }
+.controller-projects.action-show .issues.box table.issue-report td.name a { color: var(--gb-text); }
+.controller-projects.action-show .issues.box table.issue-report td.total a { font-weight: var(--gb-fw-bold); }
+.controller-projects.action-show .issues.box table.issue-report td a:hover { color: var(--gb-primary-strong); }
+.controller-projects.action-show .issues.box table.issue-report tbody tr:hover { background: var(--gb-primary-softer); }
+.controller-projects.action-show .issues.box > h3 .icon-zoom-in {
+  margin-left: auto;
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-text-2);
+}
+.controller-projects.action-show .issues.box > h3 .icon-zoom-in:hover { background: var(--gb-surface-3); color: var(--gb-text); }
+.controller-projects.action-show .issues.box > h3 .icon-zoom-in svg { width: 16px; height: 16px; stroke: currentColor; }
+
+/* link rows under core cards: "すべての課題を表示 | サマリー | …" → text buttons (JS removes the pipes) */
+.controller-projects.action-show .box > p.gb-linkrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  margin: 8px -8px 0;
+}
+.controller-projects.action-show .box > p.gb-linkrow a {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-primary-strong);
+}
+.controller-projects.action-show .box > p.gb-linkrow a:hover { background: var(--gb-primary-soft); text-decoration: none; }
+
+/* 時間管理 card */
+.controller-projects.action-show .spent_time.box > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.controller-projects.action-show .spent_time.box > ul > li {
+  padding: 10px 12px;
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface-2);
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+}
+.controller-projects.action-show .spent_time.box .gb-stat__value {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 最新ニュース card */
+.controller-projects.action-show .news.box > p {
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gb-border);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--gb-text-2);
+}
+.controller-projects.action-show .news.box > p:first-of-type { padding-top: 0; }
+.controller-projects.action-show .news.box > p:last-child { border-bottom: 0; padding-bottom: 0; }
+.controller-projects.action-show .news.box > p > a:first-child {
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-text);
+}
+.controller-projects.action-show .news.box > p > a:first-child:hover { color: var(--gb-primary-strong); }
+.controller-projects.action-show .news.box .comments { font-size: var(--gb-fs-sm); color: var(--gb-muted); }
+.controller-projects.action-show .news.box .summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  font-style: normal;
+  color: var(--gb-text-2);
+}
+.controller-projects.action-show .news.box .author { font-size: var(--gb-fs-sm); font-style: normal; color: var(--gb-muted); }
+.controller-projects.action-show .news.box .author a { color: var(--gb-text-2); }
+.controller-projects.action-show .news.box > p.gb-linkrow { border-bottom: 0; padding: 0; }
+
+/* メンバー card: role groups with avatar chips (JS builds .gb-members) */
+.gb-members { margin: 0; }
+.gb-members__role {
+  margin: 12px 0 6px;
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text-2);
+}
+.gb-members__role:first-child { margin-top: 0; }
+.gb-members__list { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; }
+.gb-members__chip,
+.gb-members__chip:link,
+.gb-members__chip:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px 0 4px;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-2);
+  border: 1px solid var(--gb-border);
+  font-size: 13px;
+  color: var(--gb-text);
+  text-decoration: none;
+  max-width: 100%;
+}
+.gb-members__chip:hover { border-color: var(--gb-primary-border); background: var(--gb-primary-softer); color: var(--gb-primary-strong); }
+.gb-members__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media screen and (max-width: 1023px) {
+  .controller-projects.action-show #content .splitcontent { grid-template-columns: minmax(0, 1fr); }
+  #my-page.splitcontent { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "left" "right"; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gb-project-card, .gb-box-link, .mypage-box > .contextual { transition: none; }
+}
+
+/* tracker badge in dashboard issue tables: shown in front of the subject */
+#my-page table.list.gb-inline-tracker th.tracker,
+#my-page table.list.gb-inline-tracker td.tracker { display: none; }
+#my-page table.list td .gb-tracker {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-pill);
+  font-size: var(--gb-fs-xs);
+  font-weight: var(--gb-fw-bold);
+  line-height: 1;
+  color: #fff;
+  background: var(--gb-tr-default);
+  white-space: nowrap;
+}
+#my-page table.list td .gb-tracker-1 { background: var(--gb-tr-1); }
+#my-page table.list td .gb-tracker-2 { background: var(--gb-tr-2); }
+#my-page table.list td .gb-tracker-3 { background: var(--gb-tr-3); }
+/* the block's own width decides (sidebars and the 2-column grid change it, not only the viewport):
+   below 560px the プロジェクト column folds into a muted second line under the subject, unless every issue of
+   the block is in one project (table.gb-one-project, 70-dashboard-project-home.js; §6.7) */
+#my-page .mypage-box { container-type: inline-size; }
+@container (max-width: 559px) {
+  #my-page .mypage-box table.list th.project,
+  #my-page .mypage-box table.list td.project { display: none; }
+  #my-page .mypage-box table.list:not(.gb-one-project) td.subject > .gb-subj__meta:has(.gb-subj__project) { display: flex; }
+  #my-page .mypage-box table.list:not(.gb-one-project) td.subject .gb-subj__project { display: block; }
+}
+/* phones: the ステータス column folds into the meta line too, so the subject gets the width */
+@container (max-width: 419px) {
+  #my-page .mypage-box table.list:has(.gb-subj__status) th.status,
+  #my-page .mypage-box table.list:has(.gb-subj__status) td.status { display: none; }
+  #my-page .mypage-box table.list td.subject > .gb-subj__meta { display: flex; }
+  #my-page .mypage-box table.list td.subject .gb-subj__status { display: inline-flex; }
+}
+@supports not (container-type: inline-size) {
+  @media screen and (max-width: 1199px) {
+    #my-page .mypage-box table.list th.project,
+    #my-page .mypage-box table.list td.project { display: none; }
+    #my-page .mypage-box table.list:not(.gb-one-project) td.subject > .gb-subj__meta { display: flex; }
+    #my-page .mypage-box table.list:not(.gb-one-project) td.subject .gb-subj__project { display: block; }
+  }
+}
+
+/* 時間管理: unit after the H:MM value */
+.controller-projects.action-show .spent_time.box .gb-stat__value .gb-unit {
+  margin-left: 2px;
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-normal);
+  color: var(--gb-text-2);
+}
+/* 最新ニュース: the "すべて見る" link moved into the header */
+.controller-projects.action-show .news.box > h3 .gb-box-link { margin-left: auto; }
+
+/* project description: 3 lines, 「もっと見る」 expands it */
+.controller-projects.action-show .splitcontentleft > .wiki.gb-desc.is-clamped > .gb-desc__body {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+.controller-projects.action-show .splitcontentleft > .wiki.gb-desc.is-clamped > .gb-desc__body > * { margin-top: 0; }
+.controller-projects.action-show .gb-desc__more {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  margin: 8px 0 0 -8px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--gb-radius-sm);
+  background: transparent;
+  color: var(--gb-primary-strong);
+  font: inherit;
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  cursor: pointer;
+}
+.controller-projects.action-show .gb-desc__more:hover { background: var(--gb-primary-soft); }
+.controller-projects.action-show .splitcontentleft > .wiki.gb-desc > .gb-desc__body > :last-child { margin-bottom: 0; }
+
+/* ==========================================================================
+   Round 5 — polish
+   ========================================================================== */
+/* project home cards: one header pattern — title (+ count) left, 「すべて見る」 right, no icons
+   (core cards brought module icons, the Greenboard cards have none) */
+.controller-projects.action-show #content .splitcontent > div > .box > h3 > svg.icon-svg { display: none; }
+.controller-projects.action-show #content .splitcontent > div > .box > h3 .gb-box-link { margin-left: auto; }
+
+/* 最新ニュース: the <br> after the clamped summary added an empty line before the author */
+.controller-projects.action-show .news.box .summary + br { display: none; }
+.controller-projects.action-show .news.box .author { display: block; margin-top: 2px; }
+
+/* dashboard tables: the key repeated in the meta line (shown when the # column folds away) */
+#my-page .mypage-box table.list td.subject .gb-subj__key {
+  display: none;
+  flex: none;
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-medium);
+  line-height: 18px;
+  color: var(--gb-primary-strong);
+  font-variant-numeric: tabular-nums;
+}
+@container (max-width: 419px) {
+  #my-page .mypage-box table.list th.id,
+  #my-page .mypage-box table.list td.id { display: none; }
+  #my-page .mypage-box table.list td.subject .gb-subj__key { display: inline; }
+}
+/* プロジェクト column: the issue list's 84px cap cut 「デモ（削除可」 mid-word with no ellipsis;
+   the dashboard has room — show the name, ellipsis only past 160px */
+#my-page .mypage-box table.list.issues td.project { max-width: none; overflow: visible; }
+#my-page .mypage-box table.list.issues td.project > a { display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+
+/* ==========================================================================
+   Round 6 — strict review fixes
+   ========================================================================== */
+
+/* ==========================================================================
+   Round 8 — strict review (round 2)
+   ========================================================================== */
+/* phones: one status pill width (= 「処理済み」), so the key after it starts on one line in every row */
+#my-page .mypage-box table.list td.subject .gb-subj__status { box-sizing: border-box; min-width: 68px; justify-content: center; }
+
+/* ==========================================================================
+   Round 9 — strict review (round 3)
+   ========================================================================== */
+/* one tracker badge width (= 「サポート」, as on the version / time entry pages and the timelines), so the
+   issue keys start on one line in every row */
+#my-page table.list td .gb-tracker { box-sizing: border-box; min-width: 64px; justify-content: center; text-align: center; }
+/* one status pill width (= 「処理済み」), the same value as the version page's related issues */
+#my-page .mypage-box table.list td.subject .gb-subj__status { min-width: 72px; }
+
+/* footer 「すべて見る」 under a list card: phones only, where the header link gives way (dashboard) or the
+   list is cut to fewer rows (project home) */
+.gb-box-foot { display: none; }
+.gb-box-foot {
+  margin: 12px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--gb-border);
+  text-align: center;
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+}
+.gb-box-foot > a { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border-radius: var(--gb-radius-sm); color: var(--gb-primary-strong); text-decoration: none; }
+.gb-box-foot > a:hover { background: var(--gb-primary-soft); text-decoration: none; }
+@media screen and (max-width: 479px) {
+  #my-page .mypage-box > .gb-box-foot { display: block; }
+}
+
+/* project home, stacked (one column): 状態 and マイルストーン come before the timeline, so the summary is on
+   the first screens; the timeline keeps 8 updates (70-dashboard-project-home.js marks the rest) and ends
+   with 「すべて見る」. Two columns: the timeline ends level with the summary column (--fit). */
+@media screen and (max-width: 1023px) {
+  html body.controller-projects.action-show #content .splitcontent { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
+  .controller-projects.action-show #content .splitcontent > :is(.splitcontentleft, .splitcontentright) { display: contents; }
+  .controller-projects.action-show .splitcontentleft > .wiki { order: -20; }
+  .controller-projects.action-show .splitcontentleft > ul:not(.gb-timeline__list) { order: -19; }
+  .controller-projects.action-show .splitcontentright > .gb-status-box { order: -18; }
+  .controller-projects.action-show .splitcontentright > .gb-milestone-box { order: -17; }
+  .controller-projects.action-show .splitcontentleft > .gb-activity { order: -16; }
+  .controller-projects.action-show .splitcontentleft > .issues.box { order: -15; }
+  .controller-projects.action-show .splitcontentleft > .spent_time.box { order: -14; }
+}
+.controller-projects.action-show .gb-activity :is(.gb-timeline__item--fit, .gb-timeline__list--fit, .gb-timeline__day--fit) { display: none; }
+.controller-projects.action-show .gb-activity .gb-timeline__item:has(+ .gb-timeline__item--fit) { border-bottom: 0; }
+@media screen and (max-width: 1023px) {
+  .controller-projects.action-show .gb-activity :is(.gb-timeline__item--extra, .gb-timeline__list--extra, .gb-timeline__day--extra) { display: none; }
+  .controller-projects.action-show .gb-activity > .gb-box-foot { display: block; }
+  /* the last shown update ends the list: no separator above the footer's own rule */
+  .controller-projects.action-show .gb-activity .gb-timeline__item:has(+ .gb-timeline__item--extra) { border-bottom: 0; }
+}
+/* two-tier rows (status folded under the badge): badge and status pill share one width, so the subject on
+   line 1 and the key on line 2 start on one line */
+@container (max-width: 419px) {
+  #my-page .mypage-box table.list td.subject:has(.gb-subj__status) .gb-tracker { min-width: 72px; }
+}
+
+/* ==========================================================================
+   Round 10 — final acceptance
+   ========================================================================== */
+/* dashboard issue tables: fixed column widths, so stacked blocks (担当している課題 / ウォッチしている課題 …)
+   put #, ステータス and the badges of 題名 on the same vertical lines whatever their content */
+@media screen and (min-width: 480px) {
+  #my-page .mypage-box table.list.issues { table-layout: fixed; }
+  #my-page .mypage-box table.list.issues :is(th, td) { box-sizing: border-box; }
+  #my-page .mypage-box table.list.issues :is(th, td).id { width: 84px; }
+  #my-page .mypage-box table.list.issues :is(th, td).project { width: 152px; }
+  #my-page .mypage-box table.list.issues :is(th, td).tracker { width: 96px; }
+  #my-page .mypage-box table.list.issues :is(th, td).status { width: 88px; }
+  #my-page .mypage-box table.list.issues :is(th, td).subject { width: auto; }
+  #my-page .mypage-box table.list.issues :is(th, td).buttons { width: 36px; }
+}

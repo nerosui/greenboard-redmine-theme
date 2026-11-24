@@ -1,0 +1,56 @@
+/* ==========================================================================
+   C-form — form primitives (DESIGN §6.2 – §6.4, ACCEPTANCE F1 – F4)
+   The ONLY place that styles: the required marker 「*」, the checkbox / radio box, and the muted
+   「未設定」 / 「(変更なし)」 select state (class `gb-unset`, set by js/15-c-form.js).
+   Page files may only place a checkbox / label inside their grid and set the width of a select
+   (see COMPONENTS.md, C-form).
+   ========================================================================== */
+
+/* ---------- required marker (F1, §6.3)
+   core renders `<label>題名<span class="required"> *</span></label>`. inline-block drops the leading
+   space inside the span, so the gap is always exactly the 4px margin — on block, grid and flex labels. */
+label .required,
+legend .required,
+span.required {
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--gb-danger);
+  font-size: inherit;
+  font-weight: var(--gb-fw-bold);
+}
+
+/* ---------- checkbox / radio (F3, §6.4)
+   16×16 rendered box on every page and width. `flex: none` + min-* keep it from shrinking inside flex
+   rows and narrow table cells (the time-entries rows were 16×13). The hit target is the row / cell.
+   `#sidebar li input[type=checkbox]` beats core's `#sidebar li input[type="checkbox"] { height: 20px }`. */
+input[type=checkbox],
+input[type=radio],
+#sidebar li input[type=checkbox] {
+  box-sizing: border-box;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  vertical-align: -3px;
+  accent-color: var(--gb-primary-strong);
+  cursor: pointer;
+}
+input[type=checkbox]:disabled,
+input[type=radio]:disabled { cursor: not-allowed; }
+label:has(> input[type=checkbox]),
+label:has(> input[type=radio]) { cursor: pointer; }
+label > input[type=checkbox],
+label > input[type=radio] { margin-right: 8px; }
+input[type=checkbox] + label,
+input[type=radio] + label { margin-left: 6px; }
+
+/* ---------- empty select option 「未設定」 (F2, §6.2)
+   muted while the empty choice is selected; the open list keeps the normal text colour.
+   Bulk edit's 「(変更なし)」 is core's locale `label_no_change_option` (F4). */
+select.gb-unset { color: var(--gb-muted); }
+select.gb-unset option { color: var(--gb-text); }

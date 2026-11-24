@@ -1,0 +1,172 @@
+/* ==========================================================================
+   C-issue-row — issue subject in lists, cards, chips and gantt rows; key column; assignee slot;
+   status-dot select row (DESIGN §6.6 – §6.8). One implementation: page files set only the layout around it
+   (column widths of other columns, which columns hide, board / swimlane layout, gantt chart area).
+   Wrapping (text-wrap / word-break / line-break / overflow-wrap) of every subject is C-wrap (15-c-wrap.css);
+   this file sets the clamp of each context (§6.7) and nothing about line breaking.
+
+   Clamp table (§6.7) — the same number at every width:
+     tables (issue list, dashboard 担当 / ウォッチ, subtasks / relations, time entries, time report)  2 lines
+     board cards                                                                                3 lines
+     calendar chips                                                                             2 lines
+     gantt subject column                                                    1 line with ellipsis
+   ========================================================================== */
+
+/* ---------- key column (§6.6): 「キー」 header (15-c-issue-row.js), nowrap, tabular-nums, link colour;
+   the cell is as wide as its longest key ---------- */
+table.list.issues td.id { width: 1%; white-space: nowrap; font-variant-numeric: tabular-nums; }
+table.list.issues tr.closed td.id a { color: var(--gb-muted); text-decoration: line-through; }
+
+/* ---------- issue list (/issues, /projects/:id/issues): the subject column takes the free width ---------- */
+table.list.issues td.subject { width: 100%; min-width: 260px; padding-left: 12px; padding-right: 12px; }
+/* narrower floor when the 全プロジェクト list adds a project column */
+table.list.issues:has(> thead th.project) td.subject { min-width: 220px; }
+/* right sidebar open: 題名 gives way first so the short columns stay in view */
+#main:not(.nosidebar) table.list.issues td.subject { min-width: 200px; }
+table.list.issues td.subject a {
+  font-weight: var(--gb-fw-medium);
+  line-height: 20px;
+  color: var(--gb-text);
+  text-decoration: none;
+}
+table.list.issues td.subject a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+table.list.issues tr.closed td.subject a { color: var(--gb-text-2); text-decoration: none; }
+table.list.issues td.subject > a {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* ---------- dashboard 担当 / ウォッチ tables: [tracker] subject, 2 lines hanging after the badge (I4) ---------- */
+#my-page .mypage-box table.list td.subject {
+  width: 100%;
+  max-width: 0;
+  min-width: 0;
+  overflow: hidden;
+  white-space: normal;
+  line-height: 20px;
+}
+#my-page .mypage-box table.list td.subject > .gb-subj {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+}
+#my-page .mypage-box table.list td.subject > .gb-subj > .gb-tracker { flex: none; margin-right: 6px; }
+#my-page .mypage-box table.list td.subject > .gb-subj > a {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  min-width: 0;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-text);
+}
+#my-page .mypage-box table.list td.subject > .gb-subj > a:hover { color: var(--gb-primary-strong); }
+/* L6: wherever the キー column is shown (block ≥ 420px), the tracker badge sits under the key
+   (copy made by 15-c-issue-row.js), so the subject gets the full cell width: short subjects stay on one
+   line and 「[UIテスト] …」 does not break right after the prefix. Phones keep the badge in front of the
+   subject (the キー column folds away there). */
+#my-page .mypage-box table.list td.id > .gb-tracker--key { display: none; }
+@container (min-width: 420px) {
+  #my-page .mypage-box table.list td.id:has(> .gb-tracker--key) { line-height: 20px; }
+  #my-page .mypage-box table.list td.id > .gb-tracker--key { display: flex; width: fit-content; margin-top: 2px; }
+  #my-page .mypage-box table.list tr:has(> td.id > .gb-tracker--key) > td.subject > .gb-subj > .gb-tracker { display: none; }
+}
+
+/* ---------- subtasks / relations on the issue page ---------- */
+:is(#issue_tree, #relations) td.subject .gb-subj {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* ---------- version / roadmap related issues: subject, 2 lines at every width (desktop floats the tracker
+   badge and key beside the clamped block; phones put the subject on its own lines) ---------- */
+table.list.related-issues td.subject > .gb-rel__subject {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  white-space: normal;
+}
+
+/* ---------- time entries: 課題 cell = [tracker] key, then the subject (2 lines) ---------- */
+table.time-entries .gb-te-issue > .gb-te-subj {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  white-space: normal;
+}
+
+/* ---------- time report: issue rows and grouped issue cells ---------- */
+#time-report :is(.gb-report-issue, td.gb-report-grp-cell > .gb-report-grp) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  white-space: normal;
+}
+
+/* ---------- board cards: subject, 3 lines; the link stays inline so the rest of the line still opens the
+   context menu ---------- */
+.issue-card .card-content > .subject .value {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+.issue-card .card-content > .subject .value,
+.issue-card .card-content > .subject .value a {
+  color: var(--gb-text);
+  font-size: 14px;
+  font-weight: var(--gb-fw-medium);
+  line-height: 1.5;
+  text-decoration: none;
+}
+.issue-card .card-content > .subject .value a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+.issue-card .closed .card-content > .subject .value a { color: var(--gb-text-2); }
+
+/* ---------- calendar chips: subject, 2 lines at every width ---------- */
+.gb-cal-chip__subject {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  white-space: normal;
+}
+
+/* ---------- gantt subject column: one line with ellipsis (fixed-height chart rows); the column width and
+   the key-only link text come from 15-c-issue-row.js ---------- */
+.gantt_subjects_column .issue-subject {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ---------- status select with colour dot (§6.8, I2): the 8px dot sits inside the select, 10px from its left
+   edge, the option text starts at 26px — issue form (new / edit / compact panel) and the board modal.
+   The row only carries data-status (55-issue-form.js, 60-board.js). ---------- */
+p[data-status] > select#issue_status_id {
+  padding-left: 26px;
+  background-image: radial-gradient(circle closest-side, var(--gb-st-dot, var(--gb-st-6)) 92%, transparent 100%), var(--gb-chevron-down);
+  background-position: 10px 50%, right 10px center;
+  background-size: 8px 8px, 16px 16px;
+  background-repeat: no-repeat;
+}
+p[data-status="1"] { --gb-st-dot: var(--gb-st-1); }
+p[data-status="2"] { --gb-st-dot: var(--gb-st-2); }
+p[data-status="3"] { --gb-st-dot: var(--gb-st-3); }
+p[data-status="4"] { --gb-st-dot: var(--gb-st-4); }
+p[data-status="5"] { --gb-st-dot: var(--gb-st-5); }
+p[data-status="6"] { --gb-st-dot: var(--gb-st-6); }

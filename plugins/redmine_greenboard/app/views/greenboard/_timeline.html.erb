@@ -1,0 +1,43 @@
+<% if events.empty? %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+  <div class="gb-timeline">
+    <% events.group_by { |e| gb_event_date(e) }.each do |day, day_events| %>
+      <div class="gb-timeline__day" role="heading" aria-level="3"><%= gb_event_day_label(day) %></div>
+      <ul class="gb-timeline__list">
+        <% day_events.each do |e| %>
+          <%
+            author = e.respond_to?(:event_author) ? e.event_author : nil
+            type = gb_event_type(e)
+            issue = gb_event_issue(e)
+            change = gb_journal_status_change(e)
+            desc = gb_plain_excerpt(e.event_description)
+          %>
+          <li class="gb-timeline__item gb-ev-<%= type %>">
+            <%= author ? gb_avatar(author, 28) : gb_event_type_avatar(e, 28) %>
+            <div class="gb-timeline__body">
+              <div class="gb-timeline__meta">
+                <% if author %><strong class="gb-timeline__who"><%= link_to_user(author) %></strong><span class="gb-timeline__action"><%= gb_event_action(e) %></span><% else %><span class="gb-timeline__action"><%= gb_event_action_without_author(e) %></span><% end %><% if show_project && e.project %><span class="gb-timeline__project"><%= link_to e.project.name, project_path(e.project) %></span><% end %>
+              </div>
+              <div class="gb-timeline__title">
+                <% if issue %>
+                  <%= gb_tracker_badge(issue.tracker) %>
+                  <span class="gb-timeline__text"><%= link_to e.event_url, class: 'gb-timeline__link', title: issue.subject do %><span class="gb-timeline__key"><%= gb_issue_key(issue) %></span> <span class="gb-timeline__subject"><%= issue.subject %></span><% end %><% if e.is_a?(TimeEntry) %> <span class="gb-timeline__hours"><%= l_hours(e.hours) %></span><% end %></span>
+                <% else %>
+                  <%= link_to format_activity_title(e.event_title), e.event_url, class: 'gb-timeline__link', title: e.event_title %>
+                <% end %>
+              </div>
+              <% if change %>
+                <div class="gb-timeline__change">
+                  <%= gb_status_pill(change[0]) if change[0] %><span class="gb-timeline__arrow" aria-hidden="true">→</span><%= gb_status_pill(change[1]) %>
+                </div>
+              <% end %>
+              <% if desc.present? %><p class="gb-timeline__desc"><%= desc %></p><% end %>
+            </div>
+            <time class="gb-timeline__time" datetime="<%= e.event_datetime.utc.iso8601 %>" title="<%= gb_event_clock_title(e) %>"><%= gb_event_clock(e) %></time>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+<% end %>

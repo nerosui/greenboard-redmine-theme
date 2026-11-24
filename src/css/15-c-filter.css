@@ -1,0 +1,347 @@
+/* ==========================================================================
+   C-filter — filter bar `#query_form` (DESIGN §6.9, ACCEPTANCE Q1)
+   The ONE implementation of the query filter panel on issues, board, time entries, calendar, gantt,
+   /projects, /users and /admin/projects: panel, フィルタ / オプション disclosure legends and their folded
+   summaries (.gb-opt-summary, js/15-c-filter.js), filter rows, 「＋ フィルタを追加」, the options block
+   (#list-definition) and the buttons row [適用] [クリア] [save-query icon].
+   Page files may only add their own toolbar row after p.buttons (gantt zoom / months, calendar month nav,
+   time-report selects) and set the panel's outer margin (see COMPONENTS.md, C-filter).
+   ========================================================================== */
+
+/* ---------- panel ---------- */
+#query_form_with_buttons {
+  background: var(--gb-surface-2);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  padding: 12px 16px;
+  margin: 0 0 16px;
+}
+#query_form_content {
+  --gb-filter-label-w: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+#content #query_form_with_buttons #query_form_content > fieldset,
+#content #query_form_with_buttons #query_form_content > fieldset.collapsible {
+  position: relative;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  min-width: 0;
+}
+#content #query_form_with_buttons #query_form_content > fieldset + fieldset { border-top: 1px solid var(--gb-border); padding-top: 4px; }
+#content #query_form_with_buttons #query_form_content > fieldset > div { clear: both; padding: 4px 0 8px; }
+#content #query_form_with_buttons #query_form_content > fieldset::after { content: ""; display: block; clear: both; }
+#query_form_content > fieldset > div.hidden { display: none; }
+
+/* ---------- disclosure legends 「フィルタ」「オプション」 (13px / 600, chevron left) ---------- */
+#content #query_form_with_buttons #query_form_content > fieldset > legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  float: left; /* shares the first line with 「＋ フィルタを追加」 */
+  width: auto;
+  height: 28px;
+  margin: 0;
+  padding: 0 8px 0 0;
+  border-radius: var(--gb-radius-sm);
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+  cursor: pointer;
+  user-select: none;
+}
+#content #query_form_with_buttons #query_form_content > fieldset > legend:hover { background: var(--gb-surface-3); }
+#content #query_form_with_buttons #query_form_content > fieldset > legend > svg {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  stroke: var(--gb-text-2);
+}
+/* folded legend summary: 「1件の条件」「グループ: 担当者」 (js/15-c-filter.js), only while folded, any width */
+#query_form_content > fieldset > legend > .gb-opt-summary {
+  display: none;
+  margin-left: 4px;
+  color: var(--gb-text-2);
+  font-size: 12px;
+  font-weight: var(--gb-fw-normal, 400);
+  white-space: nowrap;
+}
+#query_form_content > fieldset.collapsed > legend > .gb-opt-summary { display: inline; }
+
+/* ---------- filter rows: one label-column width for フィルタ and オプション ---------- */
+#filters-table { float: none; width: auto; display: flex; flex-direction: column; gap: 6px; container-type: inline-size; }
+#filters-table .filter {
+  display: grid;
+  grid-template-columns: var(--gb-filter-label-w, 180px) 140px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0;
+  min-height: 28px;
+}
+#filters-table .filter .field { width: auto; display: flex; align-items: center; gap: 8px; min-width: 0; }
+#filters-table .filter .field label { font-size: 13px; color: var(--gb-text); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#filters-table .filter .operator select { width: 100%; }
+#filters-table .filter .values { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+#filters-table .filter .values > span { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: 100%; }
+#filters-table .filter .values > span[style*="none"] { display: none; }
+#filters-table .filter .values input[type=text],
+#filters-table .filter .values input[type=date],
+#filters-table .filter .values input[type=number] { width: 180px; }
+#filters-table .filter .values select:not([multiple]) { min-width: 0; width: 100%; max-width: 220px; }
+/* a single select + its multi-select toggle stay on one line and shrink together */
+#filters-table .filter .values > span:has(> select:not([multiple])) { flex-wrap: nowrap; min-width: 0; max-width: 100%; }
+#filters-table .filter .values > span > select:not([multiple]) { flex: 0 1 auto; width: 220px; }
+#filters-table .filter .values select[multiple] { min-width: 220px; height: auto; min-height: 96px; }
+#filters-table .toggle-multiselect {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  border-radius: var(--gb-radius-sm);
+  cursor: pointer;
+}
+#filters-table .toggle-multiselect:hover { background: var(--gb-surface-3); }
+/* narrow filter box (sidebar open, tablet): label on its own line, operator + values below */
+@container (max-width: 520px) {
+  #filters-table .filter { grid-template-columns: minmax(0, 140px) minmax(0, 1fr); row-gap: 4px; padding-bottom: 4px; }
+  #filters-table .filter .field { grid-column: 1 / -1; }
+  #filters-table .filter .values input[type=text],
+  #filters-table .filter .values input[type=date],
+  #filters-table .filter .values input[type=number] { width: 150px; max-width: 100%; }
+  #filters-table .filter .values select[multiple] { min-width: 0; max-width: 100%; }
+}
+
+/* small (28px) controls inside the panel */
+#query_form_content select,
+#query_form_content input[type=text],
+#query_form_content input[type=date],
+#query_form_content input[type=number] {
+  height: var(--gb-control-h-sm);
+  min-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+#query_form_content select[multiple] { height: auto; padding: 4px; }
+#query_form_content .query-columns,
+#query_form_content table.query-columns { max-width: 100%; }
+
+/* 「＋ フィルタを追加」: top-right of the フィルタ fieldset, 220px; the label stays for screen readers
+   (the blank option reads 「＋ フィルタを追加」, js/15-c-filter.js) */
+#filters .add-filter {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: auto;
+  float: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+#filters .add-filter label {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+#filters .add-filter select { width: 220px; color: var(--gb-text-2); }
+#filters .add-filter select option { color: var(--gb-text); }
+#filters.collapsed .add-filter { display: none; }
+
+/* ---------- オプション (columns / grouping / totals) ---------- */
+#list-definition { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+#list-definition > div { margin: 0; display: grid; grid-template-columns: var(--gb-filter-label-w, 180px) minmax(0, 1fr); align-items: start; gap: 8px 12px; }
+#list-definition > div:first-child { grid-template-columns: var(--gb-filter-label-w, 180px) auto auto auto auto; justify-content: start; }
+#list-definition > div .field { width: auto; font-size: 13px; font-weight: var(--gb-fw-bold); color: var(--gb-text-2); line-height: 28px; }
+#list-definition > div .field label { font-weight: inherit; color: inherit; }
+#list-definition .query-columns label { font-size: var(--gb-fs-sm); color: var(--gb-text-2); margin-bottom: 4px; }
+#list-definition .query-columns select { min-width: 200px; min-height: 180px; background: #fff; }
+#list-definition .buttons { margin: 0; display: flex; flex-direction: column; gap: 4px; align-self: center; font-size: inherit; }
+#list-definition .buttons button,
+#list-definition .buttons button + button {
+  width: 32px;
+  height: 28px;
+  min-width: 0;
+  margin: 0; /* generic `button + button` gap would shift every button after the first off the column */
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  font-size: 13px;
+}
+/* move buttons: six sprite icons at one 16px size (built by 40-issue-list.js); ⇈ / ⇊ get a bar on the arrow */
+#list-definition .buttons button.gb-mv { position: relative; color: var(--gb-text-2); }
+#list-definition .buttons button.gb-mv:hover { color: var(--gb-text); }
+#list-definition .buttons button.gb-mv svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.75; fill: none; }
+#list-definition .buttons button.gb-mv .gb-mv__bar {
+  position: absolute;
+  left: 50%;
+  width: 10px;
+  height: 0;
+  margin-left: -5px;
+  border-top: 1.75px solid currentColor;
+  border-radius: 1px;
+}
+#list-definition .buttons button.gb-mv--up svg { transform: rotate(-90deg); }
+#list-definition .buttons button.gb-mv--down svg { transform: rotate(90deg); }
+#list-definition .buttons button.gb-mv--top svg { transform: translateY(2px) rotate(-90deg); }
+#list-definition .buttons button.gb-mv--top .gb-mv__bar { top: 6px; }
+#list-definition .buttons button.gb-mv--bottom svg { transform: translateY(-2px) rotate(90deg); }
+#list-definition .buttons button.gb-mv--bottom .gb-mv__bar { bottom: 6px; }
+#list-definition label.inline { display: inline-flex; align-items: center; gap: 6px; margin-right: 16px; line-height: 28px; font-size: 13px; }
+#list-definition #group_by { min-width: 200px; }
+
+/* ---------- buttons row: [適用] primary · [クリア] secondary · [save] square outlined icon ---------- */
+#query_form_with_buttons > p.buttons {
+  --gb-filter-btn-h: var(--gb-control-h-sm);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+#query_form_with_buttons > p.buttons > a.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: none;
+  box-sizing: border-box;
+  height: var(--gb-filter-btn-h);
+  min-height: var(--gb-filter-btn-h);
+  margin: 0;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: var(--gb-radius-sm);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color var(--gb-dur-1), border-color var(--gb-dur-1), color var(--gb-dur-1);
+}
+#query_form_with_buttons > p.buttons > a.icon svg { width: 16px; height: 16px; margin: 0; stroke: currentColor; }
+#query_form_with_buttons > p.buttons > a.icon-checked {
+  background: var(--gb-primary-strong);
+  border-color: var(--gb-primary-strong);
+  color: #fff;
+}
+#query_form_with_buttons > p.buttons > a.icon-checked:hover { background: var(--gb-primary-hover); border-color: var(--gb-primary-hover); color: #fff; }
+#query_form_with_buttons > p.buttons > a:is(.icon-reload, .icon-save) {
+  background: var(--gb-surface);
+  border-color: var(--gb-border-strong);
+  color: var(--gb-text);
+}
+#query_form_with_buttons > p.buttons > a:is(.icon-reload, .icon-save):hover {
+  background: var(--gb-surface-2);
+  border-color: var(--gb-primary);
+  color: var(--gb-primary-strong);
+}
+/* save-query: square, as high as 適用 / クリア, icon only (title + aria-label from js/15-c-filter.js),
+   immediately after クリア at every width */
+#query_form_with_buttons > p.buttons > a.icon-save {
+  width: var(--gb-filter-btn-h);
+  min-width: var(--gb-filter-btn-h);
+  padding: 0;
+}
+#query_form_with_buttons > p.buttons > a.icon-save .icon-label {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+/* saved query: 編集 / 削除 stay text buttons after the save icon */
+#query_form_with_buttons > p.buttons > a:is(.icon-edit, .icon-del) { padding: 0 8px; color: var(--gb-primary-strong); }
+#query_form_with_buttons > p.buttons > a.icon-edit:hover { background: var(--gb-primary-soft); }
+#query_form_with_buttons > p.buttons > a.icon-del { color: var(--gb-danger); }
+#query_form_with_buttons > p.buttons > a.icon-del:hover { background: var(--gb-danger-soft); }
+#query_form_with_buttons > p.buttons > a:focus-visible { outline: none; box-shadow: var(--gb-focus); }
+
+/* ---------- 768–899px: filter rows wrap (label row, then operator / values) ---------- */
+@media screen and (max-width: 899px) {
+  #filters-table .filter {
+    grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+    row-gap: 6px;
+    padding-bottom: 6px;
+  }
+  #filters-table .filter .field { grid-column: 1 / -1; }
+  #filters-table .filter .values input[type=text],
+  #filters-table .filter .values input[type=date],
+  #filters-table .filter .values input[type=number] { width: 150px; max-width: 100%; }
+  #filters-table .filter .values select:not([multiple]),
+  #filters-table .filter .values select[multiple] { min-width: 0; max-width: 100%; }
+  #filters-table .filter .values > span { min-width: 0; }
+}
+
+/* ---------- phones (< 768px): both fieldsets folded on load (js), 36px controls,
+   each filter = label row + full-width controls, 「＋ フィルタを追加」 full width under the rows ---------- */
+@media screen and (max-width: 767px) {
+  #query_form_with_buttons > p.buttons { --gb-filter-btn-h: var(--gb-control-h); flex-wrap: nowrap; }
+  #content #query_form_content input[type=text],
+  #content #query_form_content input[type=date],
+  #content #query_form_content input[type=number],
+  #content #query_form_content select:not([multiple]) { height: var(--gb-control-h); min-height: var(--gb-control-h); max-width: 100%; }
+  #content #query_form_with_buttons #query_form_content > fieldset > legend { float: none; display: flex; }
+  #filters .add-filter { position: static; clear: both; width: 100%; box-sizing: border-box; margin: 4px 0 8px; flex-wrap: nowrap; }
+  #filters .add-filter select { flex: 1 1 auto; width: auto; min-width: 0; max-width: 100%; }
+
+  #filters-table .filter { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  #filters-table .filter > .field { flex: 1 1 100%; min-height: 28px; box-sizing: border-box; }
+  #filters-table .filter .operator { flex: 1 1 100%; min-width: 0; }
+  #filters-table .filter .operator select { width: 100%; }
+  #filters-table .filter .values { flex: 1 1 100%; }
+  #filters-table .filter .values > span:has(> select:not([multiple])) { flex: 1 1 100%; }
+  #filters-table .filter .values > span > select:not([multiple]),
+  #filters-table .filter .values select:not([multiple]) { flex: 1 1 auto; width: 100%; max-width: none; }
+  /* the value select's ＋/− multi-select toggle moves to the right end of the label row, so the value
+     control has the same right edge as the operator and 「＋ フィルタを追加」 */
+  #filters-table .filter:has(.toggle-multiselect) { position: relative; }
+  #filters-table .filter:has(.toggle-multiselect) > .field { padding-right: 36px; }
+  #filters-table .filter .values > span > .toggle-multiselect.icon-only {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    justify-items: end;
+  }
+  #filters-table .filter .values:has(> span > :is(.toggle-multiselect, input)) { flex: 1 1 100%; }
+  #filters-table .filter .values > span:has(> .toggle-multiselect) { flex: 1 1 100%; width: 100%; }
+  #filters-table .filter .values > span:has(> .toggle-multiselect) > select { flex: 1 1 100%; width: 100%; max-width: none; }
+  /* text / date / number values are full width too (「〜の間」 stacks its two dates); a unit after the box
+     (「日前」 etc.) stays on the same line */
+  #filters-table .filter .values > span:has(> input) { flex: 1 1 100%; flex-wrap: nowrap; min-width: 0; }
+  #filters-table .filter .values > span > :is(input[type=text], input[type=date], input[type=number]) {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  /* オプション stacks: label above, column lists full width with their move buttons beside them */
+  #list-definition > div,
+  #list-definition > div:first-child { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  #list-definition > div:first-child { grid-template-columns: minmax(0, 1fr) 32px; column-gap: 8px; row-gap: 8px; }
+  #list-definition > div:first-child > .field { grid-column: 1 / -1; }
+  #list-definition > div:first-child > .query-columns { grid-column: 1; min-width: 0; }
+  #list-definition > div:first-child > .buttons { grid-column: 2; }
+  #list-definition .query-columns select { display: block; width: 100%; min-width: 0; min-height: 0; height: 168px; box-sizing: border-box; }
+  #list-definition #group_by { width: 100%; min-width: 0; }
+  /* stacked lists: 追加 / 外す move items down / up — the available list takes the full width, its two
+     buttons sit centred in one row between the lists with the arrows turned to ↓ / ↑ */
+  #list-definition > div:first-child > .query-columns:has(#available_c) { grid-column: 1 / -1; }
+  #list-definition > div:first-child > .buttons:has(> .move-right) {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: center;
+    gap: 8px;
+    align-self: auto;
+  }
+  #list-definition .buttons button.move-right svg,
+  #list-definition .buttons button.move-left svg { transform: rotate(90deg); }
+  #list-definition > div > div:not(.field) { min-width: 0; }
+  #list-definition label.inline { margin-right: 12px; }
+}

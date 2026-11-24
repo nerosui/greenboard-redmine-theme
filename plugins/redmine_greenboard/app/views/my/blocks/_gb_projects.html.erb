@@ -1,0 +1,42 @@
+<%
+  projects = user.memberships.map(&:project).select { |p| p.active? && p.visible?(user) }
+  projects = Project.visible(user).active.sorted.limit(12).to_a if projects.empty? && user.admin?
+  projects = projects.uniq.sort_by(&:name)
+  ids = projects.map(&:id)
+  open_counts = Issue.visible(user).open.where(project_id: ids).group(:project_id).count
+  closed_counts = Issue.visible(user).open(false).where(project_id: ids).group(:project_id).count
+%>
+<h3><%= link_to l(:gb_projects), projects_path %><% if projects.any? %><span class="gb-count"><%= projects.size %></span><% end %>
+  <%= link_to l(:gb_see_all), projects_path, class: 'gb-box-link' %></h3>
+<% if projects.empty? %>
+  <p class="nodata"><%= l(:gb_no_projects) %></p>
+<% else %>
+  <ul class="gb-project-cards">
+    <% projects.each do |project| %>
+      <% open = open_counts[project.id].to_i; closed = closed_counts[project.id].to_i; total = open + closed; pct = total.zero? ? 0 : (closed * 100 / total) %>
+      <li class="gb-project-card">
+        <%= link_to project_path(project), class: 'gb-project-card__head', title: project.name do %>
+          <%= gb_project_avatar(project, 36) %>
+          <span class="gb-project-card__name"><span class="gb-project-card__title"><%= project.name %></span><small><%= project.identifier.upcase %></small></span>
+        <% end %>
+        <div class="gb-project-card__stats">
+          <span class="gb-project-card__stat"><strong><%= open %></strong><%= l(:gb_open_issues) %></span>
+          <span class="gb-project-card__stat"><strong><%= closed %></strong><%= l(:gb_closed_issues) %></span>
+          <span class="gb-project-card__pct"><%= pct %>%</span>
+        </div>
+        <div class="gb-project-card__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<%= pct %>" aria-label="<%= project.name %>"><span style="width: <%= pct %>%"></span></div>
+        <div class="gb-project-card__links">
+          <% if project.module_enabled?(:issue_tracking) && user.allowed_to?(:view_issues, project) %>
+            <%= link_to l(:label_issue_plural), project_issues_path(project) %>
+          <% end %>
+          <% if project.module_enabled?(:issues_panel) && user.allowed_to?(:view_issues, project) && respond_to?(:project_issues_panel_path) %>
+            <%= link_to l(:gb_board), project_issues_panel_path(project) %>
+          <% end %>
+          <% if project.module_enabled?(:wiki) && user.allowed_to?(:view_wiki_pages, project) %>
+            <%= link_to l(:label_wiki), project_wiki_index_path(project) %>
+          <% end %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

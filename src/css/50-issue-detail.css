@@ -1,0 +1,1120 @@
+/* ==========================================================================
+   50 issue-detail — owner: issue-list-detail   (/issues/:id)
+   header · action bar · attributes panel · description · files · subtasks/relations ·
+   history tabs + journals timeline · watchers · sticky header
+   (the comment entry box / #update form belong to issue-form)
+   ========================================================================== */
+
+/* ---------- title bar: [トラッカー] DEMO-3 [未完了] ---------- */
+/* header row: title bar left, action bar right; when both do not fit (narrow content card,
+   e.g. sidebar open at 1024px) the action bar wraps onto its own left-aligned row below */
+body.controller-issues.action-show .gb-issue-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 0 0 12px;
+}
+body.controller-issues.action-show .gb-issue-head > .gb-issue-titlebar { flex: 1 1 auto; min-width: 0; margin: 0; }
+body.controller-issues.action-show .gb-issue-head > .contextual { flex: 0 1 auto; flex-wrap: wrap; row-gap: 4px; }
+.gb-issue-titlebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  margin: 0 0 12px;
+}
+.gb-issue-titlebar h2.gb-issue-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  line-height: 1;
+}
+.gb-issue-titlebar h2.gb-issue-title .gb-issue-key { color: var(--gb-text-2); font-size: 13px; }
+/* header tracker badge: same 22px pill as the list / subtask rows */
+.gb-issue-titlebar h2.gb-issue-title > .gb-tracker { height: 22px; padding: 0 10px; }
+.gb-issue-titlebar .badge {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--gb-radius-sm);
+  font-size: var(--gb-fs-xs);
+  font-weight: var(--gb-fw-bold);
+  text-transform: none;
+  bottom: auto;
+}
+.gb-issue-titlebar .badge-status-open { background: var(--gb-info-soft); color: var(--gb-info); }
+.gb-issue-titlebar .badge-status-closed { background: var(--gb-success-soft); color: var(--gb-success); }
+.gb-issue-titlebar .badge-status-locked { background: var(--gb-surface-3); color: var(--gb-text-2); }
+.gb-issue-titlebar .badge-private,
+body.controller-issues.action-show .badge-private { background: var(--gb-danger-soft); color: var(--gb-danger); border: 0; }
+
+/* ---------- page action bar ---------- */
+body.controller-issues.action-show :is(#content > .contextual:first-child, .gb-issue-head > .contextual) {
+  float: right;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 0 8px 16px;
+  padding: 0;
+}
+body.controller-issues.action-show #content .gb-issue-head > .contextual { float: none; margin: 0; }
+body.controller-issues.action-show :is(#content > .contextual:first-child, .gb-issue-head > .contextual) > a,
+body.controller-issues.action-show :is(#content > .contextual:first-child, .gb-issue-head > .contextual) > .drdn .drdn-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: 28px;
+  margin: 0;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-primary-strong);
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  background: transparent;
+}
+body.controller-issues.action-show :is(#content > .contextual:first-child, .gb-issue-head > .contextual) > a:hover,
+body.controller-issues.action-show :is(#content > .contextual:first-child, .gb-issue-head > .contextual) > .drdn .drdn-trigger:hover { background: var(--gb-primary-soft); }
+body.controller-issues.action-show :is(#content > .contextual:first-child, .gb-issue-head > .contextual) > a svg { width: 16px; height: 16px; stroke: currentColor; }
+body.controller-issues.action-show :is(#content > .contextual:first-child, .gb-issue-head > .contextual) > .drdn { margin: 0; }
+body.controller-issues.action-show :is(#content > .contextual:first-child, .gb-issue-head > .contextual) > .drdn .drdn-trigger { width: 28px; padding: 0; justify-content: center; color: var(--gb-text-2); }
+body.controller-issues.action-show :is(#content > .contextual:first-child, .gb-issue-head > .contextual) > a.icon-edit {
+  order: -1;
+  height: 32px;
+  margin-right: 6px;
+  padding: 0 14px;
+  background: var(--gb-primary-strong);
+  color: #fff;
+  font-weight: var(--gb-fw-bold);
+}
+body.controller-issues.action-show :is(#content > .contextual:first-child, .gb-issue-head > .contextual) > a.icon-edit:hover { background: var(--gb-primary-hover); color: #fff; }
+/* the duplicate action bar under the history is hidden on desktop */
+body.controller-issues.action-show #content > .contextual ~ .contextual,
+body.controller-issues.action-show #content > .gb-issue-head ~ .contextual { display: none; }
+
+/* ---------- issue body: plain, the whole issue is the #content card ---------- */
+body.controller-issues.action-show #content > div.issue {
+  clear: both;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+body.controller-issues.action-show div.issue > hr { display: none; }
+body.controller-issues.action-show div.issue .avatar-with-child { display: none; }
+
+/* prev / next: [‹] 12/14 [›] (icon buttons built by 50-issue-detail.js) */
+body.controller-issues.action-show div.issue > .next-prev-links {
+  float: right;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 0 16px;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+}
+body.controller-issues.action-show div.issue > .next-prev-links .gb-np-btn {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  color: var(--gb-text-2);
+  text-decoration: none;
+}
+body.controller-issues.action-show div.issue > .next-prev-links a.gb-np-btn:hover { background: var(--gb-surface-2); border-color: var(--gb-border-strong); color: var(--gb-text); }
+body.controller-issues.action-show div.issue > .next-prev-links a.gb-np-btn:focus-visible { outline: none; box-shadow: var(--gb-focus); }
+body.controller-issues.action-show div.issue > .next-prev-links .gb-np-btn svg { width: 16px; height: 16px; stroke: currentColor; }
+body.controller-issues.action-show div.issue > .next-prev-links .gb-np-btn.is-disabled { color: var(--gb-disabled); background: transparent; border-color: var(--gb-surface-3); cursor: default; }
+body.controller-issues.action-show div.issue > .next-prev-links .gb-np-label {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+body.controller-issues.action-show div.issue > .next-prev-links .position { display: inline-flex; align-items: center; padding: 0 4px; font-size: 12px; font-variant-numeric: tabular-nums; }
+body.controller-issues.action-show div.issue > .next-prev-links .position,
+body.controller-issues.action-show div.issue > .next-prev-links .position a { color: var(--gb-text-2); text-decoration: none; }
+body.controller-issues.action-show div.issue > .next-prev-links .position a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+/* fallback before JS runs */
+body.controller-issues.action-show div.issue > .next-prev-links .gb-np-disabled { color: var(--gb-disabled); white-space: nowrap; }
+
+/* subject + author */
+body.controller-issues.action-show div.issue div.subject > div { padding: 0; }
+body.controller-issues.action-show div.issue div.subject h3 {
+  margin: 0;
+  padding: 0;
+  font-size: var(--gb-fs-2xl);
+  font-weight: var(--gb-fw-bold);
+  line-height: var(--gb-lh-tight);
+  color: var(--gb-text);
+}
+body.controller-issues.action-show div.issue > p.author {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--gb-text-2);
+}
+body.controller-issues.action-show div.issue > p.author > .gb-avatar { margin-right: 8px; }
+body.controller-issues.action-show div.issue > p.author a.user { font-weight: var(--gb-fw-bold); color: var(--gb-text); margin-right: 4px; }
+body.controller-issues.action-show div.issue > p.author a { color: var(--gb-text-2); }
+body.controller-issues.action-show div.issue > p.author a:hover { color: var(--gb-primary-strong); }
+body.controller-issues.action-show div.issue.details > .reaction { float: right; margin: 10px 0 0 12px; }
+
+/* reaction buttons (issue + journals) */
+body.controller-issues.action-show .reaction-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  min-width: 28px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  justify-content: center;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-sm);
+  text-decoration: none;
+}
+body.controller-issues.action-show .reaction-button:hover { background: var(--gb-surface-3); }
+body.controller-issues.action-show .reaction-button svg { width: 16px; height: 16px; }
+body.controller-issues.action-show .reaction-button.reacted { background: var(--gb-primary-soft); color: var(--gb-primary-strong); }
+body.controller-issues.action-show .reaction-button.reacted svg { stroke: var(--gb-primary-strong); }
+
+/* ---------- attributes panel ---------- */
+body.controller-issues.action-show div.issue > div.attributes {
+  container-type: inline-size;
+  clear: both;
+  margin: 20px 0 16px;
+  padding: 16px 20px;
+  background: var(--gb-surface-2);
+  border-radius: var(--gb-radius);
+}
+body.controller-issues.action-show div.issue > div.attributes > .splitcontent {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 32px;
+}
+body.controller-issues.action-show div.issue > div.attributes .splitcontentleft,
+body.controller-issues.action-show div.issue > div.attributes .splitcontentright {
+  float: none;
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+body.controller-issues.action-show div.issue .attributes .attribute {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  min-height: 32px;
+  padding: 0;
+  margin: 0;
+  clear: none;
+}
+body.controller-issues.action-show div.issue .attributes .attribute .label {
+  float: none;
+  width: auto;
+  margin: 0;
+  font-size: 13px;
+  font-weight: var(--gb-fw-normal);
+  color: var(--gb-text-2);
+  line-height: 22px;
+  padding: 5px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+body.controller-issues.action-show div.issue .attributes .attribute .value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: flex-start;
+  gap: 0 8px;
+  box-sizing: border-box;
+  min-height: 32px;
+  padding: 5px 0;
+  line-height: 22px;
+  min-width: 0;
+  overflow: visible;
+  font-size: var(--gb-fs-md);
+  color: var(--gb-text);
+  font-variant-numeric: tabular-nums;
+}
+body.controller-issues.action-show div.issue .attributes .attribute .value:empty::before { content: "–"; color: var(--gb-muted); }
+body.controller-issues.action-show div.issue .attributes .attribute .value a { color: var(--gb-primary-strong); }
+body.controller-issues.action-show div.issue .attributes .attribute .value .gb-user-chip a { color: var(--gb-text); }
+body.controller-issues.action-show div.issue .attributes .attribute .value .gb-user-chip a:hover { color: var(--gb-primary-strong); }
+body.controller-issues.action-show div.issue .attributes .attribute .value .wiki { font-size: var(--gb-fs-md); }
+body.controller-issues.action-show div.issue .attributes .gb-due-note { font-size: var(--gb-fs-sm); color: var(--gb-text-2); }
+body.controller-issues.action-show div.issue.overdue .attributes .due-date .value { color: var(--gb-danger); font-weight: var(--gb-fw-bold); }
+body.controller-issues.action-show div.issue.overdue .attributes .gb-due-note { color: var(--gb-danger); }
+body.controller-issues.action-show div.issue .attributes .progress .value { flex-wrap: nowrap; }
+body.controller-issues.action-show div.issue .attributes table.progress {
+  width: 120px;
+  height: 8px;
+  margin: 0;
+  border: 0;
+  border-collapse: collapse;
+  border-radius: var(--gb-radius-pill);
+  overflow: hidden;
+  background: var(--gb-border);
+  float: none;
+}
+body.controller-issues.action-show div.issue .attributes table.progress td { height: 8px; padding: 0; border: 0; }
+body.controller-issues.action-show div.issue .attributes table.progress td.todo { background: var(--gb-border); }
+body.controller-issues.action-show div.issue .attributes table.progress td.done { background: var(--gb-primary); }
+body.controller-issues.action-show div.issue .attributes table.progress td.closed { background: var(--gb-primary-strong); }
+body.controller-issues.action-show div.issue .attributes p.percent {
+  float: none;
+  margin: 0;
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text-2);
+  font-variant-numeric: tabular-nums;
+}
+body.controller-issues.action-show div.issue .attributes .progress p.percent { white-space: nowrap; }
+/* names are never cut in the panel: they wrap instead */
+body.controller-issues.action-show div.issue .attributes .gb-user-chip > a { white-space: normal; overflow: visible; text-overflow: clip; }
+/* narrow panel (sidebar open on a small screen): one column, the two halves stacked */
+@container (max-width: 560px) {
+  body.controller-issues.action-show div.issue > div.attributes > .splitcontent { grid-template-columns: minmax(0, 1fr); }
+}
+/* full-width custom fields (long text) */
+body.controller-issues.action-show div.issue > div.attributes > .splitcontent + .splitcontent,
+body.controller-issues.action-show div.issue > div.attributes > div:not(.splitcontent) { margin-top: 8px; }
+
+/* ---------- sections: 説明 / ファイル / 子課題 / 関連する課題 ---------- */
+body.controller-issues.action-show div.issue .gb-sec {
+  position: relative;
+  margin: 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--gb-border);
+}
+body.controller-issues.action-show div.issue > div.description.gb-sec { margin-top: 24px; padding-top: 0; border-top: 0; }
+body.controller-issues.action-show div.issue > div.description.gb-sec > .contextual {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  float: none;
+  margin: 0;
+}
+body.controller-issues.action-show div.issue .gb-sec__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  margin: 0 0 8px;
+  font-size: var(--gb-fs-md);
+  color: var(--gb-text);
+}
+body.controller-issues.action-show div.issue .gb-sec__title strong { font-weight: var(--gb-fw-bold); }
+body.controller-issues.action-show div.issue .gb-count,
+body.controller-issues.action-show div.issue .issues-stat .badge-issues-count {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  height: 18px;
+  min-width: 18px;
+  padding: 0 6px;
+  margin: 0;
+  border: 0;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-xs);
+  font-weight: var(--gb-fw-bold);
+  position: static;
+}
+body.controller-issues.action-show div.issue .issues-stat { display: inline-flex; align-items: center; gap: 6px; font-size: var(--gb-fs-sm); font-weight: var(--gb-fw-normal); color: var(--gb-text-2); }
+body.controller-issues.action-show div.issue .issues-stat .gb-stat-sep { color: var(--gb-muted); }
+body.controller-issues.action-show div.issue .issues-stat .badge-issues-count a { color: inherit; text-decoration: none; }
+body.controller-issues.action-show div.issue .issues-stat a { color: var(--gb-text-2); }
+body.controller-issues.action-show div.issue .issues-stat a:hover { color: var(--gb-primary-strong); }
+
+/* section action links (追加 / 引用 / 添付ファイルの編集) as sm text buttons */
+body.controller-issues.action-show div.issue .gb-sec > .contextual,
+body.controller-issues.action-show div.issue .gb-sec .attachments > .contextual {
+  position: absolute;
+  top: 14px;
+  right: 0;
+  float: none;
+  margin: 0;
+  display: flex;
+  gap: 4px;
+}
+body.controller-issues.action-show div.issue .gb-sec .contextual a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: 28px;
+  min-width: 28px;
+  justify-content: center;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-primary-strong);
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  text-decoration: none;
+}
+body.controller-issues.action-show div.issue .gb-sec .contextual a:hover { background: var(--gb-primary-soft); }
+body.controller-issues.action-show div.issue .gb-sec .contextual a svg { width: 16px; height: 16px; stroke: currentColor; }
+body.controller-issues.action-show div.issue .gb-sec .contextual a.icon-only { padding: 0; width: 28px; color: var(--gb-text-2); }
+
+/* description prose (typography of .wiki itself is owned by wiki) */
+body.controller-issues.action-show div.issue > div.description .wiki { font-size: 15px; }
+body.controller-issues.action-show div.issue > div.description .wiki > :first-child { margin-top: 0; }
+body.controller-issues.action-show div.issue > div.description .wiki > :last-child { margin-bottom: 0; }
+
+/* files */
+body.controller-issues.action-show div.issue .gb-sec--files .attachments { margin: 0; }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments > table { width: 100%; border-collapse: collapse; }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments > table td {
+  height: 36px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--gb-border);
+  vertical-align: middle;
+  font-size: 13px;
+  color: var(--gb-text-2);
+}
+body.controller-issues.action-show div.issue .gb-sec--files .attachments > table td:first-child { width: 100%; padding-left: 0; color: var(--gb-text); }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments > table td:empty { padding: 0; }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments > table td:last-child { padding-right: 0; text-align: right; width: 36px; }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments > table tr:last-child td { border-bottom: 0; }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments a.icon-attachment { display: inline-flex; align-items: center; gap: 6px; color: var(--gb-primary-strong); font-weight: var(--gb-fw-medium); }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments a.icon-attachment svg { width: 16px; height: 16px; stroke: var(--gb-text-2); }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments .size { margin-left: 6px; font-size: var(--gb-fs-sm); color: var(--gb-text-2); }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments a.icon-only {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  vertical-align: middle;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-text-2);
+}
+body.controller-issues.action-show div.issue .gb-sec--files .attachments a.icon-only:hover { background: var(--gb-surface-3); }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments a.icon-only svg { width: 16px; height: 16px; }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments a.icon-del:hover { background: var(--gb-danger-soft); }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments a.icon-del:hover svg { stroke: var(--gb-danger); }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments .author { font-size: var(--gb-fs-sm); color: var(--gb-text-2); white-space: nowrap; }
+body.controller-issues.action-show div.issue .gb-sec--files .thumbnails { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+body.controller-issues.action-show div.issue .gb-sec--files .thumbnails img { width: 120px; height: auto; border: 1px solid var(--gb-border); border-radius: var(--gb-radius-sm); }
+
+/* subtasks / relations rows: fixed column grid so 子課題 and 関連する課題 line up;
+   subject is one line with ellipsis (full text in title, set by JS) */
+body.controller-issues.action-show #issue_tree table.list.issues,
+body.controller-issues.action-show #relations table.list.issues {
+  width: 100%;
+  table-layout: fixed;
+  border: 0;
+  border-radius: 0;
+  border-collapse: collapse;
+  overflow: visible;
+  background: transparent;
+}
+body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td,
+body.controller-issues.action-show #relations table.list.issues > tbody > tr > td {
+  height: 40px;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border: 0;
+  border-bottom: 1px solid var(--gb-border);
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr:last-child > td,
+body.controller-issues.action-show #relations table.list.issues > tbody > tr:last-child > td { border-bottom: 0; }
+body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td:empty,
+body.controller-issues.action-show #relations table.list.issues > tbody > tr > td:empty { padding: 0; }
+body.controller-issues.action-show #issue_tree td.checkbox,
+body.controller-issues.action-show #relations td.checkbox { display: none; }
+/* column widths (same in both tables) */
+body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.subject,
+body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.subject {
+  width: auto;
+  min-width: 0;
+  padding-left: 0;
+  padding-right: 12px;
+  /* the subject wraps (never cut) — columns to the right stay fixed */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 22px;
+}
+body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.status,
+body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.status { width: 88px; }
+body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.assigned_to,
+body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.assigned_to { width: 160px; }
+body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.start_date,
+body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.start_date { display: none; }
+body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.due_date,
+body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.due_date { width: 96px; }
+body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.done_ratio,
+body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.done_ratio { width: 100px; padding-right: 4px; }
+body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.buttons,
+body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.buttons { display: table-cell; width: 64px; padding: 0; text-align: right; white-space: nowrap; }
+
+body.controller-issues.action-show #issue_tree td.subject > *,
+body.controller-issues.action-show #relations td.subject > * { vertical-align: middle; }
+body.controller-issues.action-show #issue_tree td.subject .gb-tracker,
+body.controller-issues.action-show #relations td.subject .gb-tracker { margin-right: 6px; }
+body.controller-issues.action-show #issue_tree td.subject a.gb-issue-key,
+body.controller-issues.action-show #relations td.subject a.gb-issue-key {
+  display: inline;
+  margin-right: 8px;
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-primary-strong);
+  line-height: inherit;
+}
+body.controller-issues.action-show #issue_tree td.subject a.gb-issue-key:hover,
+body.controller-issues.action-show #relations td.subject a.gb-issue-key:hover { color: var(--gb-primary-hover); }
+body.controller-issues.action-show #issue_tree td.subject .gb-subj,
+body.controller-issues.action-show #relations td.subject .gb-subj { font-size: var(--gb-fs-md); color: var(--gb-text); }
+body.controller-issues.action-show #issue_tree tr.closed td.subject a.gb-issue-key,
+body.controller-issues.action-show #relations tr.closed td.subject a.gb-issue-key { text-decoration: line-through; color: var(--gb-muted); }
+body.controller-issues.action-show #issue_tree tr.closed .gb-subj,
+body.controller-issues.action-show #relations tr.closed .gb-subj { color: var(--gb-text-2); }
+body.controller-issues.action-show #relations .gb-rel-type {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-xs);
+  font-weight: var(--gb-fw-bold);
+  white-space: nowrap;
+}
+body.controller-issues.action-show #issue_tree td.status .gb-status,
+body.controller-issues.action-show #relations td.status .gb-status { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+body.controller-issues.action-show #issue_tree td.assigned_to .gb-user-chip,
+body.controller-issues.action-show #relations td.assigned_to .gb-user-chip { max-width: 100%; }
+body.controller-issues.action-show #issue_tree table.list.issues td.due_date,
+body.controller-issues.action-show #relations table.list.issues td.due_date { color: var(--gb-text-2); font-size: 13px; line-height: 20px; font-weight: var(--gb-fw-normal); font-variant-numeric: tabular-nums; }
+body.controller-issues.action-show #relations table.list.issues tr.overdue td.due_date,
+body.controller-issues.action-show #issue_tree table.list.issues tr.overdue td.due_date { color: var(--gb-danger); font-weight: var(--gb-fw-medium); }
+body.controller-issues.action-show #issue_tree td.done_ratio table.progress,
+body.controller-issues.action-show #relations td.done_ratio table.progress {
+  display: inline-table;
+  float: none;
+  vertical-align: middle;
+  width: 48px;
+  height: 6px;
+  border: 0;
+  border-collapse: collapse;
+  border-radius: var(--gb-radius-pill);
+  overflow: hidden;
+  background: var(--gb-surface-3);
+  margin: 0;
+}
+body.controller-issues.action-show #issue_tree td.done_ratio table.progress td,
+body.controller-issues.action-show #relations td.done_ratio table.progress td { height: 6px; padding: 0; border: 0; }
+body.controller-issues.action-show #issue_tree td.done_ratio table.progress td.todo,
+body.controller-issues.action-show #relations td.done_ratio table.progress td.todo { background: var(--gb-surface-3); }
+body.controller-issues.action-show #issue_tree td.done_ratio table.progress td.closed,
+body.controller-issues.action-show #relations td.done_ratio table.progress td.closed { background: var(--gb-primary-strong); }
+body.controller-issues.action-show #issue_tree td.done_ratio table.progress td.done,
+body.controller-issues.action-show #relations td.done_ratio table.progress td.done { background: var(--gb-primary); }
+body.controller-issues.action-show #issue_tree td.done_ratio p.percent,
+body.controller-issues.action-show #relations td.done_ratio p.percent {
+  display: inline-block;
+  min-width: 32px;
+  margin: 0 0 0 8px;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+  text-align: right;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+body.controller-issues.action-show #issue_tree td.buttons a,
+body.controller-issues.action-show #relations td.buttons a {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-text-2);
+  vertical-align: middle;
+}
+body.controller-issues.action-show #issue_tree td.buttons a:hover,
+body.controller-issues.action-show #relations td.buttons a:hover { background: var(--gb-surface-3); }
+body.controller-issues.action-show #issue_tree td.buttons a svg,
+body.controller-issues.action-show #relations td.buttons a svg { width: 16px; height: 16px; }
+body.controller-issues.action-show #issue_tree tr.issue:hover,
+body.controller-issues.action-show #relations tr.issue:hover { background: var(--gb-primary-softer); }
+/* narrow section (sidebar open, small screens): two lines per row —
+   line 1 the subject, line 2 status / assignee / due / progress / actions on the same grid in both tables */
+body.controller-issues.action-show #issue_tree,
+body.controller-issues.action-show #relations { container-type: inline-size; }
+/* every column keeps its width even when empty in a whole table: status / assignee / due / progress
+   stay on the same x in 子課題 and 関連する課題 */
+/* medium width (default desktop with the right sidebar open): still one line per row —
+   the progress column goes and assignee / due get narrower so the subject keeps ~330px */
+@container (max-width: 820px) {
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.done_ratio,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.done_ratio { display: none; }
+  /* assignee collapses to its avatar (name on hover / for screen readers) so the subject keeps >= ~430px */
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.assigned_to,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.assigned_to { width: 40px; padding-left: 8px; padding-right: 8px; text-overflow: clip; }
+  body.controller-issues.action-show :is(#issue_tree, #relations) td.assigned_to .gb-user-chip { position: relative; display: inline-flex; vertical-align: middle; }
+  body.controller-issues.action-show :is(#issue_tree, #relations) td.assigned_to .gb-user-chip > .gb-avatar { margin: 0; }
+  body.controller-issues.action-show :is(#issue_tree, #relations) td.assigned_to .gb-user-chip > a.user {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 50%;
+    color: transparent;
+    font-size: 0;
+  }
+  body.controller-issues.action-show :is(#issue_tree, #relations) td.assigned_to .gb-user-chip > a.user:focus-visible { box-shadow: var(--gb-focus); }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.due_date,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.due_date { width: 104px; padding-left: 8px; padding-right: 8px; text-overflow: clip; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.assigned_to,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.assigned_to { width: 36px; padding-left: 8px; padding-right: 8px; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.status,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.status { width: 84px; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.buttons,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.buttons { width: 56px; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr > td.subject,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr > td.subject { padding-right: 8px; }
+  body.controller-issues.action-show :is(#issue_tree, #relations) td.subject .gb-sub-line { column-gap: 6px; }
+  body.controller-issues.action-show #relations td.subject .gb-rel-type { margin-right: 6px; padding: 0 6px; }
+}
+@container (max-width: 600px) {
+  body.controller-issues.action-show #issue_tree table.list.issues:not(:has(> tbody > tr:not([data-gb-sub]))),
+  body.controller-issues.action-show #relations table.list.issues:not(:has(> tbody > tr:not([data-gb-sub]))),
+  body.controller-issues.action-show #issue_tree table.list.issues:not(:has(> tbody > tr:not([data-gb-sub]))) > tbody,
+  body.controller-issues.action-show #relations table.list.issues:not(:has(> tbody > tr:not([data-gb-sub]))) > tbody { display: block; width: 100%; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub],
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 16px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gb-border);
+  }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub]:last-child,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub]:last-child { border-bottom: 0; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td { height: auto; min-height: 28px; display: flex; align-items: center; border-bottom: 0; padding-top: 0; padding-bottom: 0; width: auto; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td.subject,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td.subject { display: block; grid-column: 1 / -1; padding: 0 0 4px; line-height: 28px; width: auto; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td.status,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td.status { padding-left: 0; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td:is(.status, .assigned_to, .due_date, .done_ratio),
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td:is(.status, .assigned_to, .due_date, .done_ratio) { width: auto; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td.subject,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td.subject { flex: 1 0 100%; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td:is(.status, .assigned_to, .due_date, .done_ratio),
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td:is(.status, .assigned_to, .due_date, .done_ratio) { flex: 0 1 auto; min-width: 0; padding: 0; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td.assigned_to,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td.assigned_to { max-width: 180px; }
+  /* nothing to show: no empty gap and no lone 0% stub */
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td:is(.assigned_to, .due_date):empty,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td:is(.assigned_to, .due_date):empty,
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td.done_ratio:not(:has(td.closed, td.done)),
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td.done_ratio:not(:has(td.closed, td.done)) { display: none; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td.buttons,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td.buttons { display: flex; flex-wrap: nowrap; gap: 0; justify-content: flex-end; width: auto; margin: 0 0 0 auto; }
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td.checkbox,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td.checkbox,
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td.start_date,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td.start_date { display: none; }
+  /* the 3-row phone layout has room for the assignee's name: undo the avatar-only collapse of the <=820 table */
+  body.controller-issues.action-show :is(#issue_tree, #relations) table.list.issues > tbody > tr[data-gb-sub] > td.assigned_to { max-width: 50%; }
+  body.controller-issues.action-show :is(#issue_tree, #relations) tr[data-gb-sub] > td.assigned_to .gb-user-chip { position: static; max-width: 100%; min-width: 0; }
+  body.controller-issues.action-show :is(#issue_tree, #relations) tr[data-gb-sub] > td.assigned_to .gb-user-chip > .gb-avatar { flex: none; margin: 0 6px 0 0; }
+  body.controller-issues.action-show :is(#issue_tree, #relations) tr[data-gb-sub] > td.assigned_to .gb-user-chip > a.user {
+    position: static;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: 0;
+    color: var(--gb-text);
+    font-size: 13px;
+    line-height: 20px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+@container (max-width: 460px) {
+  body.controller-issues.action-show #issue_tree table.list.issues > tbody > tr[data-gb-sub] > td.done_ratio,
+  body.controller-issues.action-show #relations table.list.issues > tbody > tr[data-gb-sub] > td.done_ratio { display: none; }
+}
+
+/* new relation inline form */
+body.controller-issues.action-show #new-relation-form {
+  display: block;
+  clear: both;
+  position: static;
+  float: none;
+  width: auto;
+  box-sizing: border-box;
+  margin: 12px 0 0;
+  padding: 12px 16px;
+  background: var(--gb-surface-2);
+  border: 0;
+  border-radius: var(--gb-radius);
+}
+body.controller-issues.action-show #new-relation-form[style*="none"] { display: none; }
+body.controller-issues.action-show #new-relation-form p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  float: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-size: 13px;
+}
+body.controller-issues.action-show #new-relation-form em.info { flex-basis: 100%; order: 10; margin: 0; padding: 0; font-style: normal; font-size: var(--gb-fs-sm); color: var(--gb-text-2); }
+body.controller-issues.action-show #new-relation-form #relation_issue_to_id { width: 160px; }
+
+/* ---------- history: underline tabs + timeline ---------- */
+/* the tab bar follows the last section exactly like the next divider would (its 16px bottom padding only),
+   so 関連する課題 → tabs has the same rhythm as 子課題 → 関連する課題 */
+body.controller-issues.action-show #history { clear: both; margin-top: 0; }
+body.controller-issues.action-show #history > h3 { font-size: var(--gb-fs-lg); margin: 0 0 12px; }
+/* tabs: generic underline tabs (10-global.css) */
+body.controller-issues.action-show #history > .tabs { margin-bottom: 4px; }
+
+/* journal item = timeline row */
+body.controller-issues.action-show #history .journal {
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 40px;
+  border: 0;
+  border-bottom: 1px solid var(--gb-border);
+}
+body.controller-issues.action-show #history .tab-content > .journal:last-of-type { border-bottom: 0; }
+body.controller-issues.action-show #history .journal h4.journal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 28px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-size: 13px;
+  font-weight: var(--gb-fw-normal);
+  color: var(--gb-text-2);
+}
+body.controller-issues.action-show #history .journal:target h4.journal-header,
+body.controller-issues.action-show #history .journal div:target h4.journal-header { background: transparent; }
+body.controller-issues.action-show #history .journal:has(div:target) { background: linear-gradient(90deg, var(--gb-primary-softer), transparent 70%); }
+body.controller-issues.action-show #history .journal .journal-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+}
+body.controller-issues.action-show #history .journal > .gb-avatar {
+  position: absolute;
+  left: 0;
+  top: 16px;
+}
+body.controller-issues.action-show #history .journal .journal-info .gb-core-avatar,
+body.controller-issues.action-show #watchers .gb-core-avatar { display: none; }
+body.controller-issues.action-show #history .journal .journal-info a.user { font-weight: var(--gb-fw-bold); color: var(--gb-text); margin-right: 4px; }
+body.controller-issues.action-show #history .journal .journal-info a { color: var(--gb-text-2); }
+body.controller-issues.action-show #history .journal .journal-info a:hover { color: var(--gb-primary-strong); }
+body.controller-issues.action-show #history .journal .journal-info .badge {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  margin: 0 0 0 6px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--gb-radius-sm);
+  font-size: var(--gb-fs-xs);
+  font-weight: var(--gb-fw-bold);
+  text-transform: none;
+}
+body.controller-issues.action-show #history .journal .journal-meta { display: inline-flex; align-items: center; gap: 4px; flex: none; }
+body.controller-issues.action-show #history .journal .journal-actions { display: inline-flex; align-items: center; gap: 2px; }
+body.controller-issues.action-show #history .journal .journal-actions > * { margin: 0; }
+body.controller-issues.action-show #history .journal .journal-actions a.icon-only,
+body.controller-issues.action-show #history .journal .journal-actions .drdn-trigger {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-text-2);
+}
+body.controller-issues.action-show #history .journal .journal-actions a.icon-only:hover,
+body.controller-issues.action-show #history .journal .journal-actions .drdn-trigger:hover { background: var(--gb-surface-3); }
+body.controller-issues.action-show #history .journal .journal-actions svg { width: 16px; height: 16px; }
+body.controller-issues.action-show #history .journal .journal-link {
+  margin-left: 4px;
+  color: var(--gb-muted);
+  font-size: var(--gb-fs-sm);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+body.controller-issues.action-show #history .journal .journal-link:hover { color: var(--gb-primary-strong); }
+
+body.controller-issues.action-show #history .journal .journal-content { margin: 0; padding: 0; }
+body.controller-issues.action-show #history .journal ul.journal-details {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--gb-text-2);
+  font-size: 13px;
+}
+body.controller-issues.action-show #history .journal ul.journal-details li {
+  display: block; /* inline flow: spacing comes from the text itself (no gaps inside 「（差分）」) */
+  min-height: 24px;
+  margin: 0;
+  padding: 2px 0;
+  line-height: 20px;
+  list-style: none;
+}
+body.controller-issues.action-show #history .journal ul.journal-details li > * { vertical-align: middle; }
+body.controller-issues.action-show #history .journal ul.journal-details li > strong.gb-detail-name { margin-right: 2px; }
+body.controller-issues.action-show #history .journal ul.journal-details li::marker { content: none; }
+body.controller-issues.action-show #history .journal ul.journal-details li strong { font-weight: var(--gb-fw-bold); color: var(--gb-text); }
+body.controller-issues.action-show #history .journal ul.journal-details li strong.gb-detail-name::after { content: ":"; }
+body.controller-issues.action-show #history .journal ul.journal-details li i { font-style: normal; color: var(--gb-text); }
+body.controller-issues.action-show #history .journal ul.journal-details li del i,
+body.controller-issues.action-show #history .journal ul.journal-details li del { color: var(--gb-muted); }
+body.controller-issues.action-show #history .journal ul.journal-details li .gb-arrow { color: var(--gb-muted); padding: 0 6px; }
+body.controller-issues.action-show #history .journal ul.journal-details li i.gb-status { color: #fff; }
+body.controller-issues.action-show #history .journal ul.journal-details li a { color: var(--gb-primary-strong); }
+body.controller-issues.action-show #history .journal ul.journal-details li a:hover { color: var(--gb-primary-hover); }
+body.controller-issues.action-show #history .journal .journal-note,
+body.controller-issues.action-show #history .journal .journal-content .wiki {
+  margin: 8px 0 0;
+  padding: 0;
+  font-size: var(--gb-fs-md);
+  color: var(--gb-text);
+}
+body.controller-issues.action-show #history .journal .journal-content .wiki > :first-child { margin-top: 0; }
+body.controller-issues.action-show #history .journal .journal-content .wiki > :last-child { margin-bottom: 0; }
+
+/* private notes: red bar + tag */
+body.controller-issues.action-show #history .journal.private-notes {
+  border-left: 0;
+  box-shadow: inset 3px 0 0 var(--gb-danger);
+  padding-left: 52px;
+}
+body.controller-issues.action-show #history .journal.private-notes > .gb-avatar { left: 12px; }
+
+/* journal inline edit form */
+body.controller-issues.action-show #history .journal form[id^="journal-"] { margin-top: 8px; }
+body.controller-issues.action-show #history .journal form[id^="journal-"] p:last-child { display: flex; gap: 8px; align-items: center; }
+
+/* time entries tab */
+body.controller-issues.action-show #history #tab-content-time_entries .journal { padding-left: 40px; }
+body.controller-issues.action-show #history .tab-content > p.nodata { display: block; padding: 24px 0; text-align: center; color: var(--gb-text-2); background: none; border: 0; }
+
+/* ---------- sticky header while scrolling (Redmine 6) ---------- */
+body.controller-issues.action-show div#sticky-issue-header {
+  top: var(--gb-topbar-h);
+  left: var(--gb-nav-w, var(--gb-sidebar-w));
+  right: 0;
+  z-index: calc(var(--gb-z-nav) - 1);
+  gap: 8px;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 24px;
+  margin: 0;
+  background: var(--gb-surface);
+  opacity: 1;
+  backdrop-filter: none;
+  transition: none;
+  border: 0;
+  border-bottom: 1px solid var(--gb-border);
+  border-radius: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .06);
+  font-size: var(--gb-fs-md);
+}
+body.controller-issues.action-show div#sticky-issue-header .issue-heading { display: inline-flex; align-items: center; gap: 8px; margin-right: 4px; color: var(--gb-text-2); font-size: 13px; font-weight: var(--gb-fw-medium); }
+body.controller-issues.action-show div#sticky-issue-header .subject { font-weight: var(--gb-fw-bold); color: var(--gb-text); }
+
+/* phones: the strip spans the whole width right under the top bar, opaque, one line */
+@media screen and (max-width: 599px) {
+  html body.controller-issues.action-show div#sticky-issue-header {
+    left: 0;
+    right: 0;
+    width: auto;
+    padding: 0 16px;
+    background: var(--gb-surface);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  html body.controller-issues.action-show div#sticky-issue-header .issue-heading { flex: none; }
+  html body.controller-issues.action-show div#sticky-issue-header .subject { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  html body.controller-issues.action-show div#sticky-issue-header .gb-status { flex: none; }
+}
+
+/* anchor jumps (#note-3, #change-12, #update) land below the topbar + sticky header */
+body.controller-issues.action-show div.wiki a[name],
+body.controller-issues.action-show #history div[id^="note-"],
+body.controller-issues.action-show #history div[id^="change-"],
+body.controller-issues.action-show #update { scroll-margin-top: calc(var(--gb-topbar-h) + 44px + 12px); }
+
+/* the right sidebar card sticks below the sticky issue header instead of under it */
+@media screen and (min-width: 900px) {
+  /* at rest the card lines up with the content card; it glides down only while the sticky strip is shown */
+  body.controller-issues.action-show #main #sidebar { transition: top var(--gb-dur-2) var(--gb-ease); }
+  body.controller-issues.action-show:has(#sticky-issue-header.is-visible) #main #sidebar {
+    top: calc(var(--gb-topbar-h) + 44px + 16px);
+    max-height: calc(100vh - var(--gb-topbar-h) - 44px - 32px);
+  }
+}
+
+/* ---------- watchers in the right sidebar ---------- */
+body.controller-issues.action-show #watchers { position: relative; }
+body.controller-issues.action-show #watchers > .contextual { position: absolute; top: 0; right: 0; margin: 0; float: none; }
+body.controller-issues.action-show #watchers > .contextual a {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-primary-strong);
+}
+body.controller-issues.action-show #watchers > .contextual a:hover { background: var(--gb-primary-soft); }
+body.controller-issues.action-show #watchers > h3 { display: flex; align-items: center; gap: 6px; min-height: 24px; margin-bottom: 4px; }
+body.controller-issues.action-show #watchers > h3 .gb-count {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  height: 18px;
+  min-width: 18px;
+  padding: 0 6px;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-xs);
+  font-weight: var(--gb-fw-bold);
+  letter-spacing: 0;
+}
+body.controller-issues.action-show #watchers ul.watchers { margin: 0; padding: 0; list-style: none; }
+body.controller-issues.action-show #watchers ul.watchers li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin: 0 -4px;
+  padding: 0 4px;
+  border-radius: var(--gb-radius-sm);
+  font-size: 13px;
+}
+body.controller-issues.action-show #watchers ul.watchers li:hover { background: var(--gb-surface-2); }
+body.controller-issues.action-show #watchers ul.watchers li a.user { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--gb-text); }
+body.controller-issues.action-show #watchers ul.watchers li a.delete {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--gb-radius-sm);
+  opacity: 0;
+}
+body.controller-issues.action-show #watchers ul.watchers li:hover a.delete,
+body.controller-issues.action-show #watchers ul.watchers li a.delete:focus-visible { opacity: 1; }
+body.controller-issues.action-show #watchers ul.watchers li a.delete:hover { background: var(--gb-danger-soft); }
+body.controller-issues.action-show #watchers ul.watchers li a.delete svg { width: 14px; height: 14px; }
+
+/* print: keep the issue readable */
+@media print {
+  body.controller-issues.action-show div.issue > div.attributes { background: none; padding: 0; }
+}
+
+/* export links under the issue: no "|" separators */
+body.controller-issues.action-show p.other-formats span + span::before,
+body.controller-issues.action-index p.other-formats span + span::before { content: none; }
+
+/* 予定工数: own value (or – when only the subtask total exists) + total in small secondary text */
+body.controller-issues.action-show div.issue .estimated-hours .gb-est-own--empty { color: var(--gb-muted); }
+body.controller-issues.action-show div.issue .estimated-hours .gb-est-total { font-size: 12px; color: var(--gb-text-2); font-variant-numeric: tabular-nums; }
+
+/* author / journal header phrases never break inside 「1日 / 前に更新」 (spans built by 50-issue-detail.js) */
+body.controller-issues.action-show .gb-when-group { display: inline; min-width: 0; }
+body.controller-issues.action-show .gb-when { white-space: nowrap; }
+
+/* journal actions: on pointer devices they appear on hover / keyboard focus, so journals with 2 and 4 actions
+   do not show icon columns at different x positions; reacted (counted) reactions always stay visible */
+@media (hover: hover) and (pointer: fine) {
+  body.controller-issues.action-show #history .journal .journal-actions > * {
+    opacity: 0;
+    transition: opacity var(--gb-dur-1) var(--gb-ease);
+  }
+  body.controller-issues.action-show #history .journal:hover .journal-actions > *,
+  body.controller-issues.action-show #history .journal:focus-within .journal-actions > *,
+  body.controller-issues.action-show #history .journal .journal-actions > .drdn.expanded,
+  body.controller-issues.action-show #history .journal .journal-actions > .reaction-button-wrapper:has(.reacted, .reaction-count) { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.controller-issues.action-show #history .journal .journal-actions > *,
+  body.controller-issues.action-show #main #sidebar { transition: none; }
+}
+
+/* phones */
+@media screen and (max-width: 599px) {
+  /* author line: avatar | name / 「さんが…追加・…更新」 on the next line (never cut mid-phrase) */
+  body.controller-issues.action-show div.issue > p.author {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    column-gap: 8px;
+    align-items: center;
+  }
+  body.controller-issues.action-show div.issue > p.author > .gb-avatar { grid-row: 1 / span 2; margin: 0; }
+  body.controller-issues.action-show div.issue > p.author > a.user { grid-column: 2; margin: 0; }
+  body.controller-issues.action-show div.issue > p.author > .gb-when-group { grid-column: 2; }
+  /* journal header: name on line 1, 「さんが1日前に更新」 on line 2 — the same in every journal */
+  body.controller-issues.action-show #history .journal .journal-info > a.user { flex: 0 0 100%; margin: 0; }
+  body.controller-issues.action-show #history .journal h4.journal-header { align-items: flex-start; }
+  /* history tabs: all four fit the phone width (no tab cut by the scroll fade) */
+  html body #wrapper #content #history > div.tabs > ul { -webkit-mask-image: none; mask-image: none; gap: 0; }
+  html body #wrapper #content #history > div.tabs > ul > li:last-child { padding-right: 0; }
+  body.controller-issues.action-show #content #history > .tabs ul li a { padding: 0 9px; font-size: 13px; }
+}
+
+/* ---------- subtask / relation subject cell: [chip][tracker][key] + subject hanging under itself ---------- */
+body.controller-issues.action-show :is(#issue_tree, #relations) td.subject .gb-sub-line {
+  display: flex;
+  /* one vertical reference per row: when the subject wraps, chip/tracker/key sit on the row's middle like the
+     status pill, avatar and buttons in the other cells */
+  align-items: center;
+  column-gap: 8px;
+  min-width: 0;
+}
+body.controller-issues.action-show :is(#issue_tree, #relations) td.subject .gb-sub-lead {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 22px;
+  white-space: nowrap;
+}
+body.controller-issues.action-show :is(#issue_tree, #relations) td.subject .gb-sub-lead > :last-child { margin-right: 0; }
+body.controller-issues.action-show :is(#issue_tree, #relations) td.subject .gb-sub-line > .gb-subj {
+  flex: 1 1 0;
+  min-width: 0;
+  line-height: 22px;
+}
+/* empty assignee / due: the cell stays blank (no stray dash) but keeps its padding, so the column width and the
+   x of the next columns are the same as in rows that have a value */
+body.controller-issues.action-show :is(#issue_tree, #relations) table.list.issues > tbody > tr > td:is(.assigned_to, .due_date):empty { padding: 6px 8px; }
+/* tracker badge + relation chip: the same 22px pill as the issue list and the header (64px min-width) */
+body.controller-issues.action-show :is(#issue_tree, #relations) td.subject .gb-tracker { height: 22px; min-width: 64px; padding: 0 10px; justify-content: center; }
+body.controller-issues.action-show #relations td.subject .gb-rel-type { height: 22px; }
+/* narrow (phones / small cards): line 1 chip + tracker + key, line 2 the subject over the full width */
+@container (max-width: 600px) {
+  body.controller-issues.action-show :is(#issue_tree, #relations) td.subject .gb-sub-line { flex-wrap: wrap; row-gap: 2px; }
+  body.controller-issues.action-show :is(#issue_tree, #relations) td.subject .gb-sub-line > .gb-subj { flex: 1 0 100%; }
+}
+
+/* ---------- title on phones: no single orphan character on the last line ---------- */
+@media screen and (max-width: 480px) {
+  body.controller-issues.action-show div.issue div.subject h3 {
+    font-size: 20px;
+    line-height: 1.4;
+  }
+}
+
+/* ---------- 予定工数: total in parentheses like 「(期日まで 1日)」 ---------- */
+body.controller-issues.action-show div.issue .estimated-hours .gb-est-total { color: var(--gb-text-2); }
+
+/* ---------- files: meta line under the file name, same 16px bottom as the other sections ---------- */
+body.controller-issues.action-show div.issue .gb-sec--files { padding-bottom: 16px; }
+body.controller-issues.action-show div.issue .gb-sec--files .attachments > table tr:last-child td { padding-bottom: 0; }
+@media screen and (max-width: 767px) {
+  body.controller-issues.action-show div.issue .gb-sec--files .attachments table tr:last-child { padding-bottom: 0; }
+  body.controller-issues.action-show div.issue .gb-sec--files .attachments table td:has(> span.author) { padding-left: 22px; }
+  /* stacked rows: the desktop 36px cell height would leave a blank band under the meta line */
+  body.controller-issues.action-show div.issue .gb-sec--files .attachments > table td { height: auto; }
+}
+
+/* ---------- time entries tab: edit / delete behave like the journal actions (hover / focus reveal) ---------- */
+body.controller-issues.action-show #history .journal .journal-meta > a.icon-only {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-text-2);
+}
+body.controller-issues.action-show #history .journal .journal-meta > a.icon-only:hover { background: var(--gb-surface-3); }
+body.controller-issues.action-show #history .journal .journal-meta > a.icon-del:hover { background: var(--gb-danger-soft); color: var(--gb-danger); }
+body.controller-issues.action-show #history .journal .journal-meta > a.icon-only svg { width: 16px; height: 16px; }
+@media (hover: hover) and (pointer: fine) {
+  body.controller-issues.action-show #history .journal .journal-meta > a.icon-only {
+    opacity: 0;
+    transition: opacity var(--gb-dur-1) var(--gb-ease);
+  }
+  body.controller-issues.action-show #history .journal:hover .journal-meta > a.icon-only,
+  body.controller-issues.action-show #history .journal:focus-within .journal-meta > a.icon-only { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.controller-issues.action-show #history .journal .journal-meta > a.icon-only { transition: none; }
+}
+
+/* ---------- phones: prev / next sits on the author line, left of the like button (moved there by JS) ---------- */
+@media screen and (max-width: 480px) {
+  html body.controller-issues.action-show #content > div.issue > .next-prev-links.gb-np--inline {
+    float: right;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0;
+    width: auto;
+    margin: 17px 6px 0 0;
+    padding: 0;
+  }
+  /* the two buttons as one segmented control (56px) so 「さんが1日前に追加・1日前に更新」 keeps one line */
+  html body.controller-issues.action-show #content > div.issue > .next-prev-links.gb-np--inline .gb-np-btn:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+  html body.controller-issues.action-show #content > div.issue > .next-prev-links.gb-np--inline .gb-np-btn:last-child { margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  /* like button: vertically centred on the two-line author block, like the pager */
+  html body.controller-issues.action-show #content > div.issue.details > .reaction { margin: 17px 0 0 0; }
+  /* position (「7/20」) only as screen-reader text; the two 28px buttons stay */
+  html body.controller-issues.action-show #content > div.issue > .next-prev-links.gb-np--inline .position {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* no row of the table has a due date: the 期日 column shrinks to 40px (blank) and the subject gets the width */
+body.controller-issues.action-show :is(#issue_tree, #relations) table.list.issues[data-gb-no-due] > tbody > tr > td.due_date { width: 40px; padding-left: 8px; padding-right: 8px; text-align: center; }

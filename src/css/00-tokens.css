@@ -1,0 +1,131 @@
+/* Greenboard - a light, card-based Redmine theme with a left project sidebar.
+   Design tokens (DESIGN.md §1). Names are a public API: add, never rename/remove. */
+
+:root {
+  /* ---- brand green ---- */
+  --gb-primary: #3fae8a;         /* accents, active indicators, progress fill, focus ring base */
+  --gb-primary-strong: #1a7f5e;  /* filled-button bg, link text (4.9:1 on white) */
+  --gb-primary-hover: #146b4f;   /* hover of filled buttons / links */
+  --gb-primary-dark: #2c8f70;    /* borders/icons only, not text-on-fill */
+  --gb-primary-soft: #e8f6f1;    /* selected rows, hover tint, soft buttons */
+  --gb-primary-softer: #f3faf7;  /* table row hover, subtle panels */
+  --gb-primary-border: #b9e0d2;  /* border of soft/outlined green things */
+
+  /* ---- neutrals ---- */
+  --gb-bg: #f2f4f3;
+  --gb-surface: #ffffff;
+  --gb-surface-2: #f7f9f8;
+  --gb-surface-3: #eef1f0;
+  --gb-border: #e0e5e3;
+  --gb-border-strong: #c9d1ce;
+  --gb-border-hover: #aab5b1;
+  --gb-text: #2f3a37;
+  --gb-text-2: #55625e;
+  --gb-muted: #74807c;
+  --gb-disabled: #a9b3b0;
+
+  /* ---- left nav ---- */
+  --gb-nav-bg: #2f3e3b;
+  --gb-nav-text: #cfe0da;
+  --gb-nav-active: #3f524e;
+
+  /* ---- status colours (ids of Redmine's Japanese default data) ---- */
+  --gb-st-1: #ed8077; /* 未対応 */
+  --gb-st-2: #4488c5; /* 処理中 */
+  --gb-st-3: #5eb5a6; /* 処理済み */
+  --gb-st-4: #f0a24a; /* フィードバック */
+  --gb-st-5: #a1af2f; /* 完了 */
+  --gb-st-6: #a5a5a5; /* 却下 */
+
+  /* ---- semantic ---- */
+  --gb-danger: #d64545;  --gb-danger-hover: #b93636; --gb-danger-soft: #fdeceb; --gb-danger-border: #f3bcb8; --gb-danger-text: #8f2a2a;
+  --gb-warning: #b7791f; --gb-warning-soft: #fff6e0; --gb-warning-border: #f1d99a; --gb-warning-text: #7a5211;
+  --gb-info: #2f6fb0;    --gb-info-soft: #eaf3fb;    --gb-info-border: #bcd6ee;
+  --gb-success: #1a7f5e; --gb-success-soft: #e8f6f1; --gb-success-border: #b9e0d2; --gb-success-text: #14553f;
+  --gb-overlay: rgba(20, 30, 27, .45);
+  --gb-tooltip-bg: #2f3a37;
+
+  /* ---- tracker badges (tracker id of the Japanese default data) ---- */
+  --gb-tr-1: #e0625b; /* バグ */
+  --gb-tr-2: #7fa32b; /* 機能 */
+  --gb-tr-3: #e09a2f; /* サポート */
+  --gb-tr-default: #6b8fb5;
+
+  /* ---- priority (text/arrow colour only) ---- */
+  --gb-prio-low: #4488c5;
+  --gb-prio-normal: #74807c;
+  --gb-prio-high: #e0625b;
+
+  /* ---- avatar palette (white text) ---- */
+  --gb-av-0: #4a9d7c; --gb-av-1: #4488c5; --gb-av-2: #c9772e; --gb-av-3: #8a6bb8;
+  --gb-av-4: #c85a7c; --gb-av-5: #3d93a8; --gb-av-6: #8a9a2e; --gb-av-7: #b06045;
+
+  /* ---- typography ---- */
+  --gb-font: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+  --gb-font-mono: "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono CJK JP", monospace;
+  --gb-fs-xs: 12px; /* DESIGN §5: no text below 12px (badges included) */
+  --gb-fs-sm: 12px;
+  --gb-fs-md: 14px;
+  --gb-fs-lg: 16px;
+  --gb-fs-xl: 20px;
+  --gb-fs-2xl: 24px;
+  --gb-lh-tight: 1.35;
+  --gb-lh: 1.6;
+  --gb-lh-prose: 1.8;
+  --gb-fw-normal: 400;
+  --gb-fw-medium: 500;
+  --gb-fw-bold: 600;
+
+  /* ---- spacing ---- */
+  --gb-sp-1: 4px; --gb-sp-2: 8px; --gb-sp-3: 12px; --gb-sp-4: 16px; --gb-sp-5: 20px;
+  --gb-sp-6: 24px; --gb-sp-8: 32px; --gb-sp-10: 40px;
+
+  /* ---- radii ---- */
+  --gb-radius-sm: 4px;
+  --gb-radius: 8px;
+  --gb-radius-lg: 12px;
+  --gb-radius-pill: 999px;
+
+  /* ---- shadows ---- */
+  --gb-shadow: 0 1px 2px rgba(20, 40, 34, .06), 0 2px 8px rgba(20, 40, 34, .05);
+  --gb-shadow-md: 0 4px 16px rgba(20, 40, 34, .12);
+  --gb-shadow-lg: 0 12px 40px rgba(20, 40, 34, .22);
+  --gb-focus: 0 0 0 3px rgba(63, 174, 138, .30);
+  --gb-focus-danger: 0 0 0 3px rgba(214, 69, 69, .20);
+  /* solid ring for links, buttons, tabs, toggles (inputs keep the soft --gb-focus halo) */
+  --gb-focus-ring: 0 0 0 2px var(--gb-surface), 0 0 0 4px var(--gb-primary);
+  --gb-focus-ring-inset: inset 0 0 0 2px var(--gb-primary);
+
+  /* ---- sizes ---- */
+  --gb-control-h: 36px;
+  --gb-control-h-sm: 28px;
+  --gb-control-h-lg: 44px;
+  --gb-content-max: 1280px;
+  --gb-form-max: 960px;
+  --gb-prose-max: 860px;
+  --gb-sidebar-w: 208px;      /* left project nav */
+  --gb-sidebar-rail: 56px;    /* collapsed left nav */
+  --gb-rsidebar-w: 240px;     /* right #sidebar card */
+  --gb-topbar-h: 52px;
+
+  /* ---- z-index ---- */
+  --gb-z-sticky: 20;
+  --gb-z-nav: 100;
+  --gb-z-topbar: 110;
+  --gb-z-dropdown: 200;
+  --gb-z-modal: 1000;
+  --gb-z-toast: 1100;
+
+  /* ---- motion ---- */
+  --gb-ease: cubic-bezier(.2, .7, .3, 1);
+  --gb-dur-1: 120ms;
+  --gb-dur-2: 200ms;
+
+  /* ---- icons (data-URI) ---- */
+  --gb-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2355625e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  --gb-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2374807c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --gb-dur-1: 0ms; --gb-dur-2: 0ms; }
+}

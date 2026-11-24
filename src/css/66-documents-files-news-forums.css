@@ -1,0 +1,1050 @@
+/* 66-documents-files-news-forums.css — 文書 / ファイル / ニュース / フォーラム (DESIGN.md §3.6)
+   Generic buttons, inputs, tables, tabs, editor unit and dropzone come from the shared files;
+   this file only adds page layout for these four modules. Tokens carry fallbacks so the pages stay
+   correct while shared tokens are being introduced. */
+
+/* ================= shared bits (scoped to the four modules) ================= */
+
+:is(body.controller-documents, body.controller-files, body.controller-news, body.controller-boards, body.controller-messages) {
+  --gbd-text: var(--gb-text, #2f3a37);
+  --gbd-text-2: var(--gb-text-2, #55625e);
+  --gbd-muted: var(--gb-muted, #74807c);
+  --gbd-border: var(--gb-border, #e0e5e3);
+  --gbd-border-strong: var(--gb-border-strong, #c9d1ce);
+  --gbd-surface-2: var(--gb-surface-2, #f7f9f8);
+  --gbd-surface-3: var(--gb-surface-3, #eef1f0);
+  --gbd-green: var(--gb-primary, #3fae8a);
+  --gbd-green-strong: var(--gb-primary-strong, #1a7f5e);
+  --gbd-green-hover: var(--gb-primary-hover, #146b4f);
+  --gbd-green-soft: var(--gb-primary-soft, #e8f6f1);
+  --gbd-green-softer: var(--gb-primary-softer, #f3faf7);
+  --gbd-green-border: var(--gb-primary-border, #b9e0d2);
+  --gbd-radius: var(--gb-radius, 8px);
+  --gbd-radius-sm: var(--gb-radius-sm, 4px);
+  --gbd-focus: var(--gb-focus, 0 0 0 3px rgba(63, 174, 138, .30));
+  --gbd-ease: var(--gb-dur-1, 120ms) var(--gb-ease, ease);
+}
+
+/* fallback avatar (only used until the shared .gb-avatar component exists — zero specificity) */
+:where(body) :where(.gb-avatar) {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--gb-av-0, #4a9d7c); color: #fff;
+  font-size: 13px; font-weight: 600; line-height: 1; font-style: normal;
+}
+:where(body) :where(.gb-avatar--20) { width: 20px; height: 20px; font-size: 11px; }
+:where(body) :where(.gb-avatar--36) { width: 36px; height: 36px; font-size: 15px; }
+:where(body) :where(.gb-avatar[data-av="1"]) { background: var(--gb-av-1, #4488c5); }
+:where(body) :where(.gb-avatar[data-av="2"]) { background: var(--gb-av-2, #c9772e); }
+:where(body) :where(.gb-avatar[data-av="3"]) { background: var(--gb-av-3, #8a6bb8); }
+:where(body) :where(.gb-avatar[data-av="4"]) { background: var(--gb-av-4, #c85a7c); }
+:where(body) :where(.gb-avatar[data-av="5"]) { background: var(--gb-av-5, #3d93a8); }
+:where(body) :where(.gb-avatar[data-av="6"]) { background: var(--gb-av-6, #8a9a2e); }
+:where(body) :where(.gb-avatar[data-av="7"]) { background: var(--gb-av-7, #b06045); }
+
+/* no italics anywhere in these modules */
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content :is(em, i, .updated_on, .author, p.subtitle) {
+  font-style: normal;
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .wiki em {
+  font-style: normal; font-weight: 600;
+}
+
+/* count badge */
+.gbd-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 18px; padding: 0 8px; margin-left: 8px; box-sizing: border-box;
+  border-radius: 999px; background: var(--gbd-surface-3); color: var(--gbd-text-2);
+  font-size: 12px; font-weight: 600; line-height: 18px; vertical-align: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.gbd-count--on { background: var(--gbd-green-soft); color: var(--gbd-green-strong); }
+
+/* neutral tag */
+.gbd-tag, a.gbd-tag {
+  display: inline-flex; align-items: center; height: 22px; padding: 0 8px;
+  border-radius: var(--gbd-radius-sm); background: var(--gbd-surface-3); color: var(--gbd-text-2);
+  font-size: 12px; font-weight: 600; line-height: 1; white-space: nowrap;
+  text-decoration: none;
+}
+a.gbd-tag:hover { background: var(--gbd-green-soft); color: var(--gbd-green-strong); text-decoration: none; }
+
+/* state tag (sticky / locked) */
+.gbd-state {
+  display: inline-flex; align-items: center; gap: 3px; height: 20px; padding: 0 7px; margin-right: 8px;
+  border-radius: var(--gbd-radius-sm); font-size: 12px; font-weight: 600; line-height: 1;
+  vertical-align: 1px; white-space: nowrap;
+  background: var(--gb-info-soft, #eaf3fb); color: var(--gb-info, #2f6fb0);
+}
+.gbd-state--locked { background: var(--gbd-surface-3); color: var(--gbd-text-2); }
+.gbd-state svg { width: 12px; height: 12px; }
+
+/* meta row: avatar + "名前 さんが 12分 前に追加" + extras */
+.gbd-meta {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px;
+  font-size: 13px; color: var(--gbd-text-2); line-height: 1.5;
+}
+.gbd-meta .gbd-author { margin: 0; color: var(--gbd-text-2); }
+.gbd-meta .gbd-author a { color: var(--gbd-text-2); }
+.gbd-meta .gbd-author a.user { color: var(--gbd-text); font-weight: 600; }
+.gbd-meta .gbd-author a:hover { color: var(--gbd-green-strong); }
+.gbd-chip {
+  display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px;
+  border-radius: 999px; background: var(--gbd-surface-2); color: var(--gbd-text-2);
+  font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.gbd-chip svg { width: 14px; height: 14px; }
+
+/* small secondary button used for 「新しいファイル」 on document detail */
+#content a.gbd-btn {
+  display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px;
+  border: 1px solid var(--gbd-border-strong); border-radius: var(--gbd-radius-sm);
+  background: #fff; color: var(--gbd-text); font-size: 13px; font-weight: 600; text-decoration: none;
+  transition: background var(--gbd-ease), border-color var(--gbd-ease), color var(--gbd-ease);
+}
+#content a.gbd-btn:hover { background: var(--gbd-surface-2); border-color: var(--gbd-green); color: var(--gbd-green-strong); }
+#content a.gbd-btn:focus-visible { outline: none; border-color: var(--gbd-green); box-shadow: var(--gbd-focus); }
+#content a.gbd-btn svg { width: 16px; height: 16px; }
+
+/* breadcrumb (generated on document detail; core one on news/forums) */
+/* same look as the wiki breadcrumb: 13px grey links, green on hover */
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content p.breadcrumb {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; margin: 0 0 6px;
+  font-size: var(--gb-fs-sm, 13px); line-height: 1.5; color: var(--gbd-text-2);
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content p.breadcrumb a,
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content p.breadcrumb a:link,
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content p.breadcrumb a:visited { color: var(--gbd-text-2); text-decoration: none; }
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content p.breadcrumb a:hover { color: var(--gbd-green-strong); text-decoration: underline; }
+#content p.breadcrumb .gbd-sep { margin: 0; color: var(--gb-disabled, #a9b3b0); font-size: 13px; line-height: 1; }
+
+/* inline "add" panels opened from list pages (新しい文書 / ニュースを追加 / 新しいメッセージ) */
+#content > .gbd-add-panel {
+  display: block; /* also on <form> panels (news comment): core's `form { display: inline }` would break the card */
+  clear: both; margin: 0 0 24px; padding: 20px 24px;
+  border: 1px solid var(--gbd-green-border); border-radius: var(--gbd-radius);
+  background: var(--gbd-green-softer);
+}
+#content > .gbd-add-panel > h2 {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 0 0 16px; font-size: 16px; font-weight: 600; line-height: 1.5;
+}
+#content > .gbd-add-panel > h2 .gbd-panel-close {
+  display: inline-flex; align-items: center; justify-content: center; flex: none; width: 32px; height: 32px; margin: -4px -8px -4px 0;
+  padding: 0; border: 0; border-radius: var(--gbd-radius-sm); background: transparent; color: var(--gbd-text-2); cursor: pointer;
+}
+#content > .gbd-add-panel > h2 .gbd-panel-close:hover { background: var(--gbd-surface-3); color: var(--gbd-text); }
+#content > .gbd-add-panel > h2 .gbd-panel-close:focus-visible { outline: none; box-shadow: var(--gbd-focus); }
+#content > .gbd-add-panel > h2 .gbd-panel-close svg { width: 16px; height: 16px; }
+/* the action row closes the panel: no trailing margin, so the space under the buttons equals the top padding */
+#content > .gbd-add-panel p.gbd-actions,
+#content > .gbd-add-panel :is(form, div, p):has(> input[type=submit]):last-child,
+#content > .gbd-add-panel > :last-child,
+#content > .gbd-add-panel > form > :last-child { margin-bottom: 0; }
+#content > .gbd-add-panel { scroll-margin-top: calc(var(--gb-topbar-h, 52px) + 16px); }
+#content .contextual.gbd-panel-open > a.gbd-panel-trigger.gbd-panel-trigger[aria-controls] { display: none; }
+#content > .gbd-add-panel .box { background: transparent; }
+
+/* title + action bar on detail pages (wrapped by JS), same layout as wiki pages / issue detail:
+   row 1 = breadcrumb (left) + action bar (right), row 2 = the title across the full width. */
+#content .gbd-title-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "bc actions" "title title";
+  align-items: center; column-gap: 16px; margin: 0 0 12px;
+}
+#content .gbd-title-row > p.breadcrumb { grid-area: bc; min-width: 0; min-height: 32px; margin: 0; }
+#content .gbd-title-row > h2 {
+  grid-area: title; min-width: 0; margin: 8px 0 0; padding: 0;
+  font-size: var(--gb-fs-2xl, 24px); line-height: 34px;
+}
+#content .gbd-title-row > h2 > .avatar { display: none; }
+.controller-messages.action-show #content .gbd-title-row { margin-bottom: 16px; }
+#content .gbd-title-row > .contextual {
+  grid-area: actions; justify-self: end;
+  float: none; display: flex; flex-wrap: nowrap; align-items: center; gap: 4px; white-space: nowrap;
+  margin: 0; padding: 0; min-height: 32px;
+}
+/* 編集 = the page's primary action (identical to the wiki page / issue detail 編集 button) */
+#content .gbd-title-row > .contextual > a.icon-edit,
+#content .gbd-title-row > .contextual > a.icon-edit:link,
+#content .gbd-title-row > .contextual > a.icon-edit:visited {
+  order: -1; display: inline-flex; align-items: center; gap: 6px;
+  height: 32px; margin-right: 6px; padding: 0 14px 0 12px;
+  border-radius: var(--gbd-radius-sm); background: var(--gbd-green-strong); color: #fff;
+  font-size: 13px; font-weight: var(--gb-fw-bold, 700); text-decoration: none;
+}
+#content .gbd-title-row > .contextual > a.icon-edit:hover { background: var(--gbd-green-hover); color: #fff; }
+#content .gbd-title-row > .contextual > a.icon-edit:focus-visible { outline: none; box-shadow: var(--gbd-focus); }
+#content .gbd-title-row > .contextual > a.icon-edit .icon-svg { width: 16px; height: 16px; stroke: #fff; }
+@media (max-width: 640px) {
+  #content .gbd-title-row > h2 { font-size: 20px; }
+  #content .gbd-title-row > .contextual { gap: 0; margin-right: -6px; }
+  #content .gbd-title-row > .contextual > a:not(.icon-edit) { padding: 0 6px; }
+  #content .gbd-title-row > .contextual > a.icon-edit { margin-right: 4px; padding: 0 12px 0 10px; }
+}
+/* very narrow (topic, news, document detail alike): only 編集 keeps its label; every other action
+   (ウォッチ / ウォッチをやめる / 引用 / 削除) is a 32px icon button — label stays for screen readers + tooltip */
+@media (max-width: 420px) {
+  #content .gbd-title-row:not(.gbd-title-row--list) > .contextual > a:not(.icon-edit) { width: 32px; height: 32px; padding: 0; justify-content: center; }
+  #content .gbd-title-row:not(.gbd-title-row--list) > .contextual > a:not(.icon-edit) > .icon-label {
+    position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+}
+
+/* a list that fits on one page: hide the lone "(1-2/2)" counter */
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .pagination:has(> ul.pages:empty) { display: none; }
+
+/* list pages: h2 (left) + action bar (right) in one row; never overlaps the first item */
+#content .gbd-title-row.gbd-title-row--list {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 0 0 16px;
+}
+#content .gbd-title-row--list > h2 { flex: 1 1 auto; min-width: 0; margin: 0; padding: 0; font-size: var(--gb-fs-xl, 20px); line-height: 32px; }
+#content .gbd-title-row--list > .contextual { justify-self: auto; flex-wrap: nowrap; margin: 0 0 0 auto; }
+/* the page's create action keeps the shared primary look (10-global: #content > .contextual > a.icon-add) */
+#content .gbd-title-row--list > .contextual > a.icon-add,
+#content .gbd-title-row--list > .contextual > a.icon-add:link,
+#content .gbd-title-row--list > .contextual > a.icon-add:visited {
+  height: 32px; margin-left: 4px; padding: 0 14px 0 10px;
+  background: var(--gbd-green-strong); color: #fff; font-weight: var(--gb-fw-bold, 600);
+}
+#content .gbd-title-row--list > .contextual > a.icon-add:hover { background: var(--gbd-green-hover); color: #fff; }
+#content .gbd-title-row--list > .contextual > a.icon-add:focus-visible { outline: none; box-shadow: var(--gbd-focus); }
+#content .gbd-title-row--list > .contextual > a.icon-add .icon-svg { stroke: #fff; }
+@media (max-width: 640px) {
+  /* next to the create button, secondary actions (ウォッチ / 設定) become 32px icon buttons */
+  #content .gbd-title-row--list > .contextual:has(> a.icon-add) > a:not(.icon-add) { width: 32px; height: 32px; padding: 0; justify-content: center; }
+  #content .gbd-title-row--list > .contextual:has(> a.icon-add) > a:not(.icon-add) > .icon-label {
+    position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+}
+
+/* ================= forms (Pattern S additions) ================= */
+
+/* Pattern S (label above field) for this module's .tabular forms — layout only; controls come from the shared styles */
+:is(.controller-documents, .controller-news, .controller-files) #content :is(.box.tabular, form.tabular > .box) {
+  margin: 0 0 8px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none;
+}
+:is(.controller-documents, .controller-news, .controller-files) #content .tabular p {
+  margin: 0 0 20px; padding: 0; min-height: 0;
+}
+:is(.controller-documents, .controller-news, .controller-files) #content .tabular p > label:first-child {
+  float: none; display: block; width: auto; margin: 0 0 6px; padding: 0; text-align: left;
+  font-size: 13px; font-weight: 600; color: var(--gbd-text); line-height: 1.5;
+}
+:is(.controller-documents, .controller-news, .controller-files) #content .tabular .jstBlock { width: 100%; }
+
+/* title fields are the big 44px "subject" style */
+:is(.controller-documents, .controller-news, .controller-messages, .controller-boards) #content
+  :is(#document_title, #news_title, form.new_message #message_subject, form.edit_message #message_subject) {
+  width: 100%; max-width: none; height: var(--gb-control-h-lg, 44px); font-size: 16px; font-weight: 500;
+}
+:is(.controller-documents, .controller-news) #content :is(#document_category_id) { width: 240px; max-width: 100%; }
+.controller-files:is(.action-new, .action-create) #content #version_id { width: 240px; max-width: 100%; }
+.controller-news #content #news_summary { width: 100%; min-height: 64px; height: auto; }
+.controller-news #content #project_id { width: 320px; max-width: 100%; }
+
+/* editor heights per page (C-editor custom properties, §6.11) */
+:is(.controller-documents, .controller-news, .controller-messages, .controller-boards) #content { --gb-editor-min: 200px; }
+.controller-messages #reply { --gb-editor-min: 160px; }
+.controller-news #add_comment_form { --gb-editor-min: 120px; }
+
+/* forms keep their max width and sit on the card (no grey box) */
+:is(.controller-documents, .controller-news, .controller-messages, .controller-files) #content form :is(.box, .box.tabular),
+.controller-boards #content #add-message form .box {
+  max-width: var(--gb-form-max, 960px);
+}
+
+/* message form (topic new / edit / reply): core markup is a non-tabular .box with <br>s */
+#message-form .gbd-mform {
+  padding: 0; border: 0; background: transparent; box-shadow: none;
+}
+#message-form .gbd-mform > p { margin: 0 0 20px; padding: 0; }
+#message-form .gbd-mform > p > br { display: none; }
+#message-form .gbd-mform > p > label:first-child,
+#message-form .gbd-mform .gbd-label,
+#message-form .gbd-mform label.gbd-label-visible {
+  display: block; position: static; width: auto; height: auto; overflow: visible; clip: auto;
+  margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--gbd-text); text-align: left;
+}
+#message-form .gbd-mform > p.gbd-has-checks {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px;
+}
+#message-form .gbd-mform > p.gbd-has-checks > label:first-child,
+#message-form .gbd-mform > p.gbd-has-checks > input[type=text] { flex: 0 0 100%; margin-bottom: 0; }
+#message-form .gbd-mform > p.gbd-has-checks > label:first-child { margin-bottom: -6px; }
+#message-form .gbd-mform input[type=text],
+#content #reply #message-form input[type=text] { width: 100%; max-width: none; box-sizing: border-box; }
+#message-form .gbd-check {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 28px; font-size: 14px;
+}
+#message-form .gbd-check label { cursor: pointer; font-weight: 500; }
+#message-form .gbd-check input { margin: 0; }
+#message-form #message_board_id { width: 240px; max-width: 100%; }
+#message-form > p:last-child { margin-top: 4px; }
+/* required marks (added by JS) + invalid editor outline, matching the document/news forms */
+/* (invalid editor outline: C-editor, 15-c-editor.css) */
+/* server-side errors on these forms: red label + red field, one message without a bullet */
+:is(.controller-documents, .controller-news, .controller-files) #content .tabular p > label.error:first-child,
+#message-form label.error { color: var(--gb-danger, #d64545); }
+:is(.controller-documents, .controller-news, .controller-files) #content .tabular label.error + :is(input, select, textarea),
+#message-form [aria-invalid=true]:is(input, select) { border-color: var(--gb-danger, #d64545); }
+:is(.controller-documents, .controller-news, .controller-files) #content .tabular label.error + :is(input, select, textarea):focus,
+#message-form [aria-invalid=true]:is(input, select):focus { border-color: var(--gb-danger, #d64545); box-shadow: var(--gb-focus-danger, 0 0 0 3px rgba(214, 69, 69, .25)); }
+:is(.controller-documents, .controller-news, .controller-files, .controller-messages, .controller-boards) #content #errorExplanation,
+.controller-files:is(.action-new, .action-create) #content > div.flash {
+  max-width: var(--gb-form-max, 960px); box-sizing: border-box; margin-bottom: 20px;
+}
+:is(.controller-documents, .controller-news, .controller-files, .controller-messages, .controller-boards) #content #errorExplanation ul:has(> li:only-child) {
+  padding-left: 0; list-style: none;
+}
+/* inline message from the empty reply / comment guard (JS) — same look as the issue form's field errors */
+#content p.gbd-field-error {
+  display: flex; align-items: center; gap: 6px; margin: 6px 0 0; font-size: 12px; font-weight: 500; color: var(--gb-danger, #d64545);
+}
+#content p.gbd-field-error::before {
+  content: "!"; display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 14px; height: 14px; border-radius: 50%; background: var(--gb-danger, #d64545);
+  color: #fff; font-size: 10px; font-weight: 700; line-height: 1;
+}
+#content p.gbd-field-error[hidden] { display: none; }
+#message-form .gbd-mform > p:has(:is(textarea, input)[aria-invalid=true]) > label:first-child { color: var(--gb-danger, #d64545); }
+
+/* attachments dropzone + upload list (mirrors the issue form's §2.12 implementation, scoped to these modules) */
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content span.attachments_form { display: block; max-width: var(--gb-form-max, 960px); }
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content span.add_attachment.gb-drop {
+  position: relative; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: 4px 10px; width: 100%; min-height: 72px; padding: 14px 16px;
+  font-size: 14px; line-height: 1.5; color: var(--gbd-text-2);
+  background: var(--gbd-surface-2); border: 1.5px dashed var(--gbd-border-strong); border-radius: var(--gbd-radius);
+  cursor: pointer; transition: border-color var(--gbd-ease), background-color var(--gbd-ease);
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content span.add_attachment.gb-drop:hover {
+  border-color: var(--gbd-green); background: var(--gbd-green-softer);
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .fileover span.add_attachment.gb-drop,
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content form.fileover span.add_attachment.gb-drop {
+  border-style: solid; border-color: var(--gbd-green); background: var(--gbd-green-soft);
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .gb-drop > input.file_selector {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); border: 0; white-space: nowrap;
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .gb-drop__icon { display: inline-flex; color: var(--gbd-muted); }
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .gb-drop__icon svg { width: 20px; height: 20px; }
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .gb-drop__btn {
+  display: inline-flex; align-items: center; height: 28px; padding: 0 12px; margin: 0;
+  font-size: 12px; font-weight: 600; color: var(--gbd-text); background: #fff;
+  border: 1px solid var(--gbd-border-strong); border-radius: var(--gbd-radius-sm); cursor: pointer;
+  transition: border-color var(--gbd-ease), color var(--gbd-ease);
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .gb-drop__btn:hover { color: var(--gbd-green-strong); border-color: var(--gbd-green); }
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .gb-drop:has(> input.file_selector:focus-visible) .gb-drop__btn {
+  border-color: var(--gbd-green); box-shadow: var(--gbd-focus);
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .gb-drop__limit {
+  flex: 0 0 100%; font-size: 12px; color: var(--gbd-text-2); text-align: center;
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .attachments_fields:has(> span) {
+  display: block; margin: 0 0 8px; border: 1px solid var(--gbd-border); border-radius: var(--gbd-radius); overflow: hidden;
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .attachments_fields > span {
+  display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 6px 0 12px;
+  white-space: nowrap; background: #fff; border-bottom: 1px solid var(--gbd-border);
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .attachments_fields > span:last-child { border-bottom: 0; }
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .attachments_fields > span > svg { flex: none; width: 16px; height: 16px; color: var(--gbd-muted); }
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .attachments_fields input.filename {
+  flex: 0 1 auto; width: auto; min-width: 80px; height: 28px; padding: 0;
+  font-size: 14px; font-weight: 500; color: var(--gbd-text); background: transparent; border: 0; box-shadow: none;
+  text-overflow: ellipsis; field-sizing: content;
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .attachments_fields input.description {
+  flex: 1 1 auto; width: auto; min-width: 0; height: 28px; margin: 0; padding: 0 8px;
+  font-size: 13px; background: transparent; border: 1px solid transparent; border-radius: var(--gbd-radius-sm);
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .attachments_fields input.description:hover { border-color: var(--gbd-border); }
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .attachments_fields input.description:focus {
+  outline: none; background: #fff; border-color: var(--gbd-green); box-shadow: var(--gbd-focus);
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .attachments_fields a.remove-upload {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin-left: auto;
+  border-radius: var(--gbd-radius-sm); color: var(--gbd-text-2);
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .attachments_fields a.remove-upload:hover {
+  background: var(--gb-danger-soft, #fdeceb); color: var(--gb-danger, #d64545);
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .attachments_fields div.ui-progressbar {
+  flex: 0 0 96px; height: 4px; margin: 0; background: var(--gbd-surface-3); border: 0; border-radius: 999px; overflow: hidden;
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content .attachments_fields div.ui-progressbar .ui-progressbar-value {
+  margin: 0; background: var(--gbd-green); border: 0;
+}
+
+/* cancel text button injected next to submits */
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content input[type=submit][name=commit] {
+  vertical-align: middle;
+}
+/* action row (submit + キャンセル) is identical on every form: auto-width button even inside a .tabular form
+   (core's mobile `.tabular input { width: 100% }` would otherwise stretch files/new's 追加) */
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content p.gbd-actions {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; padding: 0;
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content p.gbd-actions > input[type=submit] {
+  flex: none; width: auto; max-width: none; margin: 0;
+}
+:is(.controller-documents, .controller-files, .controller-news, .controller-boards, .controller-messages) #content p.gbd-actions > a.gbd-cancel { margin-left: 0; }
+#content a.gbd-cancel {
+  display: inline-flex; align-items: center; height: 36px; padding: 0 10px; margin-left: 8px;
+  border-radius: var(--gbd-radius-sm); color: var(--gbd-green-strong); font-weight: 500; vertical-align: middle;
+}
+#content a.gbd-cancel:hover { background: var(--gbd-green-soft); text-decoration: none; }
+
+/* the collapsed 「コメントを追加…」 / 「返答を書く…」 row is the C-comment component (15-c-comment.css) */
+
+/* ================= 文書 (Documents) ================= */
+
+/* list */
+.controller-documents.action-index #document-list { max-width: 1040px; }
+.controller-documents.action-index #document-list .document-group + .document-group { margin-top: 24px; }
+/* the list closes the card: no trailing margins under the last row card (bottom gap = the card's 24px padding) */
+.controller-documents.action-index #document-list,
+.controller-documents.action-index #document-list > .document-group:last-child { margin-bottom: 0; padding-bottom: 0; }
+.controller-documents.action-index #document-list > .document-group:last-child > .document-item:last-child { margin-bottom: 0; }
+.controller-documents.action-index #document-list h3.group-name {
+  display: flex; align-items: center; margin: 0 0 8px; padding: 0;
+  font-size: 13px; font-weight: 600; color: var(--gbd-text-2); border: 0;
+}
+.controller-documents.action-index #document-list h3.group-name .gbd-count { margin-left: 8px; vertical-align: 0; }
+.controller-documents.action-index .document-item {
+  position: relative;
+  display: grid; grid-template-columns: 32px minmax(0, 1fr) auto;
+  grid-template-areas: "icon title date" "icon desc date";
+  column-gap: 14px; row-gap: 2px; align-items: start;
+  margin: 0 0 8px; padding: 14px 16px;
+  border: 1px solid var(--gbd-border); border-radius: var(--gbd-radius); background: #fff;
+  transition: border-color var(--gbd-ease), background var(--gbd-ease);
+}
+.controller-documents.action-index .document-item:hover { border-color: var(--gbd-green-border); background: var(--gbd-green-softer); }
+.controller-documents.action-index .document-item:focus-within { border-color: var(--gbd-green); box-shadow: var(--gbd-focus); }
+.controller-documents.action-index .document-item .gbd-doc-icon {
+  grid-area: icon; display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 6px;
+  background: var(--gbd-green-soft); color: var(--gbd-green-strong);
+}
+.controller-documents.action-index .document-item .gbd-doc-icon svg { width: 20px; height: 20px; stroke: currentColor; }
+.controller-documents.action-index .document-item h4.title {
+  grid-area: title; margin: 0; padding: 0; border: 0;
+  font-size: 15px; font-weight: 600; line-height: 1.45; min-width: 0;
+}
+.controller-documents.action-index .document-item h4.title a { color: var(--gbd-text); text-decoration: none; }
+.controller-documents.action-index .document-item h4.title a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.controller-documents.action-index .document-item h4.title a:focus-visible { outline: none; }
+.controller-documents.action-index .document-item:hover h4.title a { color: var(--gbd-green-strong); }
+.controller-documents.action-index .document-item .updated_on {
+  grid-area: date; align-self: center; white-space: nowrap;
+  font-size: 12px; color: var(--gbd-muted); font-variant-numeric: tabular-nums;
+}
+.controller-documents.action-index .document-item .updated_on em { font-style: normal; }
+.controller-documents.action-index .document-item .wiki.description {
+  grid-area: desc; margin: 0; padding: 0; max-width: none;
+  font-size: 13px; line-height: 1.6; color: var(--gbd-text-2);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
+}
+.controller-documents.action-index .document-item .wiki.description :is(p, ul, ol, h1, h2, h3, h4, pre, blockquote, table) {
+  margin: 0; padding: 0; font-size: 13px; line-height: 1.6; color: inherit; border: 0; background: none; font-weight: 400;
+}
+.controller-documents.action-index .document-item .wiki.description.gbd-empty { display: none; }
+.controller-documents.action-index .document-item:has(.gbd-empty) { grid-template-areas: "icon title date" "icon title date"; align-items: center; }
+
+/* sidebar 並べ替え as separated pills (the shared sidebar rule gives `ul > li > a:first-child` a -8px side margin; reset it) */
+.controller-documents.action-index #sidebar ul { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.controller-documents.action-index #sidebar ul li { display: block; margin: 0; padding: 0; }
+.controller-documents.action-index #sidebar ul li a,
+.controller-documents.action-index #sidebar ul li a.selected {
+  display: inline-flex; align-items: center; box-sizing: border-box; height: 28px; min-height: 0; margin: 0; padding: 0 12px;
+  border: 1px solid var(--gbd-border-strong); border-radius: 999px; background: #fff;
+  color: var(--gbd-text-2); font-size: 13px; font-weight: 500; line-height: 1; white-space: nowrap; text-decoration: none;
+}
+.controller-documents.action-index #sidebar ul li a:hover { border-color: var(--gbd-green-border); color: var(--gbd-green-strong); background: var(--gbd-green-softer); }
+.controller-documents.action-index #sidebar ul li a.selected {
+  background: var(--gbd-green-soft); border-color: var(--gbd-green-border); color: var(--gbd-green-strong); font-weight: 600;
+}
+.controller-documents.action-index #sidebar ul li a:focus-visible { outline: none; border-color: var(--gbd-green); box-shadow: var(--gbd-focus); }
+
+/* detail: the card keeps the full content width (same edges as list/edit); only the .wiki text column is capped */
+.controller-documents.action-show #content > h2 { font-size: var(--gb-fs-2xl, 24px); line-height: 1.4; margin: 0 0 10px; }
+.controller-documents.action-show .gbd-doc-meta { max-width: none; margin: 0 0 24px; padding: 0 0 16px; border-bottom: 1px solid var(--gbd-border); }
+.gbd-doc-meta .gbd-date { display: inline-flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; }
+.gbd-doc-meta .gbd-date svg { width: 14px; height: 14px; color: var(--gbd-muted); }
+.controller-documents.action-show #content > .wiki { max-width: var(--gb-prose-max, 860px); }
+.controller-documents.action-show .gbd-files-section {
+  max-width: none; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--gbd-border);
+}
+.controller-documents.action-show .gbd-files-section > h3 {
+  display: flex; align-items: center; margin: 0 0 12px; font-size: 16px; font-weight: 600; border: 0;
+}
+.controller-documents.action-show .gbd-files-section > p { margin: 0 0 12px; }
+.controller-documents.action-show .gbd-files-section > p:has(> #attach_files_link) { margin-bottom: 0; }
+.controller-documents.action-show #add_attachment_form { margin-top: 4px; }
+.gbd-files-section .attachments { position: relative; margin: 0 0 12px; padding: 0; border: 0; background: none; }
+.gbd-files-section .attachments > .contextual {
+  position: absolute; top: -40px; right: 0; margin: 0; padding: 0; float: none;
+}
+.gbd-files-section .attachments > .contextual a {
+  display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px;
+  border-radius: var(--gbd-radius-sm); color: var(--gbd-text-2);
+}
+.gbd-files-section .attachments > .contextual a:hover { background: var(--gbd-surface-3); color: var(--gbd-text); }
+.gbd-files-section .attachments > table {
+  width: 100%; border: 1px solid var(--gbd-border); border-radius: var(--gbd-radius);
+  border-collapse: separate; border-spacing: 0; overflow: hidden;
+}
+.gbd-files-section .attachments > table td {
+  height: 44px; padding: 6px 12px; border-bottom: 1px solid var(--gbd-border); vertical-align: middle;
+  font-size: 14px; white-space: nowrap;
+}
+.gbd-files-section .attachments > table tr:last-child td { border-bottom: 0; }
+.gbd-files-section .attachments > table tr:hover td { background: var(--gbd-green-softer); }
+.gbd-files-section .attachments > table td:first-child { width: 100%; white-space: normal; }
+.gbd-files-section .attachments > table td:empty { display: none; }
+.gbd-files-section .attachments a.icon-attachment { font-weight: 500; color: var(--gbd-text); }
+.gbd-files-section .attachments a.icon-attachment:hover { color: var(--gbd-green-strong); }
+.gbd-files-section .attachments a.icon-attachment svg { color: var(--gbd-text-2); }
+.gbd-files-section .attachments .size { margin-left: 6px; font-size: 12px; color: var(--gbd-text-2); font-variant-numeric: tabular-nums; }
+.gbd-files-section .attachments .author { font-size: 12px; color: var(--gbd-text-2); font-variant-numeric: tabular-nums; }
+.gbd-files-section .attachments :is(a.icon-download, a.icon-del) {
+  display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin-left: 4px;
+  border-radius: var(--gbd-radius-sm); color: var(--gbd-text-2); vertical-align: middle;
+}
+.gbd-files-section .attachments a.icon-download:hover { background: var(--gbd-surface-3); color: var(--gbd-text); }
+.gbd-files-section .attachments a.icon-del:hover { background: var(--gb-danger-soft, #fdeceb); color: var(--gb-danger, #d64545); }
+.gbd-files-section .attachments .thumbnails { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+.gbd-files-section .attachments .thumbnails img { width: 120px; height: auto; border: 1px solid var(--gbd-border); border-radius: 4px; }
+.controller-documents.action-show #add_attachment_form .box { margin: 0 0 12px; padding: 0; border: 0; background: transparent; }
+.controller-documents.action-show #add_attachment_form .box p { margin: 0; padding: 0; }
+
+:is(.controller-news, .controller-messages).action-show #content :is(#add_comment_form, #reply) :is(.box, .jstBlock, .jstEditor, textarea, span.attachments_form) {
+  max-width: 100%; box-sizing: border-box;
+}
+
+/* ================= ファイル (Files) ================= */
+
+.controller-files.action-index table.list.files td { text-align: left; vertical-align: middle; }
+.controller-files.action-index table.list.files td.filename { min-width: 200px; white-space: normal; }
+.controller-files.action-index table.list.files td.filename > a { font-weight: 500; color: var(--gbd-text); }
+.controller-files.action-index table.list.files td.filename > a:hover { color: var(--gbd-green-strong); }
+.controller-files.action-index .gbd-file-icon {
+  display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin-right: 10px;
+  border-radius: 6px; background: var(--gbd-surface-2); color: var(--gbd-text-2); vertical-align: middle;
+}
+.controller-files.action-index .gbd-file-icon svg { width: 18px; height: 18px; }
+.controller-files.action-index table.list.files :is(td.created_on, td.filesize, td.downloads) {
+  white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--gbd-text-2); width: 1%;
+}
+.controller-files.action-index table.list.files :is(td.filesize, td.downloads) { text-align: right; }
+.controller-files.action-index table.list.files thead th { text-align: left; }
+.controller-files.action-index table.list.files thead th:nth-child(3),
+.controller-files.action-index table.list.files thead th:nth-child(4) { text-align: right; }
+/* P1 / DESIGN §3.6: the checksum column is hidden at every width; the full SHA256 stays in the file name's title */
+.controller-files.action-index table.list.files :is(td.digest, th.gbd-th-digest) { display: none; }
+.controller-files.action-index .gbd-digest {
+  font-family: var(--gb-font-mono, "SFMono-Regular", Menlo, Consolas, monospace); font-size: 12px;
+  color: var(--gbd-muted); background: none; padding: 0;
+}
+.controller-files.action-index table.list.files td.buttons { width: 1%; white-space: nowrap; text-align: right; }
+.controller-files.action-index table.list.files td.buttons a {
+  display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px;
+  border-radius: var(--gbd-radius-sm); color: var(--gbd-text-2); vertical-align: middle;
+}
+.controller-files.action-index table.list.files td.buttons a:hover { background: var(--gbd-surface-3); color: var(--gbd-text); }
+.controller-files.action-index table.list.files td.buttons a.icon-del:hover { background: var(--gb-danger-soft, #fdeceb); color: var(--gb-danger, #d64545); }
+.controller-files.action-index table.list.files tr.gbd-group > th {
+  height: 38px; padding: 8px 12px; text-align: left; background: var(--gbd-surface-2);
+  font-size: 13px; font-weight: 600; line-height: 1.5; color: var(--gbd-text);
+  border-top: 0; border-bottom: 1px solid var(--gbd-border); box-sizing: border-box;
+}
+.controller-files.action-index table.list.files tr.gbd-group > th a { color: var(--gbd-text); display: inline-flex; align-items: center; gap: 6px; }
+.controller-files.action-index table.list.files tr.gbd-group > th a:hover { color: var(--gbd-green-strong); }
+.controller-files.action-index table.list.files tr.gbd-group > th svg { color: var(--gbd-green-strong); }
+
+/* ================= ニュース (News) ================= */
+
+/* list */
+.controller-news.action-index #content > article.news-article {
+  max-width: 960px; margin: 0 0 12px; padding: 20px 24px;
+  border: 1px solid var(--gbd-border); border-radius: var(--gbd-radius); background: #fff;
+  transition: border-color var(--gbd-ease);
+}
+.controller-news.action-index #content > article.news-article:hover { border-color: var(--gbd-green-border); }
+.controller-news.action-index article.news-article header { margin: 0 0 12px; }
+.controller-news.action-index article.news-article header > .gbd-tag--project { margin: 0 0 8px; }
+.controller-news.action-index article.news-article header h3 {
+  margin: 0 0 8px; padding: 0; border: 0; font-size: 16px; font-weight: 600; line-height: 1.5;
+}
+.controller-news.action-index article.news-article header h3 > .avatar { display: none; }
+.controller-news.action-index article.news-article header h3 > a { color: var(--gbd-text); }
+.controller-news.action-index article.news-article header h3 > a:hover { color: var(--gbd-green-strong); }
+.controller-news.action-index article.news-article header .gbd-meta { font-size: 12px; }
+.controller-news.action-index article.news-article header p.author { margin: 0; font-size: 12px; }
+.controller-news.action-index article.news-article > .wiki {
+  max-width: none; font-size: 14px; line-height: 1.7; color: var(--gbd-text);
+}
+.controller-news.action-index article.news-article > .wiki > :is(p, ul, ol) { margin: 0 0 10px; }
+.controller-news.action-index article.news-article > .wiki > :last-child { margin-bottom: 0; }
+.controller-news.action-index article.news-article > .wiki.gbd-clamp {
+  max-height: calc(1.7em * 4); overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.7em), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1.7em), transparent);
+}
+.controller-news.action-index article.news-article > .wiki.gbd-clamp:not(.gbd-clamped) { -webkit-mask-image: none; mask-image: none; }
+#content a.gbd-more {
+  display: inline-flex; align-items: center; gap: 2px; margin-top: 8px; padding: 2px 6px 2px 0;
+  font-size: 13px; font-weight: 600; color: var(--gbd-green-strong);
+}
+#content a.gbd-more[hidden] { display: none; }
+#content a.gbd-more svg { width: 14px; height: 14px; }
+.controller-news.action-index article.news-article > p.gbd-summary {
+  margin: 0 0 10px; font-size: 14px; font-weight: 500; line-height: 1.6; color: var(--gbd-text);
+}
+.controller-news.action-index article.news-article > .wiki > p.gbd-dup-summary { display: none; }
+#content a.gbd-more:hover { text-decoration: underline; }
+
+/* detail: the card keeps the full content width (same edges as list/edit); only the .wiki text column is capped */
+.controller-news.action-show #content > h2 { font-size: var(--gb-fs-2xl, 24px); line-height: 1.4; margin: 0 0 10px; }
+.controller-news.action-show #content > h2 > .avatar { display: none; }
+.controller-news.action-show #content > br { display: none; }
+.controller-news.action-show #content > .news { max-width: none; }
+.controller-news.action-show .news > .gbd-meta { margin: 0 0 20px; padding: 0 0 16px; border-bottom: 1px solid var(--gbd-border); }
+.controller-news.action-show .news > .gbd-meta .reaction { margin-left: auto; float: none; }
+.controller-news.action-show .news .gbd-lead {
+  margin: 0 0 20px; padding: 2px 0 2px 14px; border-left: 3px solid var(--gbd-green-border);
+  font-size: 16px; line-height: 1.7; color: var(--gbd-text-2); font-weight: 500;
+}
+.controller-news.action-show .news .wiki > p.gbd-dup-summary { display: none; }
+.controller-news.action-show #content > #edit-news { margin: 0 0 24px; padding: 20px 24px; border: 1px solid var(--gbd-green-border); border-radius: var(--gbd-radius); background: var(--gbd-green-softer); }
+.controller-news.action-show #content > #edit-news form > p:last-child { margin: 0; }
+/* while the inline edit panel is open it replaces the read view: no duplicate title, no stale body under 保存
+   (breadcrumb + actions stay on top, comments stay below) */
+.controller-news.action-show #content.gbd-news-editing > .gbd-title-row > h2,
+.controller-news.action-show #content.gbd-news-editing > .news { display: none; }
+.controller-news.action-show #content.gbd-news-editing > .gbd-title-row { margin-bottom: 16px; }
+
+/* comments timeline (news) + replies (forum) share the journal look */
+:is(.controller-news.action-show #comments, .controller-messages.action-show #replies) {
+  max-width: none; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--gbd-border);
+}
+:is(.controller-news.action-show #comments, .controller-messages.action-show #replies) > h3 {
+  display: flex; align-items: center; gap: 0; margin: 0 0 12px; padding: 0; border: 0;
+  font-size: 16px; font-weight: 600; line-height: 24px; color: var(--gbd-text); background: none;
+}
+/* one section-title style (16px/600 + count badge, no icon) for 返答 / コメント / ファイル */
+:is(.controller-news.action-show #comments, .controller-messages.action-show #replies) > h3 > svg { display: none; }
+/* news comments = the forum reply card (same frame, padding, header and 15px/27px body, no indent) */
+.controller-news.action-show #comments .journal.gbd-tl-item {
+  max-width: none; margin: 0 0 12px; padding: 16px 20px;
+  border: 1px solid var(--gbd-border); border-radius: var(--gbd-radius); background: #fff; box-shadow: none;
+}
+.controller-news.action-show #comments .journal.gbd-tl-item .journal-content.wiki {
+  margin: 12px 0 0; font-size: 15px; line-height: 27px;
+}
+
+.gbd-tl-item h4.journal-header {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  margin: 0; padding: 0; border: 0; background: none; font-size: 13px; font-weight: 400;
+}
+.gbd-tl-item .journal-info { display: flex; align-items: flex-start; gap: 12px; min-width: 0; }
+.gbd-tl-item .journal-info > .gb-avatar { margin-top: 1px; }
+.gbd-tl-item .gbd-tl-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.5; padding-top: 4px; }
+.gbd-tl-item .gbd-tl-line { color: var(--gbd-text-2); font-size: 13px; }
+.gbd-tl-item .gbd-tl-line a { color: var(--gbd-text-2); }
+.gbd-tl-item .gbd-tl-line a.user { color: var(--gbd-text); font-weight: 600; }
+.gbd-tl-item .gbd-tl-line a:hover { color: var(--gbd-green-strong); }
+.gbd-tl-item a.gbd-tl-subject { font-size: 12px; color: var(--gbd-muted); font-weight: 400; }
+.gbd-tl-item a.gbd-tl-subject:hover { color: var(--gbd-green-strong); }
+.gbd-tl-item a.gbd-tl-subject.gbd-tl-subject--same { display: none; }
+.gbd-tl-item .journal-meta { display: flex; align-items: center; gap: 2px; flex: none; }
+.gbd-tl-item .journal-meta a:not(.reaction-button) {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px;
+  border-radius: var(--gbd-radius-sm); color: var(--gbd-text-2);
+}
+.gbd-tl-item .journal-meta a:hover { background: var(--gbd-surface-3); color: var(--gbd-text); text-decoration: none; }
+.gbd-tl-item .journal-meta a.icon-del:hover { background: var(--gb-danger-soft, #fdeceb); color: var(--gb-danger, #d64545); }
+.gbd-tl-item .journal-meta .icon-label.hidden { display: none; }
+.gbd-tl-item .journal-content.wiki {
+  margin: 6px 0 0 40px; padding: 0; font-size: 14px; line-height: 1.7; max-width: none;
+}
+.gbd-tl-item .journal-content.wiki > :last-child { margin-bottom: 0; }
+
+/* comment / reply forms */
+.controller-news.action-show #add_comment_form,
+.controller-messages.action-show #reply {
+  max-width: none; margin-top: 16px;
+}
+.controller-messages.action-show #reply:not([style*="none"]) { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--gbd-border); }
+.controller-news.action-show #add_comment_form:not([style*="none"]) { margin-top: 20px; }
+.controller-news.action-show #add_comment_form .box { margin: 0 0 12px; padding: 0; border: 0; background: transparent; }
+.controller-news.action-show #add_comment_form > p { margin: 0; }
+/* the comment / reply panel is the card's last block: no trailing margin, so the gap under it equals the side gutters */
+.controller-news.action-show #content > #add_comment_form.gbd-add-panel,
+.controller-messages.action-show #content > #reply.gbd-add-panel { margin-bottom: 0; }
+
+/* ================= フォーラム (Forums) ================= */
+
+/* forum list: each forum a row card, table semantics kept */
+.controller-boards.action-index table.list.boards {
+  width: 100%; max-width: 1040px; border: 0; border-collapse: separate; border-spacing: 0 8px; margin-top: -8px; background: none;
+}
+.controller-boards.action-index table.list.boards thead {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+.controller-boards.action-index table.list.boards tbody tr,
+.controller-boards.action-index table.list.boards tbody tr:hover { background: none; }
+.controller-boards.action-index table.list.boards tbody td {
+  padding: 14px 16px; vertical-align: middle; text-align: left; background: #fff;
+  border-top: 1px solid var(--gbd-border); border-bottom: 1px solid var(--gbd-border);
+  transition: background var(--gbd-ease), border-color var(--gbd-ease);
+}
+.controller-boards.action-index table.list.boards tbody td:first-child { border-left: 1px solid var(--gbd-border); border-radius: 8px 0 0 8px; }
+.controller-boards.action-index table.list.boards tbody td:last-child { border-right: 1px solid var(--gbd-border); border-radius: 0 8px 8px 0; }
+.controller-boards.action-index table.list.boards tbody tr:hover td { background: var(--gbd-green-softer); border-color: var(--gbd-green-border); }
+.controller-boards.action-index table.list.boards td.name { position: relative; padding-left: 64px; min-width: 240px; }
+.controller-boards.action-index table.list.boards td.name a.board {
+  display: inline; padding: 0; font-size: 15px; font-weight: 600; color: var(--gbd-text); background: none;
+}
+.controller-boards.action-index table.list.boards td.name a.board:hover { color: var(--gbd-green-strong); }
+.controller-boards.action-index table.list.boards td.name a.board svg {
+  position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+  width: 20px; height: 20px; padding: 6px; box-sizing: content-box;
+  border-radius: 6px; background: var(--gbd-green-soft); color: var(--gbd-green-strong);
+}
+.controller-boards.action-index table.list.boards td.name p.description {
+  margin: 2px 0 0; font-size: 13px; color: var(--gbd-text-2); line-height: 1.5;
+}
+.controller-boards.action-index table.list.boards :is(td.topic-count, td.message-count) {
+  width: 88px; text-align: center; white-space: nowrap;
+  font-size: 15px; font-weight: 600; color: var(--gbd-text); font-variant-numeric: tabular-nums;
+}
+.controller-boards.action-index table.list.boards :is(td.topic-count, td.message-count)::before {
+  content: attr(data-label); display: block; margin-bottom: 2px;
+  font-size: 12px; font-weight: 400; color: var(--gbd-text-2);
+}
+.controller-boards.action-index table.list.boards td.last-message { width: 30%; min-width: 220px; font-size: 12px; color: var(--gbd-text-2); }
+/* whole-pixel row geometry (no half-pixel borders): integer line-heights in every cell + a fixed 76px row */
+.controller-boards.action-index table.list.boards tbody td { height: 76px; box-sizing: border-box; line-height: 20px; }
+.controller-boards.action-index table.list.boards td.name a.board { line-height: 22px; }
+.controller-boards.action-index table.list.boards td.name p.description { line-height: 20px; }
+.controller-boards.action-index table.list.boards td.last-message .gbd-last-line { line-height: 20px; }
+.controller-boards.action-index table.list.boards td.last-message a.gbd-last-title { line-height: 18px; }
+
+/* last-message cell (forum list + topic list) */
+.gbd-last-line { display: flex; align-items: center; flex-wrap: wrap; gap: 0 4px; font-size: 12px; color: var(--gbd-text-2); line-height: 1.6; }
+.gbd-last-line .gb-avatar { margin-right: 4px; }
+.gbd-last-line a { color: var(--gbd-text-2); }
+.gbd-last-line a.user { color: var(--gbd-text); font-weight: 500; }
+:is(td.last-message, td.last_message) a.gbd-last-title {
+  display: block; margin-top: 2px; padding-left: 24px;
+  font-size: 13px; color: var(--gbd-green-strong);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 320px;
+}
+
+/* topic list */
+.controller-boards.action-show #content > p.subtitle { margin: -8px 0 16px; font-size: 13px; color: var(--gbd-text-2); }
+.controller-boards.action-show table.list.messages { table-layout: auto; width: 100%; min-width: 0; }
+.controller-boards.action-show table.list.messages td { text-align: left; vertical-align: middle; }
+.controller-boards.action-show table.list.messages thead th { text-align: left; }
+.controller-boards.action-show table.list.messages td.author a.user { color: var(--gbd-text); }
+.controller-boards.action-show table.list.messages td.author a.user:hover { color: var(--gbd-green-strong); }
+.controller-boards.action-show table.list.messages td.subject { width: 42%; min-width: 0; white-space: normal; }
+.controller-boards.action-show table.list.messages td.subject a { font-size: 14px; font-weight: 500; color: var(--gbd-text); }
+.controller-boards.action-show table.list.messages td.subject a:hover { color: var(--gbd-green-strong); }
+.controller-boards.action-show table.list.messages td.subject > span { background: none; padding: 0; }
+/* state tags + title: flex so a wrapped title stays aligned under its own start; tag (20px) centred on the 22px first line */
+.controller-boards.action-show table.list.messages td.subject > span.gbd-subject { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+.controller-boards.action-show table.list.messages td.subject > span.gbd-subject > .gbd-state { flex: none; margin: 1px 0 0; vertical-align: 0; }
+.controller-boards.action-show table.list.messages td.subject > span.gbd-subject > a { display: block; min-width: 0; line-height: 22px; }
+.controller-boards.action-show table.list.messages td.subject > span.gbd-subject > svg { display: none; }
+.controller-boards.action-show table.list.messages tr.sticky td.subject a { font-weight: 600; }
+.controller-boards.action-show table.list.messages td.author { width: 180px; max-width: 180px; white-space: nowrap; }
+.controller-boards.action-show table.list.messages td.author .gbd-who { max-width: 100%; min-width: 0; }
+.controller-boards.action-show table.list.messages td.author .gbd-who a.user { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.controller-boards.action-show table.list.messages td.author .gbd-who { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; }
+.controller-boards.action-show table.list.messages td.author .gbd-who .gb-avatar { margin: 0; vertical-align: 0; }
+.controller-boards.action-show table.list.messages tr.message td.subject,
+.controller-boards.action-show table.list.messages tr.message.sticky td.subject,
+.controller-boards.action-show table.list.messages tr.message.locked td.subject { padding-left: 12px; background-image: none; }
+.controller-boards.action-show table.list.messages td.created_on {
+  white-space: nowrap; font-size: 13px; color: var(--gbd-text-2); font-variant-numeric: tabular-nums; width: 140px;
+}
+.controller-boards.action-show table.list.messages td.reply-count { text-align: right; width: 64px; }
+.controller-boards.action-show table.list.messages td.reply-count .gbd-count { margin: 0; }
+.controller-boards.action-show table.list.messages thead th:nth-child(4) { text-align: right; }
+.controller-boards.action-show table.list.messages td.last_message { min-width: 0; max-width: 260px; }
+.controller-boards.action-show table.list.messages td.last_message .gbd-last-line,
+.controller-boards.action-index table.list.boards td.last-message .gbd-last-line { flex-wrap: nowrap; white-space: nowrap; min-width: 0; }
+.gbd-last-line .gbd-last-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.gbd-last-line .gbd-last-sep { color: var(--gbd-muted); }
+.gbd-last-line .gbd-last-time { flex: none; }
+@media (max-width: 1180px) {
+  .controller-boards.action-show table.list.messages :is(td.last_message, thead th:nth-child(5)) { display: none; }
+  /* …and let the date / headers wrap instead of pushing the action buttons out of the card */
+  .controller-files.action-index table.list.files td.filename { min-width: 120px; }
+  .controller-files.action-index table.list.files td.created_on { white-space: normal; min-width: 6.5em; }
+  .controller-files.action-index table.list.files thead th { white-space: nowrap; }
+  .controller-files.action-index table.list.files :is(td, thead th) { padding-left: 10px; padding-right: 10px; }
+}
+.controller-files.action-index table.list.files { table-layout: auto; width: 100%; min-width: 0; }
+/* the table closes the card: no margin under it and no rule under the last row */
+.controller-files.action-index #content :is(.autoscroll, table.list.files) { margin-bottom: 0; padding-bottom: 0; }
+.controller-files.action-index #content table.list.files tbody tr:last-child > :is(td, th),
+.controller-files.action-index #content table.list.files tbody tr:last-child { border-bottom: 0; }
+/* download count label: only shown in the stacked phone rows (desktop has the DL column header) */
+.controller-files.action-index table.list.files td.downloads .gbd-cell-label { display: none; }
+/* topic list reply chip: phone only (desktop has the 返答 column header and keeps the count pill) */
+.controller-boards.action-show table.list.messages td.reply-count .gbd-chip { display: none; }
+/* 引用 is a filled glyph: smaller and lighter so it weighs the same as the 1.5px line icons beside it */
+.controller-messages.action-show #content a.icon-quote svg.icon-svg-filled { width: 16px; height: 16px; fill-opacity: .8; stroke: none; }
+.controller-messages.action-show #content .journal-meta a.icon-quote { color: var(--gbd-muted); }
+.controller-messages.action-show #content .journal-meta a.icon-quote:hover { color: var(--gbd-text); }
+
+/* topic page */
+.controller-messages.action-show #content > [data-controller="quote-reply"] > h2 {
+  font-size: var(--gb-fs-2xl, 24px); line-height: 34px; margin: 0 0 16px;
+}
+.controller-messages.action-show #content > [data-controller="quote-reply"] > h2 > .avatar,
+.controller-messages.action-edit #content > h2 > .avatar { display: none; }
+.controller-messages.action-show #content > br { display: none; }
+
+.gbd-post {
+  max-width: none;
+  border: 1px solid var(--gbd-border); border-radius: var(--gbd-radius); background: #fff;
+}
+.gbd-post--topic { padding: 16px 20px; }
+.gbd-post-head { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; }
+.gbd-post-head .gbd-post-who { flex: 1; min-width: 0; font-size: 13px; color: var(--gbd-text-2); line-height: 1.5; }
+.gbd-post-head .gbd-author { margin: 0; }
+.gbd-post-head .gbd-author a { color: var(--gbd-text-2); }
+.gbd-post-head .gbd-author a.user { color: var(--gbd-text); font-weight: 600; font-size: 14px; }
+.gbd-post-head .gbd-author a:hover { color: var(--gbd-green-strong); }
+.gbd-post-head .reaction { float: none; margin: 0; }
+.gbd-post--topic > .wiki { max-width: none; }
+.gbd-post--topic > .wiki > :last-child { margin-bottom: 0; }
+
+.controller-messages.action-show #replies .gbd-post--reply {
+  margin: 0 0 12px; padding: 16px 20px;
+}
+/* replies use the first post's card: same padding, body flush with the card's content edge, same 15px prose */
+.controller-messages.action-show #replies .gbd-post--reply .journal-content.wiki {
+  margin: 12px 0 0; font-size: 15px; line-height: 27px;
+}
+.gbd-post--topic > .wiki { line-height: 27px; }
+.controller-messages.action-show #content > .pagination { display: block; margin-top: 4px; }
+.controller-messages.action-show #content > .pagination:has(ul.pages:empty) { display: none; }
+
+/* reaction button: compact pill */
+:is(.controller-news, .controller-messages) #content .reaction-button-wrapper a.reaction-button {
+  /* one size everywhere (post header, reply / comment headers): 34×30 without a count */
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px; box-sizing: border-box;
+  min-width: 34px; width: auto; height: 30px; margin: 0; padding: 0 8px;
+  border: 1px solid var(--gbd-border); border-radius: 999px; color: var(--gbd-text-2); font-size: 12px; background: #fff;
+}
+:is(.controller-news, .controller-messages) #content .reaction-button-wrapper a.reaction-button:hover {
+  border-color: var(--gbd-green-border); color: var(--gbd-green-strong); background: var(--gbd-green-softer);
+}
+:is(.controller-news, .controller-messages) #content .reaction-button-wrapper a.reaction-button svg { width: 16px; height: 16px; }
+.gbd-tl-item .journal-meta .reaction-button-wrapper a.reaction-button { border-color: transparent; }
+
+/* ================= narrow widths ================= */
+@media (max-width: 900px) {
+  .controller-documents.action-index .document-item {
+    grid-template-columns: 32px minmax(0, 1fr);
+    grid-template-areas: "icon title" "icon desc" "icon date";
+  }
+  .controller-documents.action-index .document-item .updated_on { align-self: start; }
+  .controller-boards.action-index table.list.boards td.last-message { display: none; }
+  .controller-boards.action-index table.list.boards tbody td:nth-child(3) { border-right: 1px solid var(--gbd-border); border-radius: 0 8px 8px 0; }
+  .controller-news.action-index #content > article.news-article { padding: 16px; }
+  .gbd-tl-item .journal-content.wiki,
+  .controller-messages.action-show #replies .gbd-post--reply .journal-content.wiki { margin-left: 0; }
+}
+@media (max-width: 640px) {
+  /* reply / comment headers (forum replies + news comments, one rule): a single non-wrapping row —
+     author block shrinks (its "さんが…前に追加" text wraps inside it), the action icons stay on the author row */
+  .gbd-tl-item h4.journal-header { flex-wrap: nowrap; gap: 8px; }
+  .gbd-tl-item h4.journal-header > .journal-info { flex: 1 1 0; min-width: 0; gap: 10px; }
+  .gbd-tl-item h4.journal-header > .journal-meta { flex: none; gap: 0; margin-left: 0; }
+  .gbd-tl-item .journal-meta a:not(.reaction-button) { min-width: 28px; height: 28px; }
+  :is(.controller-news, .controller-messages) #content .reaction-button-wrapper a.reaction-button { height: 28px; padding: 0 6px; }
+  /* author on line 1, 「1日前に追加」 as one unbroken 12px line below (never split mid-phrase) */
+  :is(.gbd-tl-item .gbd-tl-line, .gbd-post-head .gbd-author) > a.user { display: block; line-height: 20px; }
+  :is(.gbd-tl-item .gbd-tl-line, .gbd-post-head .gbd-author) > .gbd-when { display: block; font-size: 12px; line-height: 18px; white-space: nowrap; }
+  :is(.gbd-tl-item .gbd-tl-line, .gbd-post-head .gbd-author) > .gbd-when > .gbd-by { display: none; }
+  .gbd-tl-item .gbd-tl-text { padding-top: 0; }
+  .controller-messages.action-show #replies .gbd-post--reply,
+  .controller-news.action-show #comments .journal.gbd-tl-item,
+  .gbd-post--topic { padding: 14px 16px; }
+  /* phone: category / milestone selects span the form like every other field */
+  :is(.controller-documents, .controller-news) #content #document_category_id,
+  .controller-files:is(.action-new, .action-create) #content #version_id { width: 100%; max-width: none; }
+  .controller-boards.action-index table.list.boards,
+  .controller-boards.action-index table.list.boards tbody { display: block; width: 100%; margin: 0; }
+  .controller-boards.action-index table.list.boards tbody tr.board {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 20px; margin: 0 0 8px; padding: 0 0 12px;
+    border: 1px solid var(--gbd-border); border-radius: var(--gbd-radius); background: #fff;
+  }
+  .controller-boards.action-index table.list.boards tbody tr.board td,
+  .controller-boards.action-index table.list.boards tbody tr:hover td {
+    display: block; height: auto; min-height: 0; border: 0; border-radius: 0; background: none; padding: 0;
+  }
+  .gbd-files-section .attachments > table,
+  .gbd-files-section .attachments > table tbody { display: block; }
+  #content .gbd-files-section .attachments > table tr {
+    display: flex; flex-wrap: wrap; align-items: center; height: auto; min-height: 0; padding: 6px 4px; border-bottom: 1px solid var(--gbd-border);
+  }
+  .gbd-files-section .attachments > table tr:last-child { border-bottom: 0; }
+  #content .gbd-files-section .attachments > table td { display: block; height: auto; min-height: 0; padding: 4px 8px; border: 0; white-space: normal; }
+  .gbd-files-section .attachments > table td:first-child { flex: 1 1 100%; width: auto; }
+  .gbd-files-section .attachments > table td:nth-child(3) { flex: 1 1 auto; }
+  .controller-boards.action-index table.list.boards tbody tr.board td.name { flex: 0 0 100%; padding: 14px 16px 8px 64px; box-sizing: border-box; min-width: 0; }
+  .controller-boards.action-index table.list.boards td.name a.board svg { top: 14px; transform: none; }
+  .controller-boards.action-index table.list.boards tbody tr.board :is(td.topic-count, td.message-count) {
+    width: auto; display: flex; align-items: baseline; gap: 6px; font-size: 14px;
+  }
+  .controller-boards.action-index table.list.boards tbody tr.board td.topic-count { margin-left: 64px; }
+  .controller-boards.action-index table.list.boards tbody tr.board td.last-message {
+    display: block; flex: 0 0 100%; min-width: 0; width: auto; padding: 8px 16px 0 64px; box-sizing: border-box;
+  }
+  .controller-boards.action-index table.list.boards :is(td.topic-count, td.message-count)::before { display: inline; margin: 0; }
+
+  /* topic list: stacked rows (subject / 12px meta line) */
+  .controller-boards.action-show table.list.messages,
+  .controller-boards.action-show table.list.messages tbody { display: block; width: 100%; min-width: 0; }
+  .controller-boards.action-show table.list.messages thead { display: none; }
+  .controller-boards.action-show #content table.list.messages tbody tr.message {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; height: auto; min-height: 0; max-height: none;
+    padding: 10px 12px; border-bottom: 1px solid var(--gbd-border);
+  }
+  .controller-boards.action-show #content table.list.messages tbody tr.message > td {
+    display: block; width: auto; max-width: none; min-width: 0; height: auto; min-height: 0; line-height: 1.5;
+    padding: 0; border: 0; background: none; overflow: visible;
+  }
+  .controller-boards.action-show #content table.list.messages tbody tr.message > td.subject { flex: 1 1 100%; padding: 0; }
+  /* phone: the state tag gets its own line above the title */
+  .controller-boards.action-show table.list.messages td.subject > span.gbd-subject:has(> .gbd-state) { flex-direction: column; gap: 4px; }
+  .controller-boards.action-show table.list.messages td.subject > span.gbd-subject > .gbd-state { margin: 0; }
+  .controller-boards.action-show table.list.messages tbody tr.message > :is(td.author, td.created_on) { font-size: 12px; }
+  .controller-boards.action-show table.list.messages tbody tr.message > td.created_on { font-size: 12px; }
+  .controller-boards.action-show table.list.messages tbody tr.message > td.reply-count { margin-left: auto; }
+  .controller-boards.action-show #content table.list.messages tbody tr.message > td.last_message { display: none; }
+
+  /* files: stacked rows, checksum hidden */
+  .controller-files.action-index table.list.files,
+  .controller-files.action-index table.list.files tbody { display: block; width: 100%; min-width: 0; }
+  .controller-files.action-index table.list.files thead { display: none; }
+  .controller-files.action-index #content table.list.files tbody tr {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; height: auto; min-height: 0;
+    padding: 10px 12px; border-bottom: 1px solid var(--gbd-border);
+  }
+  .controller-files.action-index #content table.list.files tbody tr.gbd-group { padding: 0; }
+  .controller-files.action-index table.list.files tbody tr.gbd-group > th { display: block; flex: 1 1 100%; border: 0; }
+  .controller-files.action-index #content table.list.files tbody tr > td {
+    display: block; flex: 0 0 auto; width: auto; max-width: none; min-width: 0; height: auto; min-height: 0;
+    padding: 0; border: 0; background: none; font-size: 12px; line-height: 1.5; white-space: nowrap; text-align: left;
+  }
+  .controller-files.action-index #content table.list.files tbody tr > td.filename { flex: 1 1 100%; font-size: 14px; white-space: normal; }
+  .controller-files.action-index #content table.list.files tbody tr > td.digest { display: none; }
+  .controller-files.action-index #content table.list.files tbody tr > :is(td.filesize, td.downloads)::before { content: "\30FB"; margin-right: 6px; color: var(--gbd-muted); }
+  .controller-files.action-index #content table.list.files tbody tr > td.downloads .gbd-cell-label { display: inline; margin-right: 4px; }
+  /* row = file name + meta line on the left, the two action icons centred on the right (never an orphan third line) */
+  .controller-files.action-index #content table.list.files tbody tr:not(.gbd-group) {
+    display: grid; grid-template-columns: max-content max-content max-content minmax(0, 1fr) max-content; align-items: center; gap: 4px 6px;
+  }
+  .controller-files.action-index #content table.list.files tbody tr:not(.gbd-group) > td.filename { grid-column: 1 / 5; grid-row: 1; }
+  .controller-files.action-index #content table.list.files tbody tr:not(.gbd-group) > td.created_on { grid-column: 1; grid-row: 2; }
+  .controller-files.action-index #content table.list.files tbody tr:not(.gbd-group) > td.filesize { grid-column: 2; grid-row: 2; }
+  .controller-files.action-index #content table.list.files tbody tr:not(.gbd-group) > td.downloads { grid-column: 3; grid-row: 2; }
+  .controller-files.action-index #content table.list.files tbody tr:not(.gbd-group) > td.buttons { grid-column: 5; grid-row: 1 / span 2; align-self: center; margin: 0; }
+  .controller-files.action-index #content table.list.files tbody tr:last-child { border-bottom: 0; }
+  /* topic list: the count pill would lose its column header, show 「返答 1」 like the news list's コメント chip */
+  .controller-boards.action-show table.list.messages td.reply-count .gbd-count { display: none; }
+  .controller-boards.action-show table.list.messages td.reply-count .gbd-chip { display: inline-flex; }
+  /* meta line never wraps the chip onto a line of its own: the author name gives way (ellipsis) instead */
+  .controller-boards.action-show #content table.list.messages tbody tr.message {
+    display: grid; grid-template-columns: minmax(0, max-content) max-content 1fr; align-items: center;
+  }
+  .controller-boards.action-show #content table.list.messages tbody tr.message > td.subject { grid-column: 1 / -1; }
+  .controller-boards.action-show #content table.list.messages tbody tr.message > td.author { display: flex; min-width: 0; overflow: hidden; }
+  .controller-boards.action-show #content table.list.messages tbody tr.message > td.reply-count { justify-self: end; margin: 0; min-width: max-content; }
+  .controller-boards.action-show table.list.messages td.author .gbd-who { display: flex; }
+  .controller-boards.action-show table.list.messages td.author .gbd-who a.user { white-space: nowrap; }
+  .controller-boards.action-show table.list.messages td.created_on .gbd-hm { display: none; }
+  /* author + 「1日前に追加」 on two lines everywhere (news meta rows match the comment / reply headers) */
+  .gbd-meta .gbd-author > a.user { display: block; line-height: 20px; }
+  .gbd-meta .gbd-author > .gbd-when { display: block; font-size: 12px; line-height: 18px; white-space: nowrap; }
+  .gbd-meta .gbd-author > .gbd-when > .gbd-by { display: none; }
+  .gbd-meta:has(> .gbd-author > .gbd-when) > .gb-avatar { width: 28px; height: 28px; font-size: 13px; }
+  .controller-files.action-index #content table.list.files tbody tr > td.buttons { margin: 0 0 0 auto; display: flex; gap: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(body.controller-documents, body.controller-files, body.controller-news, body.controller-boards, body.controller-messages) {
+    --gbd-ease: 0s linear;
+  }
+}
+
+/* sortable headers: core renders an empty sprite <svg> before unsorted labels — drop it so labels align with cells */
+:is(.controller-files, .controller-boards) #content table.list thead th a svg:has(use[href$="#icon--"]) { display: none; }
+
+/* ファイル追加 submitted without a file: the dropzone and its label carry the error state */
+.controller-files.action-create #content:has(#errorExplanation, div.flash.error) .tabular p:has(.gb-drop) > label:first-child { color: var(--gb-danger, #d64545); }
+.controller-files.action-create #content:has(#errorExplanation, div.flash.error) .attachments_form:not(:has(.attachments_fields > span)) span.add_attachment.gb-drop {
+  border-color: var(--gb-danger, #d64545); background: var(--gb-danger-soft, #fdeceb);
+}
+
+/* sidebar watchers (topic / forum / news / document pages): same card as the issue page (50-issue-detail.css) —
+   title + count badge, 追加 on the card's right edge centred on the title line, delete icon right-aligned and
+   hidden until the row is hovered / focused */
+#sidebar #watchers.gbd-watchers { position: relative; }
+#sidebar #watchers.gbd-watchers > .contextual { position: absolute; top: 0; right: 0; margin: 0; padding: 0; float: none; }
+#sidebar #watchers.gbd-watchers > .contextual a {
+  display: inline-flex; align-items: center; height: 24px; padding: 0 8px;
+  border-radius: var(--gb-radius-sm, 4px); font-size: var(--gb-fs-sm, 13px); line-height: 1; color: var(--gbd-green-strong);
+}
+#sidebar #watchers.gbd-watchers > .contextual a:hover { background: var(--gbd-green-soft); text-decoration: none; }
+#sidebar #watchers.gbd-watchers > h3 { display: flex; align-items: center; gap: 6px; min-height: 24px; margin: 0 0 4px; padding-right: 56px; }
+#sidebar #watchers.gbd-watchers > h3 .gb-count {
+  display: inline-grid; place-items: center; box-sizing: border-box; height: 18px; min-width: 18px; padding: 0 6px;
+  border-radius: var(--gb-radius-pill, 999px); background: var(--gbd-surface-3); color: var(--gbd-text-2);
+  font-size: var(--gb-fs-xs, 12px); font-weight: var(--gb-fw-bold, 700); line-height: 1; letter-spacing: 0;
+}
+#sidebar #watchers.gbd-watchers ul.watchers { margin: 0; padding: 0; list-style: none; }
+#sidebar #watchers.gbd-watchers ul.watchers li {
+  display: flex; align-items: center; gap: 8px; min-height: 28px; margin: 0; padding: 0 4px;
+  border-radius: var(--gb-radius-sm, 4px); font-size: 13px;
+}
+#sidebar #watchers.gbd-watchers ul.watchers li:hover { background: var(--gbd-surface-2); }
+#sidebar #watchers.gbd-watchers ul.watchers li .gbd-core-avatar { display: none; }
+#sidebar #watchers.gbd-watchers ul.watchers li a.user { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--gbd-text); }
+#sidebar #watchers.gbd-watchers ul.watchers li a.delete {
+  display: inline-grid; place-items: center; flex: none; width: 24px; height: 24px; margin: 0 0 0 auto; padding: 0;
+  border-radius: var(--gb-radius-sm, 4px); opacity: 0;
+}
+#sidebar #watchers.gbd-watchers ul.watchers li:hover a.delete,
+#sidebar #watchers.gbd-watchers ul.watchers li a.delete:focus-visible { opacity: 1; }
+#sidebar #watchers.gbd-watchers ul.watchers li a.delete:hover { background: var(--gb-danger-soft, #fdeceb); }
+#sidebar #watchers.gbd-watchers ul.watchers li a.delete svg { width: 14px; height: 14px; }
+@media (hover: none) {
+  /* touch: no hover, keep the delete action reachable */
+  #sidebar #watchers.gbd-watchers ul.watchers li a.delete { opacity: 1; }
+}
+/* when the watchers card is the sidebar's first block it shares its title line with the collapse chevron
+   (28px at the card's top-right): the list rows use the full card width (delete icons on the right edge,
+   like the issue page); only the title line leaves room, 追加 sits just left of the chevron, both centred on that line */
+#sidebar #sidebar-wrapper > #watchers.gbd-watchers:first-child { padding-right: 0; }
+#sidebar #sidebar-wrapper > #watchers.gbd-watchers:first-child > h3 { min-height: 28px; margin-top: -6px; padding-right: 92px; }
+#sidebar #sidebar-wrapper > #watchers.gbd-watchers:first-child > .contextual { top: 0; right: 26px; display: flex; align-items: center; height: 28px; }
+@media (max-width: 640px) {
+  /* in-page panels (reply / comment / news edit / add): 16px inner padding on phones */
+  #content > .gbd-add-panel,
+  .controller-news.action-show #content > #edit-news,
+  .controller-messages.action-show #content > #reply.gbd-add-panel:not([style*="none"]) { padding: 16px; }
+  #content > .gbd-add-panel > h2 { margin-bottom: 12px; }
+}

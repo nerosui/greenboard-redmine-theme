@@ -1,0 +1,171 @@
+/* ==========================================================================
+   C-timeline — activity / timeline item (DESIGN §6.5, §6.7 「Timelines」)
+   One DOM for dashboard 最近の更新, project home 最近の更新 (greenboard/_timeline.html.erb), /activity,
+   /projects/:id/activity and /users/:id (core's dl#activity, rewritten by 15-c-timeline.js).
+   This is the ONLY file that styles .gb-timeline*. Page files may set the card padding around the list and
+   how many rows show (70-dashboard-project-home); wrapping comes from 15-c-wrap.css (subjects / prose).
+     [avatar] 名前 さんが…しました [project]           HH:MM
+              [tracker] KEY subject (2-line clamp)
+              [status A] → [status B]
+              excerpt (2-line clamp)
+   ========================================================================== */
+.gb-timeline { margin: 0; padding: 0; }
+
+/* day heading: 今日 / 昨日 / YYYY/MM/DD */
+.gb-timeline__day {
+  margin: 20px 0 4px;
+  padding: 0 0 6px;
+  border-bottom: 1px solid var(--gb-border);
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  line-height: 20px;
+  color: var(--gb-text-2);
+}
+.gb-timeline__day:first-child { margin-top: 0; }
+
+.gb-timeline__list { list-style: none; margin: 0; padding: 0; }
+
+/* row: never indented (core's "grouped" events sit flush with the others). The body's lines are grid items
+   (display: contents): line 1 shares its row with the time, lines 2-4 span to the right edge under it */
+.gb-timeline__item {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  column-gap: 12px;
+  align-items: start;
+  margin: 0;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--gb-border);
+}
+.gb-timeline__item:last-child { border-bottom: 0; }
+.gb-timeline__item > .gb-avatar { grid-column: 1; grid-row: 1 / span 4; width: 28px; height: 28px; margin: 0; font-size: 13px; }
+.gb-timeline__item > .gb-avatar--type { background: var(--gb-surface-3); color: var(--gb-text-2); }
+.gb-timeline__item > .gb-avatar--type > svg { width: 16px; height: 16px; stroke: currentColor; fill: none; }
+.gb-timeline__body { display: contents; }
+.gb-timeline__body > * { grid-column: 2 / -1; min-width: 0; }
+.gb-timeline__body > .gb-timeline__meta { grid-column: 2; grid-row: 1; }
+
+/* line 1 — meta: one sentence 「名前 さんが…しました」; the project chip follows on the same line and drops
+   to the next line as a whole when it does not fit */
+.gb-timeline__meta {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--gb-text-2);
+}
+.gb-timeline__who { font-weight: var(--gb-fw-bold); }
+.gb-timeline__who { margin-right: 2px; }
+/* the action wraps to the next line as a whole (never 「…しまし／た」); the gap before the chip is the
+   action's right margin, so a wrapped chip starts flush left */
+.gb-timeline__action { display: inline-block; margin-right: 6px; }
+.gb-timeline__who,
+.gb-timeline__who a,
+.gb-timeline__who a:link,
+.gb-timeline__who a:visited { color: var(--gb-text); text-decoration: none; }
+.gb-timeline__who a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+.gb-timeline__project {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+}
+.gb-timeline__project > :is(a, span),
+.gb-timeline__project > a:is(:link, :visited) {
+  display: block;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 6px;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-sm);
+  line-height: 20px;
+  text-decoration: none;
+}
+.gb-timeline__project > a:hover { background: var(--gb-primary-soft); color: var(--gb-primary-strong); }
+
+/* line 2 — title: tracker badge + key + subject (issues) or the plain linked title; 2-line clamp */
+.gb-timeline__title {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  margin-top: 4px;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-medium);
+  line-height: 22px;
+}
+/* one badge width (= 「サポート」) so the keys start on one line in every row */
+.gb-timeline__title > .gb-tracker {
+  flex: none;
+  box-sizing: border-box;
+  min-width: 64px;
+  justify-content: center;
+  margin-top: 1px;
+}
+.gb-timeline__text,
+.gb-timeline__title > .gb-timeline__link {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.gb-timeline__link,
+.gb-timeline__link:link,
+.gb-timeline__link:visited { color: var(--gb-text); text-decoration: none; }
+.gb-timeline__link:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+.gb-timeline__key {
+  color: var(--gb-primary-strong);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.gb-timeline__hours {
+  display: inline-block;
+  margin-left: 2px;
+  padding: 0 6px;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+/* line 3 — status change, journals that changed the status only: [A] → [B] */
+.gb-timeline__change { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
+.gb-timeline__change > .gb-status { height: 20px; min-width: 0; padding: 0 8px; font-size: var(--gb-fs-xs); }
+.gb-timeline__arrow { color: var(--gb-muted); font-size: var(--gb-fs-sm); line-height: 20px; }
+
+/* line 4 — excerpt: plain text, 2-line clamp, no box */
+.gb-timeline__desc {
+  margin: 4px 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 13px;
+  font-style: normal;
+  line-height: 1.6;
+  color: var(--gb-text-2);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* column 3 — absolute clock time 「HH:MM」, top-aligned with line 1 */
+.gb-timeline__time {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: start;
+  font-size: var(--gb-fs-sm);
+  line-height: 20px;
+  color: var(--gb-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}

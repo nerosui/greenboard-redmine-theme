@@ -1,0 +1,399 @@
+/* ==========================================================================
+   20-header.css — top bar (#top-menu, built by 20-header.js) and the project
+   title bar (#header). owner: global-shell
+   ========================================================================== */
+
+.gb-sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- top bar ---------- */
+#top-menu {
+  background: var(--gb-surface);
+  color: var(--gb-text);
+  height: var(--gb-topbar-h);
+  line-height: normal;
+  padding: 0 16px 0 0;
+  font-size: var(--gb-fs-md);
+  border-bottom: 1px solid var(--gb-border);
+  box-sizing: border-box;
+}
+#top-menu a, #top-menu a:link, #top-menu a:visited { color: var(--gb-text); font-weight: var(--gb-fw-medium); margin: 0; }
+html.gb-header-ready #top-menu {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  position: sticky;
+  top: 0;
+  z-index: var(--gb-z-topbar);
+}
+html.gb-header-ready #top-menu #loggedas,
+html.gb-header-ready #top-menu #account { display: none; }
+
+/* global links */
+html.gb-header-ready #top-menu > ul { display: flex; align-items: stretch; gap: 0; margin: 0 0 0 8px; padding: 0; }
+html.gb-header-ready #top-menu > ul > li { float: none; display: flex; }
+html.gb-header-ready #top-menu > ul > li > a,
+html.gb-header-ready #top-menu > ul > li > a:link,
+html.gb-header-ready #top-menu > ul > li > a:visited {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 12px;
+  color: var(--gb-text-2);
+  font-weight: var(--gb-fw-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--gb-dur-1) var(--gb-ease);
+}
+html.gb-header-ready #top-menu > ul > li > a::after {
+  content: "";
+  position: absolute;
+  left: 10px; right: 10px; bottom: -1px;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: transparent;
+  transition: background-color var(--gb-dur-1) var(--gb-ease);
+}
+html.gb-header-ready #top-menu > ul > li > a:hover { color: var(--gb-text); background: transparent; text-decoration: none; }
+html.gb-header-ready #top-menu > ul > li > a:hover::after { background: var(--gb-border-strong); }
+html.gb-header-ready #top-menu > ul > li > a.selected { color: var(--gb-primary-strong); font-weight: var(--gb-fw-bold); }
+html.gb-header-ready #top-menu > ul > li > a.selected::after { background: var(--gb-primary); }
+html.gb-header-ready #top-menu > ul > li > a:focus-visible { box-shadow: var(--gb-focus-ring-inset); border-radius: var(--gb-radius-sm); }
+html.gb-header-ready #top-menu > ul > li > a.help { display: none; }
+
+/* brand block (our own mark, width follows the left nav) */
+#top-menu a.gb-brand, #top-menu a.gb-brand:link, #top-menu a.gb-brand:visited {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  box-sizing: border-box;
+  width: var(--gb-nav-w, var(--gb-sidebar-w));
+  height: var(--gb-topbar-h);
+  margin: -0 0 -1px;
+  padding: 0 16px;
+  background: var(--gb-nav-bg);
+  color: #fff;
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-bold);
+  letter-spacing: .02em;
+  text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+html.gb-anim #top-menu a.gb-brand { transition: width var(--gb-dur-2) var(--gb-ease), background-color var(--gb-dur-1) var(--gb-ease); }
+#top-menu a.gb-brand:hover { background: #283633; color: #fff; text-decoration: none; }
+#top-menu a.gb-brand:focus-visible { box-shadow: var(--gb-focus-ring-inset); border-radius: 0; }
+.gb-brand__mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--gb-primary);
+  position: relative;
+  flex: none;
+}
+.gb-brand__mark::before, .gb-brand__mark::after {
+  content: "";
+  position: absolute;
+  background: #fff;
+  border-radius: 2px;
+}
+.gb-brand__mark::before { left: 6px; top: 6px; width: 5px; height: 12px; }
+.gb-brand__mark::after { left: 13px; top: 6px; width: 5px; height: 7px; }
+.gb-brand__name { overflow: hidden; text-overflow: ellipsis; }
+html.gb-nav-collapsed .gb-brand .gb-brand__name { display: none; }
+html.gb-nav-collapsed #top-menu a.gb-brand { justify-content: center; padding: 0; }
+/* pages without the left nav: brand keeps the default width */
+body:not(:has(#main-menu)) #top-menu a.gb-brand { width: auto; min-width: var(--gb-sidebar-w); }
+/* pages without the dark left nav (admin layout, logged-out pages): the brand sits on the white bar */
+body:not(:has(#main-menu)) #top-menu a.gb-brand,
+body:not(:has(#main-menu)) #top-menu a.gb-brand:link,
+body:not(:has(#main-menu)) #top-menu a.gb-brand:visited { min-width: 0; background: transparent; color: var(--gb-text); }
+body:not(:has(#main-menu)) #top-menu a.gb-brand:hover { background: transparent; color: var(--gb-primary-strong); }
+
+/* right-hand tools */
+.gb-topbar-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; padding-left: 12px; }
+
+/* search (P0): one 32px pill input with an icon, label kept for screen readers */
+html.gb-header-ready #quick-search { float: none; display: flex; align-items: center; gap: 8px; margin: 0; color: var(--gb-text-2); }
+html.gb-header-ready #quick-search form { float: none; display: flex; align-items: center; margin: 0; position: relative; }
+html.gb-header-ready #quick-search form > label {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+html.gb-header-ready #quick-search input#q,
+html.gb-header-ready #quick-search input[type=text] {
+  width: 220px;
+  height: 32px;
+  margin: 0;
+  padding: 0 12px 0 34px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-2) var(--gb-search-icon) no-repeat 12px 50% / 16px 16px;
+  font-size: var(--gb-fs-md);
+  color: var(--gb-text);
+  transition: width var(--gb-dur-2) var(--gb-ease), border-color var(--gb-dur-1) var(--gb-ease), background-color var(--gb-dur-1) var(--gb-ease), box-shadow var(--gb-dur-1) var(--gb-ease);
+}
+html.gb-header-ready #quick-search input#q:hover { border-color: var(--gb-border-strong); }
+html.gb-header-ready #quick-search input#q:focus {
+  width: 300px;
+  background-color: var(--gb-surface);
+  border-color: var(--gb-primary);
+  box-shadow: var(--gb-focus);
+}
+
+/* project jump (P0): 32px secondary button with chevron */
+html.gb-header-ready #project-jump.drdn { width: auto; max-width: 200px; display: block; float: none; }
+#project-jump.drdn .drdn-trigger {
+  display: block;
+  width: auto;
+  max-width: 200px;
+  height: 32px;
+  margin: 0 !important;
+  padding: 0 32px 0 12px;
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface) var(--gb-chevron-down) no-repeat right 10px center / 16px 16px;
+  color: var(--gb-text);
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  line-height: 30px;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: border-color var(--gb-dur-1) var(--gb-ease), background-color var(--gb-dur-1) var(--gb-ease);
+}
+#project-jump.drdn .drdn-trigger:hover { border-color: var(--gb-primary); background-color: var(--gb-surface-2); }
+#project-jump.drdn.expanded .drdn-trigger { border-color: var(--gb-primary); box-shadow: var(--gb-focus); background-image: var(--gb-chevron-down); }
+#project-jump.drdn .drdn-trigger:focus-visible { outline: none; border-color: var(--gb-primary); box-shadow: var(--gb-focus); }
+#project-jump .drdn-content { width: 300px; right: 0; left: auto; top: calc(100% + 6px); }
+/* the jump menu's own search field: core svg icon only (the header search pill rule must not leak in) */
+html.gb-header-ready #quick-search #project-jump input#projects-quick-search,
+html.gb-header-ready #quick-search #project-jump input#projects-quick-search:focus {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px 0 32px !important;
+  border-radius: var(--gb-radius-sm);
+  background-image: none;
+  box-sizing: border-box;
+}
+html.gb-header-ready #quick-search #project-jump input#projects-quick-search:focus { box-shadow: var(--gb-focus); }
+#project-jump .drdn-content .quick-search { display: flex; align-items: center; }
+#project-jump .drdn-content .quick-search svg { top: 50%; transform: translateY(-50%); pointer-events: none; }
+#project-jump .drdn-items > *, #project-jump .drdn-items > a { color: var(--gb-text) !important; font-weight: var(--gb-fw-normal); }
+#project-jump .drdn-items > a:hover { background: var(--gb-primary-soft); color: var(--gb-text) !important; }
+#project-jump .drdn-items.all-projects > a { color: var(--gb-primary-strong) !important; font-weight: var(--gb-fw-medium); }
+
+/* add issue (primary, 32px) */
+#top-menu a.gb-add-issue, #top-menu a.gb-add-issue:link, #top-menu a.gb-add-issue:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px 0 10px;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-primary-strong);
+  color: #fff;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-bold);
+  white-space: nowrap;
+  text-decoration: none;
+  box-sizing: border-box;
+  transition: background-color var(--gb-dur-1) var(--gb-ease);
+}
+#top-menu a.gb-add-issue:hover { background: var(--gb-primary-hover); color: #fff; text-decoration: none; }
+#top-menu a.gb-add-issue:focus-visible { box-shadow: var(--gb-focus-ring); }
+#top-menu .gb-add-issue svg { flex: none; width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; }
+
+/* user menu */
+.gb-user { position: relative; display: flex; align-items: center; }
+#top-menu button.gb-user__btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  min-width: 0;
+  margin: 0;
+  padding: 0 8px 0 4px;
+  background: transparent;
+  border: 0;
+  border-radius: var(--gb-radius-pill);
+  color: var(--gb-text);
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-medium);
+  cursor: pointer;
+}
+#top-menu button.gb-user__btn:hover, .gb-user.is-open #top-menu button.gb-user__btn, .gb-user.is-open button.gb-user__btn { background: var(--gb-surface-3); color: var(--gb-text); border: 0; }
+#top-menu button.gb-user__btn:focus-visible { box-shadow: var(--gb-focus-ring); }
+#top-menu .gb-avatar--pending, .gb-avatar.gb-avatar--pending { background: var(--gb-surface-3); color: transparent; }
+.gb-user__name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gb-user__chev { width: 12px; height: 12px; flex: none; background: var(--gb-chevron-down) no-repeat center / 12px 12px; opacity: .8; transition: transform var(--gb-dur-1) var(--gb-ease); }
+.gb-user.is-open .gb-user__chev { transform: rotate(180deg); }
+/* legacy class still used by other features for the current-user avatar */
+.gb-user__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gb-av-0);
+  color: #fff;
+  display: inline-grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  flex: none;
+}
+.gb-user__menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 220px;
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  box-shadow: var(--gb-shadow-md);
+  padding: 6px;
+  z-index: var(--gb-z-dropdown);
+  box-sizing: border-box;
+}
+.gb-user.is-open .gb-user__menu { display: block; animation: gb-menu-in var(--gb-dur-1) var(--gb-ease); }
+@keyframes gb-menu-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.gb-user__head { display: flex; align-items: center; gap: 10px; padding: 8px 10px 10px; margin-bottom: 6px; border-bottom: 1px solid var(--gb-border); }
+.gb-user__head-text { display: flex; flex-direction: column; min-width: 0; }
+.gb-user__head-name { font-weight: var(--gb-fw-bold); color: var(--gb-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gb-user__head-login { font-size: var(--gb-fs-sm); color: var(--gb-muted); }
+#top-menu .gb-user__menu a, #top-menu .gb-user__menu a:link, #top-menu .gb-user__menu a:visited {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-text);
+  font-weight: var(--gb-fw-normal);
+  text-decoration: none;
+}
+#top-menu .gb-user__menu a:hover, #top-menu .gb-user__menu a:focus-visible { background: var(--gb-primary-soft); color: var(--gb-text); box-shadow: none; }
+#top-menu .gb-user__menu a svg { width: 16px; height: 16px; stroke: var(--gb-text-2); fill: none; flex: none; }
+#top-menu .gb-user__menu a.logout { color: var(--gb-danger); }
+#top-menu .gb-user__menu a.logout svg { stroke: var(--gb-danger); }
+#top-menu .gb-user__menu a.logout:hover { background: var(--gb-danger-soft); }
+.gb-user__sep { height: 1px; background: var(--gb-border); margin: 6px 0; }
+
+/* logged-out top bar (login page): keep the core links but tidy */
+html.gb-header-ready body.action-login #top-menu #account,
+html.gb-header-ready body:not(:has(#loggedas)) #top-menu #account { display: flex; align-items: center; margin-left: auto; order: 9; }
+html.gb-header-ready body:not(:has(#loggedas)) #top-menu #account ul { display: flex; gap: 4px; }
+html.gb-header-ready body:not(:has(#loggedas)) #top-menu #account ul li { float: none; }
+html.gb-header-ready body:not(:has(#loggedas)) #top-menu #account a {
+  display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border-radius: var(--gb-radius-sm); color: var(--gb-primary-strong);
+}
+html.gb-header-ready body:not(:has(#loggedas)) #top-menu #account a:hover { background: var(--gb-primary-soft); text-decoration: none; }
+html.gb-header-ready body:not(:has(#loggedas)) #top-menu #account { margin-left: 4px; }
+
+/* ---------- project title bar (#header) ---------- */
+#header {
+  background: transparent;
+  color: var(--gb-text);
+  border: 0;
+  min-height: 0;
+  padding: 18px 24px 0;
+  position: relative;
+}
+#header a, #header a:link, #header a:visited { color: var(--gb-text); }
+#header h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  color: var(--gb-text);
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-bold);
+  line-height: 28px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#header h1 a:hover { color: var(--gb-primary-strong); text-decoration: none; }
+#header h1 .gb-proj-avatar { width: 28px; height: 28px; font-size: 14px; }
+#header h1 .gb-header-title { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+#header h1 .current-project { overflow: hidden; text-overflow: ellipsis; }
+#header h1 .breadcrumbs, #header h1 .breadcrumbs a, #header h1 .breadcrumbs a:link {
+  display: block;
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-normal);
+  line-height: 1.4;
+}
+#header h1 .breadcrumbs a:hover { color: var(--gb-primary-strong); }
+#header h1 .breadcrumbs span.separator, #header h1 .breadcrumbs .gb-crumb-sep { color: var(--gb-muted); margin: 0 4px; }
+#header .mobile-toggle-button { display: none; }
+#quick-search { color: var(--gb-text-2); }
+
+/* the bar only exists inside projects; no duplicate site title elsewhere */
+@media screen and (min-width: 900px) {
+  body:not(:has(#main-menu)) #header { display: none; }
+  #header:not(:has(.current-project)) { padding: 0; }
+  #header:not(:has(.current-project)) > h1 { display: none; }
+  body:has(#header .current-project) #main { padding-top: 12px; }
+}
+
+/* fit the top bar on one row at narrower desktop widths (no horizontal scroll at 1024px) */
+.gb-user__name, .gb-user__chev { display: none; }
+@media screen and (min-width: 1440px) {
+  .gb-user__name, .gb-user__chev { display: inline-block; }
+}
+@media screen and (min-width: 900px) and (max-width: 1279px) {
+  html.gb-header-ready #quick-search input#q, html.gb-header-ready #quick-search input#q:focus { width: 180px; }
+  html.gb-header-ready #project-jump.drdn, #project-jump.drdn .drdn-trigger { max-width: 160px; }
+}
+@media screen and (min-width: 900px) and (max-width: 1100px) {
+  html.gb-header-ready #top-menu > ul > li > a, html.gb-header-ready #top-menu > ul > li > a:link,
+  html.gb-header-ready #top-menu > ul > li > a:visited { padding: 0 10px; }
+  #top-menu a.gb-add-issue { width: 32px; padding: 0; justify-content: center; }
+  #top-menu a.gb-add-issue span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* project title bar vs. the left nav: the expanded nav already shows the project avatar + name at its top,
+   so the bar is only shown in full when the nav is collapsed to the rail. With the nav expanded, a
+   subproject keeps a compact 12px breadcrumb (parent » current); a top-level project keeps the h1 for
+   assistive tech only. */
+@media screen and (min-width: 900px) {
+  html:not(.gb-nav-collapsed) body:has(#main-menu) #header:has(.current-project):not(:has(.breadcrumbs)) { padding: 0; }
+  html:not(.gb-nav-collapsed) body:has(#main-menu) #header:has(.current-project):not(:has(.breadcrumbs)) > h1 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  html:not(.gb-nav-collapsed) body:has(#main-menu):has(#header .current-project):not(:has(#header .breadcrumbs)) #main { padding-top: 16px; }
+  html:not(.gb-nav-collapsed) body:has(#main-menu) #header:has(.breadcrumbs) { padding-top: 14px; }
+  html:not(.gb-nav-collapsed) body:has(#main-menu) #header:has(.breadcrumbs) > h1 { line-height: 18px; gap: 0; }
+  html:not(.gb-nav-collapsed) body:has(#main-menu) #header:has(.breadcrumbs) > h1 > .gb-proj-avatar { display: none; }
+  html:not(.gb-nav-collapsed) body:has(#main-menu) #header:has(.breadcrumbs) > h1 .gb-header-title { flex-direction: row; align-items: baseline; }
+  html:not(.gb-nav-collapsed) body:has(#main-menu) #header:has(.breadcrumbs) > h1 .breadcrumbs, html:not(.gb-nav-collapsed) body:has(#main-menu) #header:has(.breadcrumbs) > h1 .breadcrumbs a { display: inline; }
+  html:not(.gb-nav-collapsed) body:has(#main-menu) #header:has(.breadcrumbs) > h1 .current-project {
+    font-size: var(--gb-fs-sm);
+    font-weight: var(--gb-fw-medium);
+    color: var(--gb-text);
+    line-height: 1.4;
+  }
+}
+
+/* collapsed left nav: the rail already carries the project avatar at its top, so the title bar shows the
+   name only (one avatar on screen, not two side by side) */
+@media screen and (min-width: 900px) {
+  html.gb-nav-collapsed body:has(#main-menu) #header > h1 > .gb-proj-avatar { display: none; }
+}

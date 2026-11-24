@@ -1,0 +1,9 @@
+<%
+  gb_events = Redmine::Activity::Fetcher.new(user).events(nil, nil, limit: 8)
+%>
+<h3><%= link_to l(:gb_recent_updates), activity_path %>
+  <%= link_to l(:gb_see_all), activity_path, class: 'gb-box-link' %></h3>
+<%= render partial: 'greenboard/timeline', locals: { events: gb_events, show_project: true } %>
+<% if gb_events.any? %>
+  <p class="gb-box-foot"><%= link_to l(:gb_see_all), activity_path %></p>
+<% end %>

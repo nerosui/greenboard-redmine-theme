@@ -1,0 +1,3036 @@
+/* 90-admin-settings.css — Administration pages + project settings (DESIGN.md §3.8)
+   Scopes
+     ADMIN  = body:has(#admin-menu)                   every page rendered with Redmine's admin layout
+              (body:has(#sidebar #admin-menu) only for the desktop nav card: below 900px core's
+               responsive.js moves the sidebar contents into the flyout menu)
+     INDEX  = body.controller-admin.action-index       /admin
+     PSET   = body.controller-projects.action-settings  /projects/:id/settings
+   View-only pages: nothing here changes behaviour, only presentation. */
+
+/* Pattern T geometry: ONE label column for every admin form (settings, trackers, roles, users, custom fields …)
+   so paging between forms never shifts the fields; long labels wrap to two lines. label + 16px gap = control column */
+body:has(#admin-menu) { --gb-form-label-w: 240px; --gb-t-label: var(--gb-form-label-w); --gb-t-col: calc(var(--gb-form-label-w) + 16px); }
+
+/* =====================================================================
+   1. Admin shell — the admin menu becomes a left settings-nav card
+   ===================================================================== */
+/* core lays #main out as flex row-reverse (sidebar first in DOM, shown right); admin wants it left */
+body:has(#sidebar #admin-menu) #main { flex-direction: row; align-items: flex-start; }
+
+body:has(#sidebar #admin-menu) #sidebar {
+  order: 0;
+  flex: 0 0 224px;
+  width: 224px;
+  box-sizing: border-box;
+  position: sticky;
+  top: calc(var(--gb-topbar-h) + 16px);
+  align-self: flex-start;
+  max-height: calc(100vh - var(--gb-topbar-h) - 32px);
+  overflow-y: auto;
+  margin: 0; /* #main provides the gutter and the gap */
+  padding: 0 8px 8px;
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  box-shadow: var(--gb-shadow);
+  font-size: var(--gb-fs-md);
+}
+/* the admin nav is the page's navigation: never collapsed, no collapse toggle */
+body:has(#sidebar #admin-menu) #sidebar-switch-panel { display: none; }
+body:has(#sidebar #admin-menu) #main.collapsedsidebar #sidebar { width: 224px; padding: 0 8px 8px; }
+body:has(#sidebar #admin-menu) #main.collapsedsidebar #sidebar-wrapper { display: block; }
+body:has(#sidebar #admin-menu) #sidebar-wrapper { padding: 0; }
+body:has(#admin-menu) #content { min-width: 0; }
+
+body:has(#sidebar #admin-menu) #sidebar h3 {
+  margin: 0 0 6px;
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid var(--gb-border);
+  font-size: 12px;
+  font-weight: var(--gb-fw-bold);
+  line-height: var(--gb-lh-tight);
+  color: var(--gb-text-2);
+  letter-spacing: .04em;
+}
+body:has(#sidebar #admin-menu) #sidebar h3:not(:first-of-type) { margin-top: 16px; }
+
+#sidebar #admin-menu ul { margin: 0; padding: 0; }
+#sidebar #admin-menu ul li { margin: 0 0 2px; padding: 0; list-style: none; }
+#sidebar #admin-menu ul li a,
+#sidebar #admin-menu ul li a.selected {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  margin: 0;
+  padding: 0 12px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gb-text);
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-medium);
+  line-height: var(--gb-lh-tight);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--gb-dur-1) var(--gb-ease), color var(--gb-dur-1) var(--gb-ease);
+}
+#sidebar #admin-menu ul li a .icon-label { overflow: hidden; text-overflow: ellipsis; }
+#sidebar #admin-menu ul li a svg.icon-svg { flex: none; width: 18px; height: 18px; margin: 0; }
+#sidebar #admin-menu ul li a svg.icon-svg use { stroke: var(--gb-text-2); }
+#sidebar #admin-menu ul li a:hover { background: var(--gb-primary-softer); color: var(--gb-primary-strong); }
+#sidebar #admin-menu ul li a:hover svg.icon-svg use { stroke: var(--gb-primary-strong); }
+#sidebar #admin-menu ul li a.selected,
+#sidebar #admin-menu ul li a.selected:hover {
+  background: var(--gb-primary-soft);
+  color: var(--gb-primary-strong);
+  font-weight: var(--gb-fw-bold);
+  box-shadow: inset 3px 0 0 var(--gb-primary);
+}
+/* core forces a white stroke on selected sidebar icons (with !important on the svg);
+   the <use> child carries its own stroke, so it wins without !important */
+#sidebar #admin-menu ul li a.selected svg.icon-svg use { stroke: var(--gb-primary-strong); }
+#sidebar #admin-menu ul li a:focus-visible { outline: none; box-shadow: var(--gb-focus); }
+
+/* =====================================================================
+   2. /admin index — grid of link cards
+   ===================================================================== */
+body.controller-admin.action-index #admin-index #admin-menu ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+}
+body.controller-admin.action-index #admin-index #admin-menu li { margin: 0; padding: 0; list-style: none; }
+body.controller-admin.action-index #admin-index #admin-menu li a {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 14px;
+  row-gap: 2px;
+  align-items: center;
+  align-content: center;
+  min-height: 72px;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface);
+  color: var(--gb-text);
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-bold);
+  line-height: var(--gb-lh-tight);
+  text-decoration: none;
+  transition: border-color var(--gb-dur-1) var(--gb-ease), box-shadow var(--gb-dur-1) var(--gb-ease), background-color var(--gb-dur-1) var(--gb-ease);
+}
+body.controller-admin.action-index #admin-index #admin-menu li a svg.icon-svg {
+  grid-row: 1 / span 2;
+  width: 24px;
+  height: 24px;
+  padding: 10px;
+  margin: 0;
+  box-sizing: content-box;
+  border-radius: var(--gb-radius);
+  background: var(--gb-primary-soft);
+}
+body.controller-admin.action-index #admin-index #admin-menu li a svg.icon-svg use { stroke: var(--gb-primary-strong); }
+body.controller-admin.action-index #admin-index #admin-menu li a .icon-label { grid-column: 2; }
+body.controller-admin.action-index #admin-index #admin-menu li a:only-child .icon-label:last-child { grid-row: 1 / span 2; }
+body.controller-admin.action-index #admin-index #admin-menu li a .gb-admin-card__desc {
+  grid-column: 2;
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-normal);
+  color: var(--gb-text-2);
+  line-height: 1.5;
+}
+body.controller-admin.action-index #admin-index #admin-menu li a:hover {
+  border-color: var(--gb-primary-border);
+  background: var(--gb-primary-softer);
+  box-shadow: var(--gb-shadow);
+  color: var(--gb-primary-strong);
+}
+body.controller-admin.action-index #admin-index #admin-menu li a:focus-visible {
+  outline: none;
+  border-color: var(--gb-primary);
+  box-shadow: var(--gb-focus);
+}
+body.controller-admin.action-index #content > .nodata,
+body.controller-admin.action-index #content > .warning { margin-bottom: 16px; }
+
+/* =====================================================================
+   3. Shared admin/settings pieces
+   ===================================================================== */
+
+/* Page titles: breadcrumbs like 「ロール » 管理者」 */
+body:has(#admin-menu) #content > h2 a { color: var(--gb-text-2); font-weight: var(--gb-fw-medium); }
+body:has(#admin-menu) #content > h2 a:hover { color: var(--gb-primary-strong); }
+body:has(#admin-menu) #content > h3,
+body.controller-projects.action-settings #content .tab-content > h3 {
+  margin: 24px 0 12px;
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-bold);
+}
+
+/* no grey "box in a box": boxes inside the content card are flat */
+body:has(#admin-menu) #content :is(.box, .tabular):not(fieldset),
+body.controller-projects.action-settings #content :is(.box, .tabular):not(fieldset) {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0 0 8px;
+}
+
+/* fieldsets → section titles */
+body:has(#admin-menu) #content form fieldset,
+body.controller-projects.action-settings #content .tab-content form fieldset {
+  margin: 0 0 8px;
+  padding: 20px 0 4px;
+  border: 0;
+  border-top: 1px solid var(--gb-border);
+  border-radius: 0;
+  background: transparent;
+  min-width: 0;
+}
+body:has(#admin-menu) #content form fieldset > legend,
+body.controller-projects.action-settings #content .tab-content form fieldset > legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  float: left;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 0;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+}
+body:has(#admin-menu) #content form fieldset > legend + *,
+body.controller-projects.action-settings #content .tab-content form fieldset > legend + * { clear: left; }
+/* first section of a form needs no divider */
+body:has(#admin-menu) #content form > fieldset:not(:is(div, p, fieldset, table, h3, .splitcontent) ~ fieldset),
+body:has(#admin-menu) #content :is(.splitcontentleft, .splitcontentright) > fieldset:first-child,
+body.controller-projects.action-settings #content .tab-content form > fieldset:not(:is(div, p, fieldset, table, h3) ~ fieldset) {
+  border-top: 0;
+  padding-top: 0;
+}
+/* the「すべてにチェック」toggle in legends → small icon button after the title */
+body:has(#admin-menu) #content fieldset > legend > a.icon-checked,
+body.controller-projects.action-settings #content fieldset > legend > a.icon-checked,
+body:has(#admin-menu) #content table th a.icon-checked,
+body.controller-projects.action-settings #content table th a.icon-checked {
+  order: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  border-radius: var(--gb-radius-sm);
+  vertical-align: middle;
+}
+body:has(#admin-menu) #content fieldset > legend > a.icon-checked:hover,
+body.controller-projects.action-settings #content fieldset > legend > a.icon-checked:hover,
+body:has(#admin-menu) #content table th a.icon-checked:hover,
+body.controller-projects.action-settings #content table th a.icon-checked:hover { background: var(--gb-surface-3); }
+body:has(#admin-menu) #content fieldset > legend > a.icon-checked svg use,
+body.controller-projects.action-settings #content fieldset > legend > a.icon-checked svg use,
+body:has(#admin-menu) #content table th a.icon-checked svg use,
+body.controller-projects.action-settings #content table th a.icon-checked svg use { stroke: var(--gb-text-2); }
+body:has(#admin-menu) #content fieldset > legend > a.icon-checked .icon-label:empty,
+body.controller-projects.action-settings #content fieldset > legend > a.icon-checked .icon-label:empty { display: none; }
+
+/* help text */
+body:has(#admin-menu) #content em.info,
+body.controller-projects.action-settings #content em.info {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--gb-fs-sm);
+  font-style: normal;
+  line-height: 1.5;
+  color: var(--gb-text-2);
+}
+
+/* Checkbox / module / permission grids (§2.3) */
+body:has(#admin-menu) #content fieldset:has(> label.floating),
+body.controller-projects.action-settings #content fieldset:has(> label.floating) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px 0; /* label.floating carries global margin-right:16px (!important) → that is the column gap */
+}
+/* a floated legend is not the "rendered legend": it becomes an ordinary grid item spanning the row */
+body:has(#admin-menu) #content fieldset:has(> label.floating) > legend,
+body.controller-projects.action-settings #content fieldset:has(> label.floating) > legend { grid-column: 1 / -1; float: left; margin-bottom: 4px; }
+body:has(#admin-menu) #content fieldset:has(> label.floating) > :not(label.floating):not(legend):not(input[type=hidden]),
+body.controller-projects.action-settings #content fieldset:has(> label.floating) > :not(label.floating):not(legend):not(input[type=hidden]) { grid-column: 1 / -1; }
+body:has(#admin-menu) #content label.floating,
+body.controller-projects.action-settings #content label.floating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  float: none;
+  width: auto;
+  min-height: 36px;
+  margin: 0;
+  padding: 6px 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--gb-border);
+  border-radius: 6px;
+  background: var(--gb-surface);
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-normal);
+  line-height: var(--gb-lh-tight);
+  text-align: left;
+  color: var(--gb-text);
+  cursor: pointer;
+  transition: background-color var(--gb-dur-1) var(--gb-ease), border-color var(--gb-dur-1) var(--gb-ease);
+}
+body:has(#admin-menu) #content label.floating:hover,
+body.controller-projects.action-settings #content label.floating:hover { border-color: var(--gb-primary-border); background: var(--gb-primary-softer); }
+body:has(#admin-menu) #content label.floating:has(input:checked),
+body.controller-projects.action-settings #content label.floating:has(input:checked) {
+  border-color: var(--gb-primary-border);
+  background: var(--gb-primary-softer);
+}
+body:has(#admin-menu) #content label.floating input[type=checkbox],
+body.controller-projects.action-settings #content label.floating input[type=checkbox],
+body:has(#admin-menu) #content label.floating input[type=radio] { margin: 0; }
+
+/* Checkbox lists that Redmine renders as label.block (notification events, role members management …) */
+body:has(#admin-menu) #content label.block,
+body.controller-projects.action-settings #content label.block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin: 0;
+  font-weight: var(--gb-fw-normal);
+  line-height: var(--gb-lh-tight);
+  cursor: pointer;
+}
+
+/* Submit rows: give the save button room */
+body:has(#admin-menu) #content form > input[type=submit],
+body:has(#admin-menu) #content form > p > input[type=submit]:first-child,
+body.controller-projects.action-settings #content .tab-content form > input[type=submit],
+body.controller-projects.action-settings #content .tab-content form > p > input[type=submit]:first-child { margin-top: 12px; }
+
+/* =====================================================================
+   4. Pattern T — dense settings forms on admin pages (§2.4)
+   ===================================================================== */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p {
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 6px 0 6px var(--gb-t-col);
+  min-height: 36px;
+  font-size: var(--gb-fs-md);
+  overflow: visible;
+}
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p::after { content: ""; display: table; clear: both; }
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > label:first-child:not(.hidden-for-sighted),
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > label.gb-t-label {
+  float: left;
+  display: block;
+  width: var(--gb-t-label);
+  margin: 0 0 0 calc(-1 * var(--gb-t-col));
+  padding: 0;
+  min-height: 36px;
+  line-height: 20px;
+  padding-top: 8px;
+  box-sizing: border-box;
+  text-align: left;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+  white-space: normal;
+}
+/* controls */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p input[type=text],
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p input[type=email],
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p input[type=password],
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p input[type=url],
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p input[type=number],
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p input[type=date],
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p select {
+  max-width: 480px;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p input:is([type=text], [type=email], [type=password], [type=url], :not([type])) { width: 100%; }
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p input[type=text]:is([size="2"], [size="3"], [size="4"], [size="5"], [size="6"], [size="8"]),
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p input[type=number] { width: 96px; }
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p select:not([multiple]) { min-width: 200px; }
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p textarea {
+  width: 100%;
+  max-width: 720px;
+  box-sizing: border-box;
+}
+/* a single checkbox in the control column lines up with the label text */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > input[type=checkbox] { margin: 10px 0 0; vertical-align: top; }
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > input[type=checkbox] ~ em.info { margin-top: 6px; }
+/* secondary labels inside the control column (radio / checkbox options, units) */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > label:not(:first-child):not(.gb-t-label),
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > span label {
+  float: none;
+  display: inline;
+  width: auto;
+  margin: 0 16px 0 0;
+  padding: 0;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-normal);
+  line-height: var(--gb-lh-tight);
+  text-align: left;
+  color: var(--gb-text);
+}
+/* checkbox lists (modules, trackers, notification events …): grid inside the control column,
+   the row label is taken out of the grid flow and kept in the label column */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block) {
+  display: grid;
+  grid-template-columns: var(--gb-t-col) repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0;
+  align-items: center;
+  padding-left: 0;
+}
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block)::after { display: none; }
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block) > label:first-child:not(.block) {
+  grid-column: 1;
+  grid-row: 1 / span 40;
+  align-self: start;
+  margin: 0;
+}
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block) > label.block { grid-column: auto; }
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block) > :not(label):not(input) { grid-column: 2 / -1; }
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > label.block:not(:first-child) {
+  display: flex;
+  min-height: 32px; /* global gives these labels margin-right:16px (!important) — it acts as the column gap */
+}
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > label.block input { margin: 0; }
+/* the column chooser (settings > projects / issue tracking lists) sits in the control column */
+body:has(#admin-menu) #content fieldset.box > #list-definition,
+body:has(#admin-menu) #content fieldset.box > div:has(> .query-columns),
+body:has(#admin-menu) #content fieldset.box > div > div:has(> .query-columns) { padding-left: var(--gb-t-col); }
+/* the welcome-text editor */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p .jstBlock,
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p .jstEditor { max-width: 720px; }
+body:has(#admin-menu) #content .tabular.settings .wiki-preview,
+body:has(#admin-menu) #content .tabular.settings .jstTabs { width: 100%; }
+
+/* settings > リポジトリ: SCM chooser table */
+body.controller-settings #content fieldset.enabled_scm table {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 0 8px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+body.controller-settings #content fieldset.enabled_scm th {
+  height: 36px;
+  padding: 0 12px;
+  background: var(--gb-surface-2);
+  border-bottom: 1px solid var(--gb-border);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text-2);
+  text-align: left;
+}
+body.controller-settings #content fieldset.enabled_scm td {
+  height: 40px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--gb-border);
+  font-family: var(--gb-font-mono);
+  font-size: 13px;
+  color: var(--gb-text-2);
+}
+body.controller-settings #content fieldset.enabled_scm tr:last-child td { border-bottom: 0; }
+body.controller-settings #content fieldset.enabled_scm td.scm_name { font-family: var(--gb-font); font-size: var(--gb-fs-md); color: var(--gb-text); }
+body.controller-settings #content fieldset.enabled_scm td.scm_name label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: var(--gb-fw-medium);
+}
+body.controller-settings #content fieldset.enabled_scm td.scm_name input { margin: 0; }
+body.controller-settings #content fieldset.enabled_scm > p { padding-left: 0; min-height: 0; }
+
+/* settings inside a narrow split column: slimmer label column */
+body:has(#admin-menu) #content .splitcontentleft .tabular p,
+body:has(#admin-menu) #content .splitcontentright .tabular p,
+body:has(#admin-menu) #content .splitcontent .tabular p { padding-left: var(--gb-t-col); }
+body:has(#admin-menu) #content .splitcontent .tabular p > label:first-child:not(.hidden-for-sighted),
+body:has(#admin-menu) #content .splitcontentleft .tabular p > label:first-child:not(.hidden-for-sighted),
+body:has(#admin-menu) #content .splitcontentright .tabular p > label:first-child:not(.hidden-for-sighted) { width: var(--gb-t-label); margin-left: calc(-1 * var(--gb-t-col)); }
+body:has(#admin-menu) #content .splitcontent { gap: 32px; overflow: visible; }
+body:has(#admin-menu) #content .splitcontentleft,
+body:has(#admin-menu) #content .splitcontentright { margin: 0; min-width: 0; }
+
+/* sections made only of checkbox rows (user edit: メール通知 / オートウォッチ) have no label column */
+body:has(#admin-menu) #content fieldset.box:not(.tabular):not(:has(> p > label:first-child:not(.hidden-for-sighted))) > p,
+body:has(#admin-menu) #content .splitcontent fieldset.box:not(.tabular):not(:has(> p > label:first-child:not(.hidden-for-sighted))) > p { padding-left: 0; min-height: 0; }
+body:has(#admin-menu) #content fieldset.box:not(.tabular) > p > input[type=checkbox]:first-of-type { margin: 0 2px 0 0; vertical-align: -3px; }
+body:has(#admin-menu) #content fieldset.box:not(.tabular) > p > input[type=checkbox] + label { margin-left: 6px; }
+body:has(#admin-menu) #content p > label em { font-style: normal; font-weight: var(--gb-fw-bold); }
+body:has(#admin-menu) #content #notified-projects ul { margin: 0; padding: 0 0 0 4px; list-style: none; }
+body:has(#admin-menu) #content #notified-projects ul ul { padding-left: 20px; }
+body:has(#admin-menu) #content #notified-projects li { list-style: none; }
+body:has(#admin-menu) #content #notified-projects label { display: inline-flex; align-items: center; gap: 8px; min-height: 28px; font-weight: var(--gb-fw-normal); }
+
+/* =====================================================================
+   5. Project settings (/projects/:id/settings)
+   ===================================================================== */
+body.controller-projects.action-settings #content .tab-content { display: flow-root; }
+body.controller-projects.action-settings #content .tab-content > form { display: block; }
+
+/* tab-level toolbar: 「＋ 新しい…」 + contextual links on one row, right-aligned */
+body.controller-projects.action-settings #content .tab-content > .contextual {
+  float: right;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 12px 8px;
+  padding: 0;
+}
+body.controller-projects.action-settings #content .tab-content > p:has(> a.icon-add) {
+  float: right;
+  margin: 0 0 12px 8px;
+  padding: 0;
+}
+body.controller-projects.action-settings #content .tab-content > p:has(> a.icon-add) > a.icon-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px 0 10px;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-primary-strong);
+  color: #fff;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--gb-dur-1) var(--gb-ease);
+}
+body.controller-projects.action-settings #content .tab-content > p:has(> a.icon-add) > a.icon-add:hover { background: var(--gb-primary-hover); }
+body.controller-projects.action-settings #content .tab-content > p:has(> a.icon-add) > a.icon-add:focus-visible { outline: none; box-shadow: var(--gb-focus); }
+body.controller-projects.action-settings #content .tab-content > p:has(> a.icon-add) > a.icon-add svg { width: 16px; height: 16px; }
+body.controller-projects.action-settings #content .tab-content > p:has(> a.icon-add) > a.icon-add svg use { stroke: #fff; }
+body.controller-projects.action-settings #content .tab-content > table,
+body.controller-projects.action-settings #content .tab-content > form,
+body.controller-projects.action-settings #content .tab-content > .table-list,
+body.controller-projects.action-settings #content .tab-content > .autoscroll,
+body.controller-projects.action-settings #content .tab-content > p.nodata,
+body.controller-projects.action-settings #content .tab-content > div:not(.contextual) { clear: both; }
+
+/* --- プロジェクト tab: Pattern S, max 720px --- */
+/* core sets form { display: inline } — max-width needs a block box */
+body.controller-projects.action-settings #tab-content-info form { display: block; max-width: 720px; }
+body.controller-projects.action-settings #tab-content-info .tabular p {
+  margin: 0 0 20px;
+  padding: 0;
+  min-height: 0;
+  overflow: visible;
+}
+body.controller-projects.action-settings #tab-content-info .tabular p > label:first-child {
+  float: none;
+  display: block;
+  width: auto;
+  margin: 0 0 6px;
+  padding: 0;
+  text-align: left;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  line-height: var(--gb-lh-tight);
+  color: var(--gb-text);
+}
+body.controller-projects.action-settings #tab-content-info .tabular p input[type=text],
+body.controller-projects.action-settings #tab-content-info .tabular p input[type=url] {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+body.controller-projects.action-settings #tab-content-info #project_name {
+  height: var(--gb-control-h-lg);
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-medium);
+}
+body.controller-projects.action-settings #tab-content-info #project_identifier {
+  max-width: 320px;
+  font-family: var(--gb-font-mono);
+  font-size: 13px;
+  background: var(--gb-surface-2);
+  color: var(--gb-text-2);
+}
+body.controller-projects.action-settings #tab-content-info #project_parent_id { width: 320px; max-width: 100%; }
+body.controller-projects.action-settings #tab-content-info { --gb-editor-min: 160px; } /* C-editor height (§6.11) */
+body.controller-projects.action-settings #tab-content-info .tabular p .jstBlock,
+body.controller-projects.action-settings #tab-content-info .tabular p .jstTabs,
+body.controller-projects.action-settings #tab-content-info .tabular p .wiki-preview { width: 100%; max-width: none; }
+/* single booleans (公開 / メンバーを継承): checkbox + label on one line, help below */
+body.controller-projects.action-settings #tab-content-info .tabular p:has(> input[type=checkbox]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 8px;
+}
+body.controller-projects.action-settings #tab-content-info .tabular p:has(> input[type=checkbox]) > input[type=checkbox] { order: -1; margin: 0; }
+body.controller-projects.action-settings #tab-content-info .tabular p:has(> input[type=checkbox]) > label:first-child {
+  margin: 0;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-medium);
+  cursor: pointer;
+}
+body.controller-projects.action-settings #tab-content-info .tabular p:has(> input[type=checkbox]) > em.info { flex-basis: 100%; margin: 2px 0 0 24px; }
+/* custom fields in the info form */
+body.controller-projects.action-settings #tab-content-info .tabular p select:not([multiple]) { min-width: 200px; max-width: 100%; }
+/* modules: 3-column tile grid */
+body.controller-projects.action-settings #content #project_modules {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 8px;
+  padding-top: 24px;
+}
+body.controller-projects.action-settings #tab-content-info form > input[type=submit] { margin-top: 20px; }
+
+/* --- 課題トラッキング tab --- */
+body.controller-projects.action-settings #tab-content-issues form { display: block; max-width: 720px; }
+body.controller-projects.action-settings #project_trackers { position: relative; }
+body.controller-projects.action-settings #project_trackers > .contextual,
+body.controller-projects.action-settings #project_issue_custom_fields > .contextual {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+}
+body.controller-projects.action-settings #tab-content-issues fieldset > .contextual { grid-column: auto; }
+body.controller-projects.action-settings #tab-content-issues .box.tabular:not(fieldset) {
+  padding-top: 20px;
+  border-top: 1px solid var(--gb-border);
+  max-width: 720px;
+}
+body.controller-projects.action-settings #tab-content-issues .box.tabular:not(fieldset) p {
+  margin: 0 0 20px;
+  padding: 0;
+  min-height: 0;
+}
+body.controller-projects.action-settings #tab-content-issues .box.tabular:not(fieldset) p > label:first-child {
+  float: none;
+  display: block;
+  width: auto;
+  margin: 0 0 6px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  line-height: var(--gb-lh-tight);
+}
+body.controller-projects.action-settings #tab-content-issues .box.tabular:not(fieldset) select { width: 320px; max-width: 100%; }
+
+/* --- Versions tab: the status / name filter as a compact filter row --- */
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface-2);
+}
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset > label {
+  font-size: 13px;
+  color: var(--gb-text-2);
+  font-weight: var(--gb-fw-medium);
+}
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset select,
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset input[type=text] {
+  height: var(--gb-control-h-sm);
+  font-size: 13px;
+}
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset input[type=text] { width: 200px; }
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset input[type=submit] {
+  height: var(--gb-control-h-sm);
+  min-width: 0;
+  padding: 0 12px;
+  font-size: var(--gb-fs-sm);
+}
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset a.icon-reload { font-size: 13px; }
+
+/* --- 時間管理 tab (activities): table form, no Pattern T --- */
+body.controller-projects.action-settings #tab-content-activities form.tabular { margin: 0; }
+
+/* =====================================================================
+   6. Lists / tables in admin + project settings (§2.5 additions)
+   ===================================================================== */
+body:has(#admin-menu) #content table.list,
+body.controller-projects.action-settings #content .tab-content table.list { margin-bottom: 16px; }
+
+/* boolean cells: ✓ in brand green, empty → en dash */
+body:has(#admin-menu) #content table.list td.tick,
+body.controller-projects.action-settings #content table.list td.tick {
+  width: 1%;
+  min-width: 72px;
+  text-align: center;
+  white-space: nowrap;
+}
+body:has(#admin-menu) #content table.list td.tick svg use,
+body.controller-projects.action-settings #content table.list td.tick svg use { stroke: var(--gb-primary-strong); stroke-width: 2; }
+body:has(#admin-menu) #content table.list td.tick:not(:has(svg))::after,
+body.controller-projects.action-settings #content table.list td.tick:not(:has(svg))::after {
+  content: "–";
+  color: var(--gb-disabled);
+}
+
+/* row actions: compact text buttons, delete in danger colour */
+body:has(#admin-menu) #content table.list td.buttons,
+body.controller-projects.action-settings #content table.list td.buttons,
+body.controller-projects.action-settings #content .table-list .table-list-cell.buttons {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+body:has(#admin-menu) #content table.list td.buttons > a,
+body.controller-projects.action-settings #content table.list td.buttons > a,
+body.controller-projects.action-settings #content .table-list-cell.buttons > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--gb-control-h-sm);
+  margin: 0 0 0 2px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-text-2);
+  text-decoration: none;
+  vertical-align: middle;
+}
+body:has(#admin-menu) #content table.list td.buttons > a svg,
+body.controller-projects.action-settings #content table.list td.buttons > a svg,
+body.controller-projects.action-settings #content .table-list-cell.buttons > a svg { width: 16px; height: 16px; }
+body:has(#admin-menu) #content table.list td.buttons > a svg use,
+body.controller-projects.action-settings #content table.list td.buttons > a svg use,
+body.controller-projects.action-settings #content .table-list-cell.buttons > a svg use { stroke: currentColor; }
+body:has(#admin-menu) #content table.list td.buttons > a:hover,
+body.controller-projects.action-settings #content table.list td.buttons > a:hover,
+body.controller-projects.action-settings #content .table-list-cell.buttons > a:hover {
+  background: var(--gb-primary-soft);
+  color: var(--gb-primary-strong);
+}
+body:has(#admin-menu) #content table.list td.buttons > a.icon-del,
+body.controller-projects.action-settings #content table.list td.buttons > a.icon-del,
+body.controller-projects.action-settings #content .table-list-cell.buttons > a.icon-del { color: var(--gb-danger); }
+body:has(#admin-menu) #content table.list td.buttons > a.icon-del:hover,
+body.controller-projects.action-settings #content table.list td.buttons > a.icon-del:hover,
+body.controller-projects.action-settings #content .table-list-cell.buttons > a.icon-del:hover {
+  background: var(--gb-danger-soft);
+  color: var(--gb-danger-hover);
+}
+
+/* icon-only row actions (… menu) are 28×28 icon buttons */
+body:has(#admin-menu) #content table.list td.buttons > a.icon-only,
+body.controller-projects.action-settings #content table.list td.buttons > a.icon-only {
+  justify-content: center;
+  width: 28px;
+  padding: 0;
+}
+body:has(#admin-menu) #content table.list td.buttons > a.icon-only .icon-label,
+body.controller-projects.action-settings #content table.list td.buttons > a.icon-only .icon-label { display: none; }
+
+/* drag handles → icon buttons */
+body:has(#admin-menu) #content .sort-handle,
+body.controller-projects.action-settings #content .sort-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 2px 0 0;
+  border-radius: var(--gb-radius-sm);
+  vertical-align: middle;
+  cursor: grab;
+}
+body:has(#admin-menu) #content .sort-handle:hover,
+body.controller-projects.action-settings #content .sort-handle:hover { background: var(--gb-surface-3); }
+body:has(#admin-menu) #content .sort-handle svg use,
+body.controller-projects.action-settings #content .sort-handle svg use { stroke: var(--gb-text-2); }
+
+/* div-based sortable lists (forums tab, trackers? custom fields) */
+body.controller-projects.action-settings #content .table-list,
+body:has(#admin-menu) #content .table-list {
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  overflow: hidden;
+  margin: 0 0 16px;
+}
+body.controller-projects.action-settings #content .table-list-header,
+body:has(#admin-menu) #content .table-list-header {
+  background: var(--gb-surface-2);
+  border-bottom: 1px solid var(--gb-border);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text-2);
+}
+body.controller-projects.action-settings #content .table-list-row,
+body:has(#admin-menu) #content .table-list-row {
+  border-bottom: 1px solid var(--gb-border);
+  background: var(--gb-surface);
+}
+body.controller-projects.action-settings #content .sort-level > div:last-child > .table-list-row { border-bottom: 0; }
+body.controller-projects.action-settings #content .table-list-row:hover,
+body:has(#admin-menu) #content .table-list-row:hover { background: var(--gb-primary-softer); }
+body.controller-projects.action-settings #content .table-list-cell.name a,
+body:has(#admin-menu) #content .table-list-cell.name a { font-weight: var(--gb-fw-medium); color: var(--gb-text); }
+body.controller-projects.action-settings #content .table-list-cell.name a:hover,
+body:has(#admin-menu) #content .table-list-cell.name a:hover { color: var(--gb-primary-strong); }
+body.controller-projects.action-settings #content .table-list-cell.description { color: var(--gb-text-2); font-size: 13px; }
+
+/* rows are flex lines (core relies on per-row anonymous tables; the global .buttons flex rule breaks that) */
+body.controller-projects.action-settings #content .table-list-header,
+body.controller-projects.action-settings #content .table-list-row,
+body:has(#admin-menu) #content .table-list-header,
+body:has(#admin-menu) #content .table-list-row {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+}
+body.controller-projects.action-settings #content .table-list-header,
+body:has(#admin-menu) #content .table-list-header { min-height: 36px; }
+body.controller-projects.action-settings #content .table-list .table-list-cell,
+body:has(#admin-menu) #content .table-list .table-list-cell {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 12px;
+  padding-left: 12px !important; /* beats core's inline style="padding-left: 2px" (nesting indent) */
+  height: auto;
+  min-height: 0;
+}
+body.controller-projects.action-settings #content .table-list .table-list-cell.name,
+body:has(#admin-menu) #content .table-list .table-list-cell.name { flex: 0 0 30%; }
+body.controller-projects.action-settings #content .table-list .table-list-cell.buttons,
+body:has(#admin-menu) #content .table-list .table-list-cell.buttons {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2px;
+  width: auto;
+  margin-left: auto;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+body.controller-projects.action-settings #content .sort-level .sort-level .table-list-cell.name,
+body:has(#admin-menu) #content .sort-level .sort-level .table-list-cell.name { padding-left: 32px !important; }
+
+/* role / group chips (project members, user memberships) — added by 90-admin-settings.js */
+.gb-role-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; vertical-align: middle; }
+.gb-role-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  white-space: nowrap;
+}
+
+/* state tags (user status, version status / sharing) */
+.gb-state-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: 11px;
+  font-weight: var(--gb-fw-bold);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.gb-state-tag--open { background: var(--gb-info-soft); color: var(--gb-info); }
+.gb-state-tag--closed { background: var(--gb-success-soft); color: var(--gb-success); }
+.gb-state-tag--locked { background: var(--gb-warning-soft); color: var(--gb-warning-text); }
+.gb-state-tag--danger { background: var(--gb-danger-soft); color: var(--gb-danger); }
+
+/* members table */
+body.controller-projects.action-settings table.list.members td.name { width: 40%; }
+body.controller-projects.action-settings table.list.members td.name .icon { display: inline-flex; align-items: center; gap: 8px; }
+body.controller-projects.action-settings table.list.members td.name a.user { font-weight: var(--gb-fw-medium); color: var(--gb-text); }
+body.controller-projects.action-settings table.list.members td.name a.user:hover { color: var(--gb-primary-strong); }
+body.controller-projects.action-settings table.list.members td.roles em.info { display: inline; margin-left: 6px; }
+/* inline role edit form inside a member row */
+body.controller-projects.action-settings table.list.members td.roles form p { margin: 8px 0 0; }
+body.controller-projects.action-settings table.list.members td.roles form label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 14px 4px 0;
+  font-weight: var(--gb-fw-normal);
+}
+body.controller-projects.action-settings table.list.members td.roles form input[type=submit],
+body.controller-projects.action-settings table.list.members td.roles form input[type=button],
+body.controller-projects.action-settings table.list.members td.roles form a {
+  height: var(--gb-control-h-sm);
+  font-size: var(--gb-fs-sm);
+}
+
+/* versions table: status / sharing as quiet text, date mono-width */
+body.controller-projects.action-settings table.list.versions td.date { font-variant-numeric: tabular-nums; }
+body.controller-projects.action-settings table.list.versions td.description { min-width: 0; color: var(--gb-text-2); }
+/* core writes style="width:15%" on the actions header; the buttons column should hug its links */
+body.controller-projects.action-settings table.list.versions th[style*="width"] { width: 1% !important; }
+body.controller-projects.action-settings table.list.versions td.tick { min-width: 0; }
+body.controller-projects.action-settings table.list.versions td.name a { font-weight: var(--gb-fw-medium); }
+
+/* empty state inside settings tabs */
+body.controller-projects.action-settings #content .tab-content p.nodata { clear: both; }
+
+/* =====================================================================
+   7. Admin list pages
+   ===================================================================== */
+/* left-aligned cells (core centres most admin columns) */
+body:has(#admin-menu) #content table.list td { text-align: left; }
+body:has(#admin-menu) #content table.list td.tick { text-align: left; padding-left: 16px; }
+body:has(#admin-menu) #content table.list td.reorder { text-align: center; }
+body:has(#admin-menu) #content table.list td.buttons { text-align: right; }
+body:has(#admin-menu) #content table.list td.name a,
+body:has(#admin-menu) #content table.list td.username a,
+body:has(#admin-menu) #content table.list td.login a {
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-text);
+}
+body:has(#admin-menu) #content table.list td.name a:hover,
+body:has(#admin-menu) #content table.list td.username a:hover,
+body:has(#admin-menu) #content table.list td.login a:hover { color: var(--gb-primary-strong); }
+body:has(#admin-menu) #content table.list td.created_on,
+body:has(#admin-menu) #content table.list td.last_login_on,
+body:has(#admin-menu) #content table.list td.updated_on,
+body:has(#admin-menu) #content table.list td.id { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--gb-text-2); font-size: 13px; }
+/* admin lists are wide (many columns next to the settings nav): slightly tighter cells */
+body:has(#admin-menu) #content table.list :is(th, td) { padding-left: 10px; padding-right: 10px; }
+body:has(#admin-menu) #content table.list td.mail { color: var(--gb-text-2); font-size: 13px; }
+
+/* inline warnings in list cells (e.g. 「このステータスはどのトラッカーのワークフローでも使われていません (編集)」) */
+body:has(#admin-menu) #content table.list td > span.icon-warning {
+  display: block;
+  max-width: 420px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gb-warning-text);
+  white-space: normal;
+}
+body:has(#admin-menu) #content table.list td > span.icon-warning svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  vertical-align: -3px;
+}
+body:has(#admin-menu) #content table.list td > span.icon-warning svg use { stroke: var(--gb-warning); }
+
+/* built-in groups / roles: no italics (DESIGN §1.2) */
+body:has(#admin-menu) #content tr.builtin td,
+body:has(#admin-menu) #content tr.builtin td a { font-style: normal; color: var(--gb-text-2); }
+
+/* locked / registered users */
+body:has(#admin-menu) #content tr.user.locked td,
+body:has(#admin-menu) #content tr.user.registered td { color: var(--gb-muted); }
+body:has(#admin-menu) #content tr.user.locked a,
+body:has(#admin-menu) #content tr.user.registered a { color: var(--gb-muted); }
+body:has(#admin-menu) #content td .gb-avatar { margin-right: 6px; vertical-align: middle; }
+body:has(#admin-menu) #content .autoscroll:not(:has(> :is(table.permissions, table.transitions, table.fields_permissions))) { padding: 0; }
+
+/* simple (non-query) filter forms on admin lists: /groups, /admin/projects … */
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box),
+body:has(#admin-menu) #content > form#query_form_simple > fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface-2);
+}
+/* the 「フィルタ」 legend would sit on the box edge; the field label already says what it filters */
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > legend,
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset > legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > legend + * { clear: none; }
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > label {
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-text-2);
+}
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) :is(select, input[type=text]) {
+  height: var(--gb-control-h-sm);
+  font-size: 13px;
+}
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) input[type=submit] {
+  height: var(--gb-control-h-sm);
+  min-width: 0;
+  margin: 0;
+  padding: 0 12px;
+  font-size: var(--gb-fs-sm);
+}
+
+/* /enumerations: one titled table per type */
+body.controller-enumerations.action-index #content > h3 { margin-top: 28px; }
+body.controller-enumerations.action-index #content > h3:first-of-type { margin-top: 8px; }
+body.controller-enumerations.action-index #content > p:has(> a.icon-add) { margin: -4px 0 24px; }
+body:has(#sidebar #admin-menu) table.list.enumerations { table-layout: auto; }
+
+/* in-list "＋ new value" links (enumerations, custom field tabs) */
+body:has(#admin-menu) #content > p > a.icon-add,
+body:has(#admin-menu) #content .tab-content > p > a.icon-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--gb-control-h-sm);
+  padding: 0 10px 0 8px;
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  color: var(--gb-text);
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  text-decoration: none;
+}
+body:has(#admin-menu) #content > p > a.icon-add:hover,
+body:has(#admin-menu) #content .tab-content > p > a.icon-add:hover {
+  border-color: var(--gb-primary);
+  background: var(--gb-surface-2);
+  color: var(--gb-primary-strong);
+}
+body:has(#admin-menu) #content > p > a.icon-add svg use,
+body:has(#admin-menu) #content .tab-content > p > a.icon-add svg use { stroke: currentColor; }
+
+/* /custom_fields: tabs per object type */
+body.controller-custom_fields.action-index #content table.list td.name { min-width: 200px; }
+
+/* /admin/plugins */
+body.controller-admin.action-plugins #content table.list.plugins td { padding-top: 12px; padding-bottom: 12px; vertical-align: top; }
+body.controller-admin.action-plugins #content table.list.plugins span.name {
+  display: block;
+  margin: 0 0 2px;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+}
+body.controller-admin.action-plugins #content table.list.plugins span.description { display: block; font-size: 13px; color: var(--gb-text-2); }
+body.controller-admin.action-plugins #content table.list.plugins span.url { display: block; font-size: var(--gb-fs-sm); margin-top: 2px; }
+body.controller-admin.action-plugins #content table.list.plugins td.author { color: var(--gb-text-2); font-size: 13px; }
+body.controller-admin.action-plugins #content table.list.plugins td.version {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--gb-font-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+body.controller-admin.action-plugins #content table.list.plugins td.configure { text-align: right; white-space: nowrap; }
+
+/* /admin/info: definition-list card */
+body.controller-admin.action-info #content table.list {
+  max-width: 880px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  overflow: hidden;
+}
+body.controller-admin.action-info #content table.list td {
+  padding: 10px 16px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+body.controller-admin.action-info #content table.list td.name { width: 60%; color: var(--gb-text); }
+body.controller-admin.action-info #content table.list td.tick { width: 72px; }
+body.controller-admin.action-info #content table.list td.tick svg { width: 18px; height: 18px; }
+body.controller-admin.action-info #content table.list td.tick .icon-error svg use,
+body.controller-admin.action-info #content table.list td.tick svg.icon-svg:has(use[href$="#icon--warning"]) use { stroke: var(--gb-warning); }
+body.controller-admin.action-info #content > p:first-of-type strong,
+body.controller-admin.action-info #content > p > strong { font-size: var(--gb-fs-lg); }
+body.controller-admin.action-info #content pre,
+body.controller-admin.action-info #content .gb-envinfo {
+  max-width: 880px;
+  box-sizing: border-box;
+  margin: 0 0 16px;
+  padding: 16px 20px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface-2);
+  font-family: var(--gb-font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--gb-text);
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+/* =====================================================================
+   8. Permission / workflow matrices
+   ===================================================================== */
+body:has(#admin-menu) #content .autoscroll:has(> table.permissions),
+body:has(#admin-menu) #content .autoscroll:has(> table.transitions),
+body:has(#admin-menu) #content .autoscroll:has(> table.fields_permissions) {
+  max-height: calc(100vh - var(--gb-topbar-h) - 120px);
+  overflow: auto;
+  margin: 0 0 16px;
+  padding: 0;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface);
+}
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) {
+  width: auto;
+  min-width: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: visible; /* an overflow:hidden table would become the sticky scroll container */
+}
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) thead th,
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) thead td {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: auto;
+  padding: 8px 10px;
+  background: var(--gb-surface-2);
+  border: 0;
+  border-bottom: 1px solid var(--gb-border);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text-2);
+  text-align: center;
+  white-space: normal;
+  vertical-align: bottom;
+}
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) thead tr:nth-child(2) :is(th, td) { top: 37px; }
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) tbody td {
+  height: 32px;
+  padding: 4px 10px;
+  border: 0;
+  border-bottom: 1px solid var(--gb-border);
+  text-align: center;
+  font-size: 13px;
+  background: var(--gb-surface);
+}
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) tbody tr:last-child td { border-bottom: 0; }
+/* sticky first column */
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) tbody td:first-child,
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) thead :is(th, td):first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  text-align: left;
+  white-space: nowrap;
+  border-right: 1px solid var(--gb-border);
+}
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) thead :is(th, td):first-child { z-index: 3; }
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) tbody td:first-child {
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-text);
+  min-width: 200px;
+}
+/* row + column hover highlight (column via .gb-col-hover set by JS) */
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) tbody tr:not(.group):hover td,
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) .gb-col-hover { background: var(--gb-primary-softer); }
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) thead .gb-col-hover { background: var(--gb-primary-soft); color: var(--gb-primary-strong); }
+/* group / section rows */
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) tr.group td {
+  height: 32px;
+  padding: 6px 10px;
+  background: var(--gb-surface-2);
+  border-bottom: 1px solid var(--gb-border);
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+}
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) tr.group td:first-child { text-align: left; }
+body:has(#admin-menu) #content table.permissions td.role { color: var(--gb-text-2); font-size: var(--gb-fs-sm); }
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) input[type=checkbox] { margin: 0; vertical-align: middle; }
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) a.icon-only,
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) a.icon-checked {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: 0 2px 0 0;
+  padding: 0;
+  border-radius: var(--gb-radius-sm);
+  vertical-align: middle;
+}
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) a.icon-only:hover,
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) a.icon-checked:hover { background: var(--gb-surface-3); }
+body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) a.icon-checked svg use { stroke: var(--gb-text-2); }
+/* enabled workflow transitions: soft green instead of core #bfb */
+body:has(#admin-menu) #content table.transitions td.enabled,
+body:has(#admin-menu) #content table.transitions tbody tr:hover td.enabled { background: var(--gb-primary-soft); }
+/* field permissions: readonly / required as soft states */
+body:has(#admin-menu) #content table.fields_permissions td.readonly { background: var(--gb-surface-3); }
+body:has(#admin-menu) #content table.fields_permissions td.required { background: var(--gb-danger-soft); }
+body:has(#admin-menu) #content #workflow_form table select {
+  height: var(--gb-control-h-sm);
+  font-size: var(--gb-fs-sm);
+  max-width: 120px;
+}
+
+/* workflow selector row: ロール [select] トラッカー [select] [編集] */
+body.controller-workflows #content > form > p,
+body.controller-workflows #content #workflow_filter p { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+body.controller-workflows #content > form > p label,
+body.controller-workflows #content #workflow_filter label { font-size: 13px; font-weight: var(--gb-fw-bold); color: var(--gb-text-2); }
+body.controller-workflows #content > form > p label.inline,
+body.controller-workflows #content > form > p label:has(input[type=checkbox]) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: var(--gb-fw-normal);
+  color: var(--gb-text);
+}
+
+/* role edit: permission groups as titled tile grids */
+body.controller-roles :is(.action-edit, .action-new, .action-update, .action-create) #permissions,
+body.controller-roles #permissions { margin-top: 24px; }
+body.controller-roles #permissions > h3 {
+  margin: 0 0 12px;
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-bold);
+}
+body.controller-roles:has(#admin-menu) #content #permissions fieldset {
+  margin: 0 0 12px;
+  padding: 16px 0 4px;
+}
+body.controller-roles:has(#admin-menu) #content #permissions fieldset > legend { font-size: 13px; }
+body.controller-roles:has(#admin-menu) #content #permissions > br { display: none; }
+body.controller-roles:has(#admin-menu) #content #permissions > a { font-size: 13px; }
+body.controller-roles #role-permissions-trackers { margin-top: 24px; }
+
+/* role edit: 80+ permissions → light checkbox rows instead of bordered tiles */
+body.controller-roles:has(#admin-menu) #content #permissions fieldset:has(> label.floating) {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0;
+}
+body.controller-roles:has(#admin-menu) #content #permissions label.floating,
+body.controller-roles:has(#admin-menu) #content #permissions label.floating:has(input:checked) {
+  min-height: 32px;
+  padding: 4px 8px;
+  border-color: transparent;
+  background: transparent;
+  font-size: 13px;
+}
+body.controller-roles:has(#admin-menu) #content #permissions label.floating:hover { background: var(--gb-surface-2); border-color: transparent; }
+body.controller-roles:has(#admin-menu) #content #permissions > fieldset:first-child { border-top: 1px solid var(--gb-border); padding-top: 16px; }
+body.controller-roles:has(#admin-menu) #content form > h3 {
+  margin: 28px 0 4px;
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-bold);
+}
+/* メンバーの管理: radio choices + indented role checkboxes as a vertical list */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block > input[type=radio]) { display: block; padding-left: var(--gb-t-col); }
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block > input[type=radio]) > label:first-child:not(.block) {
+  float: left;
+  width: var(--gb-t-label);
+  margin-left: calc(-1 * var(--gb-t-col));
+}
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block > input[type=radio]) > label.block {
+  display: flex;
+  width: fit-content;
+  min-height: 30px;
+}
+
+/* =====================================================================
+   9. Admin tabs pages (custom fields, users edit, settings) — tabs sit flush
+   ===================================================================== */
+body:has(#admin-menu) #content .tabs + .tab-content > form > .box.tabular:first-child,
+body:has(#admin-menu) #content .tab-content > .box.tabular:first-child { padding-top: 4px; }
+
+/* =====================================================================
+   10. Narrow screens: Pattern T falls back to stacked; admin nav on top
+   ===================================================================== */
+@media screen and (max-width: 900px) {
+  body:has(#sidebar #admin-menu) #main { flex-direction: column; align-items: stretch; }
+  body:has(#sidebar #admin-menu) #sidebar,
+  body:has(#sidebar #admin-menu) #main.collapsedsidebar #sidebar {
+    position: static;
+    width: auto;
+    flex: none;
+    max-height: none;
+    margin: 12px 12px 0;
+  }
+  body:has(#sidebar #admin-menu) #sidebar #admin-menu ul { display: flex; flex-wrap: wrap; gap: 4px; }
+  body:has(#sidebar #admin-menu) #sidebar #admin-menu li { margin: 0; }
+  body:has(#sidebar #admin-menu) #sidebar #admin-menu li a { height: 32px; padding: 0 10px; }
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p,
+  body:has(#admin-menu) #content .splitcontent :is(.tabular, fieldset.box) p { padding-left: 0; }
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > label:first-child:not(.hidden-for-sighted),
+  body:has(#admin-menu) #content .splitcontent :is(.tabular, fieldset.box) p > label:first-child:not(.hidden-for-sighted) {
+    float: none;
+    width: auto;
+    margin: 0 0 6px;
+    padding: 0;
+    min-height: 0;
+  }
+  body:has(#admin-menu) #content .splitcontent { flex-direction: column; gap: 0; }
+  /* single boolean rows: checkbox + label on one line */
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label:first-child + input[type=hidden] + input[type=checkbox]):not(:has(> select, > textarea, > input[type=text])) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+  }
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label:first-child + input[type=hidden] + input[type=checkbox]):not(:has(> select, > textarea, > input[type=text])) > input[type=checkbox] { order: -1; margin: 0; }
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label:first-child + input[type=hidden] + input[type=checkbox]):not(:has(> select, > textarea, > input[type=text])) > label:first-child {
+    flex: 1;
+    margin: 0;
+    font-weight: var(--gb-fw-medium);
+  }
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label:first-child + input[type=hidden] + input[type=checkbox]):not(:has(> select, > textarea, > input[type=text])) > em.info { flex-basis: 100%; margin-left: 24px; }
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block) { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block) > label:first-child:not(.block) { grid-column: 1 / -1; grid-row: auto; margin-bottom: 4px; }
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block) > :not(label):not(input) { grid-column: 1 / -1; }
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block > input[type=radio]) { padding-left: 0; }
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block > input[type=radio]) > label:first-child:not(.block) { float: none; width: auto; margin: 0 0 6px; }
+  body:has(#admin-menu) #content fieldset.box > #list-definition,
+  body:has(#admin-menu) #content fieldset.box > div:has(> .query-columns),
+  body:has(#admin-menu) #content fieldset.box > div > div:has(> .query-columns) { padding-left: 0; }
+  body.controller-projects.action-settings #content #project_modules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* role edit: per-tracker permission matrix — centred checkbox columns */
+body.controller-roles:has(#admin-menu) #content #role-permissions-trackers table.list :is(th, td):not(:first-child) { text-align: center; }
+body.controller-roles:has(#admin-menu) #content #role-permissions-trackers table.list td:first-child { white-space: nowrap; }
+
+/* core prints desktop + mobile copies of some submits (.mobile-hide / .mobile-show, e.g. tracker edit);
+   the generic button rule would otherwise display both on desktop */
+@media screen and (min-width: 900px) {
+  body:has(#admin-menu) #content .mobile-show { display: none; }
+}
+@media screen and (max-width: 899px) {
+  body:has(#admin-menu) #content .mobile-hide { display: none; }
+}
+
+/* =====================================================================
+   11. Review round 1 fixes
+   ===================================================================== */
+
+/* --- 11.1 Settings tabs: 12 tabs on /settings (and 10 on project settings) wrap onto a second
+       row instead of scrolling out of sight; the selected tab is always visible --- */
+body.controller-settings #content .tabs,
+body.controller-projects.action-settings #content .tabs { overflow: visible; }
+body.controller-projects.action-settings #content .tabs ul {
+  flex-wrap: wrap;
+  width: auto;
+  row-gap: 0;
+}
+/* /settings (12 tabs): one underline tab row that scrolls sideways (DESIGN §3.8), like project settings on phones */
+body.controller-settings #content .tabs ul {
+  flex-wrap: nowrap;
+  width: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+body.controller-settings #content .tabs ul::-webkit-scrollbar { display: none; }
+body.controller-settings #content .tabs ul { column-gap: 2px; }
+body.controller-settings #content .tabs ul > li { flex: 0 0 auto; }
+body.controller-settings #content .tabs ul > li > a { padding-left: 8px; padding-right: 8px; }
+body.controller-settings #content .tabs .tabs-buttons { display: none; }
+/* desktop: next to the admin nav card the body is ~727px at 1273px. The 12 tabs stay ONE row (L7): compact
+   spacing (13px, padding 0 6px, like the issue-history tabs on narrow widths) brings them to ~775px; the rest
+   scrolls sideways with a fade on the side that still has tabs (gb-tabs-more-left / -right, 90-admin-settings.js).
+   Phones keep the scrolling row with the right-edge fade from 95-responsive. */
+@media screen and (min-width: 900px) {
+  body.controller-settings #content .tabs ul { column-gap: 0; }
+  body.controller-settings #content .tabs ul > li > a,
+  body.controller-settings #content .tabs ul > li > a:is(:link, :visited) { padding-left: 6px; padding-right: 6px; font-size: 13px; }
+  body.controller-settings #content .tabs ul.gb-tabs-more-right {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  }
+  body.controller-settings #content .tabs ul.gb-tabs-more-left {
+    -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent);
+  }
+  body.controller-settings #content .tabs ul.gb-tabs-more-left.gb-tabs-more-right {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+  }
+}
+
+/* --- 11.2 Project settings tables: scroll inside the tab on narrow screens --- */
+@media screen and (max-width: 1100px) {
+  body.controller-projects.action-settings #content .tab-content:has(> table.list, > .autoscroll, > form table.list) {
+    overflow-x: auto;
+  }
+  body.controller-projects.action-settings #content .tab-content table.list :is(th, td) { white-space: nowrap; }
+  body.controller-projects.action-settings #content .tab-content table.list td.description { white-space: normal; min-width: 160px; }
+}
+
+/* --- 11.3 Column chooser (利用できる項目 → ← 選択された項目 ↑↓): a 4-track grid --- */
+body:has(#admin-menu) #content #list-definition { margin: 0 0 12px; width: auto; }
+body:has(#admin-menu) #content #list-definition > div:has(> .query-columns) {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) 36px minmax(180px, 220px) 36px;
+  column-gap: 8px;
+  row-gap: 0;
+  align-items: stretch;
+  justify-content: start;
+  margin: 0;
+  padding: 0; /* the label-column indent lives on #list-definition only */
+}
+body:has(#admin-menu) #content #list-definition .query-columns { min-width: 0; }
+body:has(#admin-menu) #content #list-definition .query-columns label {
+  display: block;
+  height: 20px;
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  line-height: 20px;
+  color: var(--gb-text-2);
+}
+body:has(#admin-menu) #content #list-definition .query-columns select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  height: 200px;
+  box-sizing: border-box;
+}
+body:has(#admin-menu) #content #list-definition > div > .buttons {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding-top: 26px; /* label height: centre the buttons on the list box */
+  margin: 0;
+}
+body:has(#admin-menu) #content #list-definition > div > .buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-width: 0;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+}
+body:has(#admin-menu) #content #list-definition > div > .buttons button svg { width: 16px; height: 16px; margin: 0; }
+/* the row after the chooser (合計 / デフォルトのクエリ) gets air */
+body:has(#admin-menu) #content #list-definition + p { margin-top: 12px; }
+
+/* inline checkbox groups in the control column (休業日, 合計): a tidy grid next to the label */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.inline > input[type=checkbox]) {
+  display: grid;
+  grid-template-columns: var(--gb-t-label) repeat(auto-fill, minmax(120px, max-content)); /* label + 16px gap = the control column */
+  column-gap: 16px;
+  row-gap: 0;
+  align-items: center;
+  padding-left: 0;
+}
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.inline > input[type=checkbox])::after { display: none; }
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.inline > input[type=checkbox]) > label:first-child:not(.inline) {
+  grid-column: 1;
+  grid-row: 1 / span 10;
+  align-self: start;
+  margin: 0;
+  float: none;
+}
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.inline > input[type=checkbox]) > label.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  margin: 0 !important; /* beats core `.tabular label.inline { margin-left: 5px !important }` and the global 16px gutter */
+  white-space: nowrap;
+}
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.inline > input[type=checkbox]) > label.inline input { margin: 0; }
+/* 休業日: seven days on one row; four per row when the card is narrow */
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> input[type=hidden][name="settings[non_working_week_days][]"]) {
+  grid-template-columns: var(--gb-t-label) repeat(7, max-content);
+}
+@media screen and (max-width: 1180px) {
+  body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> input[type=hidden][name="settings[non_working_week_days][]"]) {
+    grid-template-columns: var(--gb-t-label) repeat(4, max-content);
+  }
+}
+
+/* --- 11.4 Checkbox / radio lists aligned to the control column, 28px rows --- */
+/* split columns (tracker / custom field edit) use a narrower label column: the checkbox grid follows it */
+body:has(#admin-menu) #content .splitcontent :is(.tabular, fieldset.box) p:has(> label.block) {
+  grid-template-columns: calc(var(--gb-t-col) - 12px) repeat(auto-fill, minmax(140px, 180px)); /* label + 12px gap = the control column */
+  padding-left: 0;
+}
+body:has(#admin-menu) #content .splitcontent :is(.tabular, fieldset.box) p:has(> label.block) > label:first-child:not(.block) {
+  width: auto;
+  margin: 0;
+  padding-right: 12px;
+}
+body:has(#admin-menu) #content .splitcontent :is(.tabular, fieldset.box) p > label.block:not(:first-child),
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > label.block:not(:first-child) {
+  min-height: 28px;
+  margin: 0 !important; /* beats the global label.block 16px right gutter (!important); the grid gap spaces columns */
+  padding: 0;
+  gap: 8px;
+}
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block) { column-gap: 12px; grid-template-columns: calc(var(--gb-t-col) - 12px) repeat(auto-fill, minmax(160px, 200px)); }
+/* nested project lists (tracker → プロジェクト, custom field → プロジェクト) */
+body:has(#admin-menu) #content fieldset.box ul.projects { margin: 0; padding: 0; list-style: none; }
+body:has(#admin-menu) #content fieldset.box ul.projects ul.projects { padding-left: 24px; }
+body:has(#admin-menu) #content fieldset.box ul.projects li { margin: 0; padding: 0; list-style: none; }
+body:has(#admin-menu) #content fieldset.box ul.projects li > div { margin: 0; padding: 0; }
+body:has(#admin-menu) #content fieldset.box ul.projects label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin: 0;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-normal);
+  line-height: var(--gb-lh-tight);
+  cursor: pointer;
+}
+body:has(#admin-menu) #content fieldset.box ul.projects label input { flex: none; margin: 0; }
+/* custom field → トラッカー: bare checkbox + label pairs → two-track grid of 28px rows */
+body:has(#admin-menu) #content fieldset#custom_field_tracker_ids {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  grid-auto-rows: minmax(28px, auto);
+  column-gap: 8px;
+  align-items: center;
+}
+body:has(#admin-menu) #content fieldset#custom_field_tracker_ids > legend { grid-column: 1 / -1; }
+body:has(#admin-menu) #content fieldset#custom_field_tracker_ids > input[type=checkbox] { margin: 0; }
+body:has(#admin-menu) #content fieldset#custom_field_tracker_ids > label {
+  float: none;
+  width: auto;
+  margin: 0;
+  font-weight: var(--gb-fw-normal);
+  line-height: var(--gb-lh-tight);
+  cursor: pointer;
+}
+/* custom field → 表示 (role visibility) radio + role checkboxes */
+body:has(#admin-menu) #content fieldset.box.tabular > label.block { min-height: 28px; gap: 8px; }
+body:has(#admin-menu) #content fieldset.box.tabular > label.block.custom_field_role { padding-left: 24px !important; } /* beats the inline 2em indent so it lines up with the 16px radio + 8px gap */
+/* 全プロジェクト向け: a single boolean row in the projects box, on the same grid as the other booleans */
+body:has(#admin-menu) #content fieldset.box:not(.tabular) > p:has(> #custom_field_is_for_all) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  margin: 0 0 4px;
+  padding: 0;
+}
+body:has(#admin-menu) #content fieldset.box:not(.tabular) > p:has(> #custom_field_is_for_all) > label:first-child {
+  order: 2;
+  float: none;
+  width: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  font-weight: var(--gb-fw-medium);
+  cursor: pointer;
+}
+body:has(#admin-menu) #content fieldset.box:not(.tabular) > p:has(> #custom_field_is_for_all) > input[type=checkbox] { order: 1; margin: 0; }
+body:has(#admin-menu) #content #custom_field_project_ids { margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--gb-border); }
+
+/* /custom_fields/new: object type radios as 32px selectable rows (labels carry an inline display:block) */
+body.controller-custom_fields.action-new #content form > .box > p:has(> label > input[type=radio]) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 480px;
+  margin: 0 0 16px;
+  padding: 0;
+}
+body.controller-custom_fields.action-new #content form > .box > p > label:has(> input[type=radio]) {
+  min-height: 32px;
+  margin: 0;
+  padding: 0 12px;
+  border: 1px solid var(--gb-border);
+  border-radius: 6px;
+  background: var(--gb-surface);
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-normal);
+  line-height: 30px;
+  cursor: pointer;
+  transition: background-color var(--gb-dur-1) var(--gb-ease), border-color var(--gb-dur-1) var(--gb-ease);
+}
+body.controller-custom_fields.action-new #content form > .box > p > label:has(> input[type=radio]):hover { border-color: var(--gb-primary-border); background: var(--gb-primary-softer); }
+body.controller-custom_fields.action-new #content form > .box > p > label:has(> input:checked) { border-color: var(--gb-primary-border); background: var(--gb-primary-softer); font-weight: var(--gb-fw-medium); }
+body.controller-custom_fields.action-new #content form > .box > p > label > input[type=radio] { margin: 0 8px 0 0; vertical-align: -3px; }
+body.controller-custom_fields.action-new #content form > .box > p:first-child { margin: 0 0 12px; padding: 0; font-weight: var(--gb-fw-bold); }
+
+/* --- 11.5 Edit forms with two columns (user / tracker / custom field): one save row under both columns --- */
+@media screen and (min-width: 900px) {
+  body:has(#admin-menu) #content form:has(> .mobile-show) .splitcontentleft > .mobile-hide,
+  body:has(#admin-menu) #content form:has(> .mobile-show) .splitcontentleft > input.mobile-hide { display: none; }
+  body:has(#admin-menu) #content form > p.mobile-show {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 0;
+    padding: 16px 0 0;
+    border-top: 1px solid var(--gb-border);
+  }
+  body:has(#admin-menu) #content form > input.mobile-show { display: inline-flex; margin-top: 16px; }
+  body:has(#admin-menu) #content form:has(> input.mobile-show) > .splitcontent { padding-bottom: 8px; border-bottom: 1px solid var(--gb-border); }
+}
+body:has(#admin-menu) #content form > p.mobile-show input[type=submit] { margin: 0; }
+
+/* --- 11.6 Workflow matrix + selector row --- */
+body:has(#admin-menu) #content table.transitions thead :is(th, td) { white-space: nowrap; min-width: 72px; }
+body:has(#admin-menu) #content table.fields_permissions thead :is(th, td) { white-space: nowrap; }
+body.controller-workflows #content > form > p { align-items: center; }
+body.controller-workflows #content > form > p > label:not(:has(input[type=checkbox])) { display: inline-flex; align-items: center; gap: 6px; }
+body.controller-workflows #content > form > p select:not([multiple]),
+body.controller-workflows #content > form > p input[type=submit] {
+  height: var(--gb-control-h);
+  box-sizing: border-box;
+  margin: 0;
+  vertical-align: middle;
+}
+body.controller-workflows #content > form > p input[type=submit] { min-height: 0; padding-top: 0; padding-bottom: 0; line-height: 1; }
+
+/* --- 11.7 Matrices: the scroll box never exceeds the viewport, so 保存 stays on screen --- */
+body:has(#admin-menu) #content .autoscroll:has(> table.permissions),
+body:has(#admin-menu) #content .autoscroll:has(> table.transitions),
+body:has(#admin-menu) #content .autoscroll:has(> table.fields_permissions) {
+  max-height: calc(100vh - 260px);
+  min-height: 240px;
+}
+
+/* --- 11.8 New member modal: list hugs its content, pager right below, roles section separated --- */
+#ajax-modal #principals_for_new_member .objects-selection {
+  height: auto;
+  min-height: 0;
+  max-height: 240px;
+  margin: 0;
+  overflow: auto;
+}
+#ajax-modal #principals_for_new_member #principals label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin: 0;
+  font-weight: var(--gb-fw-normal);
+}
+#ajax-modal #principals_for_new_member #principals label input { margin: 0; }
+#ajax-modal #principals_for_new_member #principals label .avatar { margin: 0; }
+#ajax-modal #principals_for_new_member .pagination {
+  display: block;
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--gb-text-2);
+}
+#ajax-modal fieldset.box:has(#principals_for_new_member) + fieldset.box {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--gb-border);
+}
+#ajax-modal .roles-selection { display: flex; flex-wrap: wrap; gap: 0 16px; }
+#ajax-modal .roles-selection label { display: inline-flex; align-items: center; gap: 8px; width: auto; min-width: 180px; min-height: 28px; font-weight: var(--gb-fw-normal); }
+
+/* --- 11.9 Empty admin lists (e.g. /auth_sources): empty state instead of a header-only table --- */
+body:has(#admin-menu) #content table.list:not(:has(tbody tr)),
+body:has(#admin-menu) #content table.list:not(:has(tbody tr)) ~ span.pagination { display: none; }
+
+/* --- 11.10 Table headers: every header cell (empty ones too) shares the same band --- */
+body:has(#admin-menu) #content table.list > thead > tr > th,
+body.controller-projects.action-settings #content table.list > thead > tr > th {
+  background: var(--gb-surface-2);
+  border: 0;
+  border-bottom: 1px solid var(--gb-border);
+}
+body:has(#admin-menu) #content table.list > thead > tr > th:empty { min-width: 40px; }
+/* settings > リポジトリ: keyword table fits its card instead of poking out on the right */
+body.controller-settings #content table#commit-keywords { width: 100%; max-width: 100%; table-layout: auto; }
+body.controller-settings #content table#commit-keywords td { padding: 6px 8px; }
+body.controller-settings #content table#commit-keywords td select,
+body.controller-settings #content table#commit-keywords td input[type=text] { width: 100%; min-width: 0; max-width: 240px; box-sizing: border-box; }
+body.controller-settings #content table#commit-keywords td.buttons,
+body.controller-settings #content table#commit-keywords th:last-child { width: 40px; }
+body.controller-settings #content fieldset.enabled_scm :is(th, td) { text-align: left; }
+
+/* ≤900px: the grids above fall back to stacked (label row on top) like the rest of Pattern T */
+@media screen and (max-width: 900px) {
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.block),
+  body:has(#admin-menu) #content .splitcontent :is(.tabular, fieldset.box) p:has(> label.block) { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  body:has(#admin-menu) #content .splitcontent :is(.tabular, fieldset.box) p:has(> label.block) > label:first-child:not(.block) { grid-column: 1 / -1; grid-row: auto; margin-bottom: 4px; }
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.inline > input[type=checkbox]),
+  body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> input[type=hidden][name="settings[non_working_week_days][]"]) { grid-template-columns: repeat(auto-fill, minmax(110px, max-content)); }
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.inline > input[type=checkbox]) > label:first-child:not(.inline) { grid-column: 1 / -1; grid-row: auto; margin-bottom: 4px; }
+  body:has(#admin-menu) #content #list-definition > div:has(> .query-columns) { grid-template-columns: minmax(120px, 1fr) 36px minmax(120px, 1fr) 36px; }
+}
+/* the Pattern T clearfix ::after would be a flex item (and add a gap) in the 全プロジェクト向け row */
+body:has(#admin-menu) #content fieldset.box:not(.tabular) > p:has(> #custom_field_is_for_all)::after { display: none; }
+/* /roles/permissions: title + filter above, 「すべてにチェック」 links + 保存 below — all inside one screen */
+body.controller-roles.action-permissions:has(#admin-menu) #content .autoscroll:has(> table.permissions) { max-height: calc(100vh - 330px); }
+/* the principals list: a grid instead of core's multi-column flow (which split a row across columns) */
+#ajax-modal #principals_for_new_member .objects-selection > div#principals {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0 16px;
+  column-count: auto;
+  column-width: auto;
+  column-rule: none;
+  columns: auto;
+}
+
+/* =====================================================================
+   Review round 2 fixes
+   ===================================================================== */
+/* settings > リポジトリ: the keyword table's action header is a table cell (global .buttons is flex) */
+body.controller-settings #content table#commit-keywords thead th,
+body.controller-settings #content table#commit-keywords thead th.buttons {
+  display: table-cell;
+  height: 36px;
+  padding: 0 8px;
+  vertical-align: middle;
+  background: var(--gb-surface-2);
+  border: 0;
+  border-bottom: 1px solid var(--gb-border);
+}
+/* settings > リポジトリ: SCM table — the 「available」 tick sits in front of the command; align the header with it */
+body.controller-settings #content fieldset.enabled_scm td > span.icon:empty { display: none; }
+
+/* submit rows (作成 / 連続作成 …): spacing on the row, buttons on one line */
+body:has(#admin-menu) #content form > p:has(> input[type=submit]):not(:has(> label, > select, > textarea, > input[type=text])),
+body.controller-projects.action-settings #content .tab-content form > p:has(> input[type=submit]):not(:has(> label, > select, > textarea, > input[type=text])) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+body:has(#admin-menu) #content form > p:has(> input[type=submit]):not(:has(> label, > select, > textarea, > input[type=text])) > input[type=submit],
+body.controller-projects.action-settings #content .tab-content form > p:has(> input[type=submit]):not(:has(> label, > select, > textarea, > input[type=text])) > input[type=submit] { margin: 0; }
+
+/* project settings tables: body text starts under the header label (12px both) */
+body.controller-projects.action-settings #content #tab-content-versions table.list :is(th, td),
+body.controller-projects.action-settings #content #tab-content-members table.list :is(th, td) { padding-left: 12px; }
+body.controller-projects.action-settings #content #tab-content-versions table.list.versions td:is(.tick, .date, .status, .sharing) { text-align: left; }
+body.controller-projects.action-settings table.list.members td.name > span.icon {
+  padding-left: 0;
+  background: none;
+}
+
+/* forums tab: flat table like the sibling settings tabs (§2.5) */
+body.controller-projects.action-settings #content #tab-content-boards .table-list {
+  border: 0;
+  border-radius: 0;
+}
+body.controller-projects.action-settings #content #tab-content-boards .table-list-header { border-radius: var(--gb-radius-sm) var(--gb-radius-sm) 0 0; }
+body.controller-projects.action-settings #content #tab-content-boards .sort-level > div:last-child > .table-list-row { border-bottom: 1px solid var(--gb-border); }
+
+/* small inline filter submit (適用): label vertically centred in the 28px button */
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) input[type=submit],
+body:has(#admin-menu) #content > form#query_form_simple > fieldset input[type=submit],
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset input[type=submit] {
+  height: var(--gb-control-h-sm);
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: calc(var(--gb-control-h-sm) - 2px);
+}
+
+/* field permissions: selects line up across columns whether or not a » copy link follows */
+body:has(#admin-menu) #content table.fields_permissions tbody td {
+  vertical-align: top;
+  padding-top: 6px;
+}
+body:has(#admin-menu) #content table.fields_permissions tbody td:first-child { padding-top: 12px; }
+body:has(#admin-menu) #content table.fields_permissions tbody tr.group td { vertical-align: middle; padding-top: 0; }
+
+/* unit suffixes (KB, 日) centred on their 36px input */
+body.controller-settings:has(#admin-menu) #content .tabular p:has(> #settings_attachment_max_size, > #settings_bulk_download_max_size, > #settings_activity_days_default) { line-height: 36px; }
+body.controller-settings:has(#admin-menu) #content .tabular p:has(> #settings_attachment_max_size, > #settings_bulk_download_max_size, > #settings_activity_days_default) > :is(label, em) { line-height: 1.5; }
+
+/* 公開 / メンバーを継承: help text starts under the label, not further in */
+body.controller-projects.action-settings #tab-content-info .tabular p:has(> input[type=checkbox]) > em.info { padding-left: 0; background: none; }
+
+/* admin lists: the row name is the way into the edit form — show it as a link */
+body:has(#admin-menu) #content table.list:not(.projects) td.name a {
+  color: var(--gb-primary-strong);
+  text-decoration: none;
+}
+body:has(#admin-menu) #content table.list:not(.projects) td.name a:hover {
+  color: var(--gb-primary-strong);
+  text-decoration: underline;
+}
+body:has(#admin-menu) #content tr.builtin td.name a { color: var(--gb-primary-strong); }
+
+/* /issue_statuses: the workflow warning stays on one line so every row keeps the same height */
+body.controller-issue_statuses:has(#admin-menu) #content table.list td > span.icon-warning {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* the warning column takes the free width; on narrow screens the text is cut with … instead of wrapping */
+body.controller-issue_statuses:has(#admin-menu) #content table.list > thead > tr > th:nth-child(4) { width: 100%; }
+body.controller-issue_statuses:has(#admin-menu) #content table.list > tbody > tr > td:nth-child(4) { max-width: 0; }
+/* no status has a description: the 説明 column hugs its header and the warning starts right after it */
+body.controller-issue_statuses:has(#admin-menu) #content table.list:not(:has(td.description:not(:empty))) td.description { min-width: 0; }
+body.controller-issue_statuses:has(#admin-menu) #content table.list:not(:has(td.description:not(:empty))) > thead > tr > th:nth-child(3) { width: 1%; }
+
+/* /admin/projects: same cell styles as the /projects list view (dark name, mono identifier, muted summary) */
+body:has(#admin-menu) #content table.list.projects td.name a { color: var(--gb-text); font-weight: var(--gb-fw-medium); text-decoration: none; }
+body:has(#admin-menu) #content table.list.projects td.name a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+body:has(#admin-menu) #content table.list.projects td.identifier { font-family: var(--gb-font-mono); font-size: 13px; color: var(--gb-text-2); }
+body:has(#admin-menu) #content table.list.projects td.short_description { font-size: 13px; color: var(--gb-text-2); }
+/* empty 説明: the same 「–」 in --gb-muted as on /projects?display_type=list */
+body:has(#admin-menu) #content table.list.projects td.short_description.gb-cell-empty::before { color: var(--gb-muted); }
+
+/* =====================================================================
+   Review round 3 fixes (owner audit: every admin + project settings page, 1273px and 375px)
+   ===================================================================== */
+
+/* --- R3.1 /admin: titled groups of borderless link tiles (no lone card on a half-empty last row) --- */
+body.controller-admin.action-index #admin-index .gb-admin-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+body.controller-admin.action-index #admin-index .gb-admin-group__title {
+  margin: 0 0 8px;
+  padding: 0 0 8px;
+  border-bottom: 1px solid var(--gb-border);
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  line-height: var(--gb-lh-tight);
+  color: var(--gb-text-2);
+}
+body.controller-admin.action-index #admin-index #admin-menu .gb-admin-group ul {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 4px 12px;
+}
+body.controller-admin.action-index #admin-index #admin-menu .gb-admin-group li a {
+  min-height: 64px;
+  padding: 10px 12px;
+  border-color: transparent;
+}
+body.controller-admin.action-index #admin-index #admin-menu .gb-admin-group li a svg.icon-svg {
+  width: 20px;
+  height: 20px;
+}
+body.controller-admin.action-index #admin-index #admin-menu .gb-admin-group li a { grid-template-columns: 40px 1fr; column-gap: 12px; }
+body.controller-admin.action-index #admin-index #admin-menu .gb-admin-group li a:hover { box-shadow: none; }
+
+/* --- R3.3 Pattern T rows that show a plain value (user edit: 二要素認証 無効) sit on the label's line --- */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label:first-child:last-child)::before {
+  content: "";
+  display: inline-block;
+  height: 36px;
+  vertical-align: middle;
+}
+@media screen and (max-width: 900px) {
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label:first-child:last-child)::before { display: none; }
+}
+
+/* --- R3.4 Help text starts exactly at the control column (the global stacked rule indents it 24px) --- */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > em.info { padding-left: 0; background: none; }
+/* a section note on its own (認証 > セッション有効期間: 「警告: …」) also belongs to the control column */
+body:has(#admin-menu) #content fieldset.box:not(.tabular):not(:has(> p > label:first-child:not(.hidden-for-sighted))) > p:has(> em.info:only-child) {
+  margin: 4px 0 0;
+  padding-left: var(--gb-t-col);
+}
+@media screen and (max-width: 900px) {
+  body:has(#admin-menu) #content fieldset.box:not(.tabular):not(:has(> p > label:first-child:not(.hidden-for-sighted))) > p:has(> em.info:only-child) { padding-left: 0; }
+}
+
+/* --- R3.5 One right edge for every control: plain textareas and the デフォルトのクエリ select end at 480px like inputs --- */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > textarea { max-width: 480px; }
+body:has(#admin-menu) #content fieldset.box p:has(> select[id$="default_query"], > select[id*="query"]) > select { width: 100%; max-width: 480px; }
+
+/* --- R3.6 Filter forms on admin lists are block boxes (core's inline <form> added a 22px blank line) --- */
+body:has(#admin-menu) #content > form:has(> fieldset) { display: block; }
+
+/* --- R3.7 「クリア」 next to 「適用」 is the same bordered sm button as on the issue / project query forms --- */
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > a.icon-reload,
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset > a.icon-reload {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--gb-control-h-sm);
+  box-sizing: border-box;
+  padding: 0 10px 0 8px;
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  color: var(--gb-text);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  text-decoration: none;
+}
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > a.icon-reload:hover,
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset > a.icon-reload:hover {
+  border-color: var(--gb-primary);
+  background: var(--gb-surface-2);
+  color: var(--gb-primary-strong);
+}
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > a.icon-reload svg,
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset > a.icon-reload svg { width: 16px; height: 16px; }
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > a.icon-reload svg use,
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset > a.icon-reload svg use { stroke: currentColor; }
+
+/* --- R3.8 Row actions keep fixed slots: rows without 削除 (built-in roles) keep コピー in the same column --- */
+body:has(#admin-menu) #content table.list td.buttons > a.icon-del,
+body.controller-projects.action-settings #content table.list td.buttons > a.icon-del {
+  min-width: 62px;
+  box-sizing: border-box;
+}
+body:has(#admin-menu) #content table.list:has(td.buttons > a.icon-del) td.buttons:not(:has(> a.icon-del)) > a:last-of-type { margin-right: 68px; } /* 62px 削除 + 2px margin + the 4px word space between inline links */
+
+/* --- R3.9 Boolean columns (✓ / – / checkbox): header and cells on one centred axis (gb-col-bool set by JS) --- */
+body:has(#admin-menu) #content table.list > thead > tr > th.gb-col-bool,
+body:has(#admin-menu) #content table.list td.gb-col-bool,
+body.controller-projects.action-settings #content table.list > thead > tr > th.gb-col-bool,
+body.controller-projects.action-settings #content table.list td.gb-col-bool {
+  width: 1%;
+  min-width: 72px;
+  padding-left: 12px;
+  padding-right: 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+body:has(#admin-menu) #content table.list > thead > tr > th.gb-col-bool > a.icon-checked,
+body.controller-projects.action-settings #content table.list > thead > tr > th.gb-col-bool > a.icon-checked { margin-right: 2px; }
+
+/* --- R3.10 /enumerations: section title + 「新しい値」 on one row, table right below --- */
+body.controller-enumerations.action-index #content .gb-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 32px 0 12px;
+}
+body.controller-enumerations.action-index #content > h2 + .gb-section-head { margin-top: 8px; }
+body.controller-enumerations.action-index #content .gb-section-head > h3 { margin: 0; }
+body.controller-enumerations.action-index #content .gb-section-head > p { margin: 0; }
+body.controller-enumerations.action-index #content .gb-section-head > p > a.icon-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--gb-control-h-sm);
+  padding: 0 10px 0 8px;
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  color: var(--gb-text);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  text-decoration: none;
+}
+body.controller-enumerations.action-index #content .gb-section-head > p > a.icon-add:hover {
+  border-color: var(--gb-primary);
+  background: var(--gb-surface-2);
+  color: var(--gb-primary-strong);
+}
+body.controller-enumerations.action-index #content .gb-section-head > p > a.icon-add svg { width: 16px; height: 16px; }
+body.controller-enumerations.action-index #content .gb-section-head > p > a.icon-add svg use { stroke: currentColor; }
+
+/* --- R3.11 Tab-level create actions (user / group edit > プロジェクト「プロジェクトの追加」) look like
+       project settings tabs: primary sm button at the top right of the tab --- */
+body:has(#admin-menu) #content .tab-content > p:has(> a.icon-add:only-child) {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 12px;
+  padding: 0;
+}
+body:has(#admin-menu) #content .tab-content > p:has(> a.icon-add:only-child) > a.icon-add {
+  height: 32px;
+  padding: 0 14px 0 10px;
+  border: 0;
+  background: var(--gb-primary-strong);
+  color: #fff;
+}
+body:has(#admin-menu) #content .tab-content > p:has(> a.icon-add:only-child) > a.icon-add:hover { background: var(--gb-primary-hover); color: #fff; }
+body:has(#admin-menu) #content .tab-content > p:has(> a.icon-add:only-child) > a.icon-add svg use { stroke: #fff; }
+body:has(#admin-menu) #content table.list.memberships td.roles { width: 40%; }
+
+/* --- R3.12 Project settings: module / tracker tiles end on the form's right edge (the global 16px
+       right margin of label.floating left a gap); the section divider keeps the form width --- */
+body.controller-projects.action-settings #content #project_modules,
+body.controller-projects.action-settings #content #project_trackers {
+  margin-right: -16px;
+  border-top: 0;
+  background: linear-gradient(var(--gb-border), var(--gb-border)) left top / calc(100% - 16px) 1px no-repeat;
+}
+body.controller-projects.action-settings #content #project_trackers { background: none; }
+body.controller-projects.action-settings #content #project_trackers > .contextual { right: 16px; }
+
+/* --- R3.13 Project settings > フォーラム: same row height and name style as the sibling tabs --- */
+body.controller-projects.action-settings #content #tab-content-boards .table-list-row { min-height: 48px; }
+body.controller-projects.action-settings #content #tab-content-boards .table-list .table-list-cell { padding-top: 6px; padding-bottom: 6px; line-height: var(--gb-lh); }
+/* the global .buttons block margins (≈13px / 18px) made each forum row 59–71px tall */
+body.controller-projects.action-settings #content .table-list .table-list-cell.buttons,
+body:has(#admin-menu) #content .table-list .table-list-cell.buttons { margin: 0 0 0 auto; padding-top: 0; padding-bottom: 0; }
+body.controller-projects.action-settings #content #tab-content-boards .table-list-cell.name a {
+  color: var(--gb-primary-strong);
+  font-weight: var(--gb-fw-medium);
+}
+body.controller-projects.action-settings #content #tab-content-boards .table-list-cell.name a:hover { text-decoration: underline; }
+body.controller-projects.action-settings #content #tab-content-boards .table-list-header .table-list-cell { flex: 1 1 auto; }
+body.controller-projects.action-settings #content #tab-content-boards .table-list-header .table-list-cell.name { flex: 0 0 30%; }
+
+/* --- R3.14 Loose action links become buttons: /admin/plugins 「アップデートを確認」,
+       /roles/permissions 「すべてにチェックをつける | すべてのチェックを外す」 --- */
+body.controller-admin.action-plugins #content #check-for-updates,
+body:has(#admin-menu) #content form p:has(> a[onclick^="checkAll"]) > a {
+  display: inline-flex;
+  align-items: center;
+  height: var(--gb-control-h-sm);
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  color: var(--gb-text);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  text-decoration: none;
+}
+body.controller-admin.action-plugins #content #check-for-updates:hover,
+body:has(#admin-menu) #content form p:has(> a[onclick^="checkAll"]) > a:hover {
+  border-color: var(--gb-primary);
+  background: var(--gb-surface-2);
+  color: var(--gb-primary-strong);
+}
+body:has(#admin-menu) #content form p:has(> a[onclick^="checkAll"]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 4px;
+  font-size: 0; /* hides the bare 「|」 separator between the two links */
+}
+
+/* --- R3.15 Phones: the user edit action bar fits one row (削除 no longer wraps alone);
+       the workflow selector lines its selects up on a label column --- */
+@media screen and (max-width: 600px) {
+  body.controller-users:has(#admin-menu) #content > .contextual {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 0;
+    width: 100%;
+    margin: 0 0 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  body.controller-users:has(#admin-menu) #content > .contextual > a { flex: 0 0 auto; padding-left: 8px; padding-right: 8px; }
+  body.controller-users:has(#admin-menu) #content > .contextual > a:first-child { padding-left: 0; }
+  body.controller-workflows #content > form > p { display: flex; flex-wrap: wrap; gap: 10px 8px; }
+  body.controller-workflows #content > form > p > label:not(:has(input[type=checkbox])) {
+    display: grid;
+    grid-template-columns: 6em minmax(0, 1fr) 28px;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 100%;
+  }
+  body.controller-workflows #content > form > p > label:not(:has(input[type=checkbox])) select { width: 100%; min-width: 0; }
+  body.controller-workflows #content > form > p > label:has(input[type=checkbox]) { order: 1; flex: 1 1 100%; }
+  body.controller-workflows #content > form > p > input[type=submit] { order: 2; }
+}
+/* admin lists keep their tighter 10px cell padding on boolean columns; the trailing 「…」 column hugs its 28px button
+   (the /users list no longer scrolls sideways by a few pixels at 1273px) */
+body:has(#admin-menu) #content table.list > thead > tr > th.gb-col-bool,
+body:has(#admin-menu) #content table.list td.gb-col-bool { padding-left: 10px; padding-right: 10px; }
+body:has(#admin-menu) #content table.list > thead > tr > th:empty { min-width: 28px; }
+body:has(#admin-menu) #content table.list td.buttons:has(> a.icon-only:only-child) { padding-left: 4px; padding-right: 6px; }
+/* /users next to the admin nav card with both navs open (table ~727px at 1273px), L4: every cell stays on one line —
+   the lower-priority システム管理者 column is dropped (the システム管理者 filter still finds admins), dates use the 12px
+   meta size, cells 5px, and the e-mail column takes all the remaining width (ellipsis only when even that is not
+   enough). Measured on the table box, so a collapsed main nav (~911px) or a wide screen keeps all nine columns. */
+@media screen and (min-width: 900px) {
+  body.controller-users.action-index:has(#sidebar #admin-menu) #content .autoscroll:has(> table.list.users) { container: gb-users / inline-size; }
+  @container gb-users (max-width: 879px) {
+    body.controller-users.action-index:has(#sidebar #admin-menu) #content table.list.users :is(th:not(:empty), td:not(.buttons)) { padding-left: 5px; padding-right: 5px; }
+    body.controller-users.action-index:has(#sidebar #admin-menu) #content table.list.users > thead > tr > th:empty { padding-left: 4px; padding-right: 6px; }
+    body.controller-users.action-index:has(#sidebar #admin-menu) #content table.list.users :is(th, td).admin { display: none; }
+    body.controller-users.action-index:has(#sidebar #admin-menu) #content table.list.users td:not(.mail) { white-space: nowrap; }
+    body.controller-users.action-index:has(#sidebar #admin-menu) #content table.list.users td:is(.created_on, .last_login_on) { font-size: var(--gb-fs-sm); }
+    body.controller-users.action-index:has(#sidebar #admin-menu) #content table.list.users td.mail {
+      width: 100%;
+      max-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+/* --- R3.16 Radio rows (設定 > プロジェクト「表示形式」) sit on the label's line, like the plain-value rows --- */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> input[type=radio]):not(:has(> label.block))::before {
+  content: "";
+  display: inline-block;
+  height: 36px;
+  vertical-align: middle;
+}
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> input[type=radio]):not(:has(> label.block)) > input[type=radio] { margin: 0 6px 0 0; vertical-align: middle; }
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> input[type=radio]):not(:has(> label.block)) > label.inline { vertical-align: middle; }
+@media screen and (max-width: 900px) {
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> input[type=radio]):not(:has(> label.block))::before { display: none; }
+}
+
+/* --- R3.17 Column chooser lists show whole rows (7 × 29px options + padding/border), no option cut in half --- */
+body:has(#admin-menu) #content #list-definition .query-columns select { height: 213px; }
+/* boolean columns without a ✓ show the same quiet en dash as the td.tick columns (/issue_statuses 終了した課題) */
+body:has(#admin-menu) #content table.list td.gb-col-bool:not(.tick):not(:has(svg, input))::after {
+  content: "–";
+  color: var(--gb-disabled);
+}
+body:has(#admin-menu) #content table.list td.gb-col-bool svg use { stroke: var(--gb-primary-strong); stroke-width: 2; }
+
+/* =====================================================================
+   Review round 4 fixes (owner re-audit at 1280px and 375px — "commercial SaaS" polish)
+   ===================================================================== */
+
+/* --- R4.1 Pattern T help text: wraps at phrase boundaries inside the control column width --- */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > em.info {
+  max-width: none;
+}
+
+/* --- R4.2 Matrices (workflow transitions / field permissions / permission report): one page scroll,
+       no inner scroll box; the header rows stick under the top bar instead --- */
+@media screen and (min-width: 901px) {
+  body:has(#admin-menu) #content .autoscroll:has(> :is(table.permissions, table.transitions, table.fields_permissions)),
+  body.controller-roles.action-permissions:has(#admin-menu) #content .autoscroll:has(> table.permissions) {
+    max-height: none;
+    min-height: 0;
+    overflow: visible;
+  }
+  body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) thead tr:first-child :is(th, td) { top: var(--gb-topbar-h, 52px); }
+  body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) thead tr:nth-child(2) :is(th, td) { top: calc(var(--gb-topbar-h, 52px) + 37px); }
+  /* the box border is rounded; its visible header corners follow it */
+  body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) thead tr:first-child > :first-child { border-top-left-radius: calc(var(--gb-radius) - 1px); }
+  body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) thead tr:first-child > :last-child { border-top-right-radius: calc(var(--gb-radius) - 1px); }
+  body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) tbody tr:last-child > td:first-child { border-bottom-left-radius: calc(var(--gb-radius) - 1px); }
+  body:has(#admin-menu) #content :is(table.permissions, table.transitions, table.fields_permissions) tbody tr:last-child > td:last-child { border-bottom-right-radius: calc(var(--gb-radius) - 1px); }
+}
+@media screen and (max-width: 900px) {
+  /* phones: the matrix still scrolls sideways, but never vertically inside the page */
+  body:has(#admin-menu) #content .autoscroll:has(> :is(table.permissions, table.transitions, table.fields_permissions)),
+  body.controller-roles.action-permissions:has(#admin-menu) #content .autoscroll:has(> table.permissions) {
+    max-height: none;
+    min-height: 0;
+    overflow-y: hidden;
+  }
+}
+
+/* --- R4.3 Field permissions: the 「»」 copy-to-next-column link is a small icon button, not a stray glyph --- */
+body:has(#admin-menu) #content table.fields_permissions a.repeat-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: 2px;
+  border-radius: var(--gb-radius-sm);
+  font-size: 16px;
+  line-height: 1;
+  color: var(--gb-text-2);
+  text-decoration: none;
+  vertical-align: middle;
+}
+body:has(#admin-menu) #content table.fields_permissions a.repeat-value:hover { background: var(--gb-surface-3); color: var(--gb-primary-strong); }
+
+/* --- R4.4 Role edit: permission lists in 3 columns so labels stay on one line (even rows) --- */
+body.controller-roles:has(#admin-menu) #content #permissions fieldset:has(> label.floating) {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+body.controller-roles:has(#admin-menu) #content #permissions label.floating { white-space: nowrap; }
+@media screen and (max-width: 600px) {
+  body.controller-roles:has(#admin-menu) #content #permissions fieldset:has(> label.floating) { grid-template-columns: minmax(0, 1fr); }
+  body.controller-roles:has(#admin-menu) #content #permissions label.floating { white-space: normal; }
+}
+/* 「すべてにチェックをつける」「すべてのチェックを外す」 (wrapped into p.gb-checkall by JS) — same buttons as /roles/permissions */
+body.controller-roles:has(#admin-menu) #content #permissions > p.gb-checkall { justify-content: flex-start; margin: 12px 0 0; padding: 0; text-align: left; }
+
+/* --- R4.5 User edit / new: one column of Pattern T sections (the right column's 3-line labels and
+       the empty space under the left column are gone) --- */
+body.controller-users:is(.action-edit, .action-new, .action-update, .action-create):has(#admin-menu) #content .splitcontent {
+  display: block;
+}
+body.controller-users:is(.action-edit, .action-new, .action-update, .action-create):has(#admin-menu) #content :is(.splitcontentleft, .splitcontentright) {
+  float: none;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+body.controller-users:is(.action-edit, .action-new, .action-update, .action-create):has(#admin-menu) #content .splitcontentright > fieldset.box:first-child {
+  margin-top: 0;
+  border-top: 1px solid var(--gb-border);
+  padding-top: 24px;
+}
+/* sections without row labels (メール通知 / オートウォッチ) start at the label column, like /my/account:
+   the legend is their label, an empty label column would read as missing labels */
+body.controller-users:is(.action-edit, .action-new, .action-update, .action-create):has(#admin-menu) #content .splitcontentright fieldset.box:not(.tabular):not(:has(> p > label:first-child:not(.hidden-for-sighted))) > :is(p, div) {
+  padding-left: 0;
+}
+body.controller-users:is(.action-edit, .action-new, .action-update, .action-create):has(#admin-menu) #content .splitcontentright fieldset.box:not(.tabular) select { width: 100%; max-width: 480px; }
+@media screen and (max-width: 900px) {
+  body.controller-users:is(.action-edit, .action-new, .action-update, .action-create):has(#admin-menu) #content .splitcontentright fieldset.box:not(.tabular):not(:has(> p > label:first-child:not(.hidden-for-sighted))) > :is(p, div) { padding-left: 0; }
+}
+
+/* --- R4.6 Settings > リポジトリ: the SCM note starts under the table, the keyword table's 「＋」 sits in the 削除 column --- */
+body.controller-settings:has(#admin-menu) #content fieldset.box.enabled_scm:not(.tabular):not(:has(> p > label:first-child:not(.hidden-for-sighted))) > p:has(> em.info:only-child) {
+  margin: 0;
+  padding-left: 0;
+}
+body.controller-settings:has(#admin-menu) #content table#commit-keywords.list td.buttons > a.icon-only:last-of-type { margin-right: 0; }
+body.controller-settings:has(#admin-menu) #content table#commit-keywords.list td.buttons > a.icon-only { min-width: 28px; }
+body.controller-settings:has(#admin-menu) #content table#commit-keywords.list td.buttons { padding-right: 8px; }
+
+/* --- R4.7 「キーの生成」 next to the API key field is a small secondary button --- */
+body.controller-settings:has(#admin-menu) #content p > input:is(#settings_sys_api_key, #settings_mail_handler_api_key) { width: calc(100% - 112px); max-width: 384px; }
+body.controller-settings:has(#admin-menu) #content p > input:is(#settings_sys_api_key, #settings_mail_handler_api_key) + a {
+  display: inline-flex;
+  align-items: center;
+  height: var(--gb-control-h-sm);
+  box-sizing: border-box;
+  margin-left: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  color: var(--gb-text);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  text-decoration: none;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+body.controller-settings:has(#admin-menu) #content p > input:is(#settings_sys_api_key, #settings_mail_handler_api_key) + a:hover {
+  border-color: var(--gb-primary);
+  background: var(--gb-surface-2);
+  color: var(--gb-primary-strong);
+}
+
+/* --- R4.8 List footers: 「(1-5/5)」 and 「他の形式にエクスポート: CSV」 share one row --- */
+body:has(#admin-menu) #content span.pagination:has(+ p.other-formats) {
+  float: left;
+  margin: 0;
+  line-height: 28px;
+}
+body:has(#admin-menu) #content span.pagination + p.other-formats {
+  margin: 0;
+  line-height: 28px;
+  text-align: right;
+}
+body:has(#admin-menu) #content span.pagination + p.other-formats::after { content: ""; display: table; clear: both; }
+
+/* --- R4.9 「適用」 in the simple filter rows carries the same ✓ icon as on the query filter forms --- */
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) input[type=submit],
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset input[type=submit] {
+  padding-left: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5l10 -10'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  background-size: 14px 14px;
+}
+
+/* --- R4.10 /admin/info: the check list and environment block use the full card width --- */
+body.controller-admin.action-info #content table.list,
+body.controller-admin.action-info #content pre,
+body.controller-admin.action-info #content .gb-envinfo { max-width: none; }
+
+/* --- R4.11 /enumerations: auto column widths on every screen (core's table-layout: fixed squeezed the
+       ✓ columns to 3px on phones; the old selector needed the desktop sidebar) --- */
+body:has(#admin-menu) #content table.list.enumerations { table-layout: auto; }
+
+/* =====================================================================
+   R4 — phones (≤ 600px)
+   ===================================================================== */
+@media screen and (max-width: 600px) {
+  /* R4.12 page title + action bar: the actions stay one unit (95-responsive.js then moves the whole
+     bar under the title when it does not fit beside it — no lone 「権限レポート」 under 「新しいロール」);
+     a bar that is wider than the screen (user edit) starts at the left edge instead of being cut there */
+  body:has(#admin-menu) #content > .contextual:first-of-type:has(+ h2) { flex-wrap: nowrap; white-space: nowrap; }
+  html body.controller-users:has(#admin-menu) #wrapper #content.gb-m-title-stack > .contextual:first-of-type { justify-content: space-between; overflow: visible; }
+  html body.controller-users:has(#admin-menu) #wrapper #content.gb-m-title-stack > .contextual:first-of-type > a { padding-left: 0; padding-right: 0; }
+
+  /* R4.13 row actions (コピー / 編集 / 削除) become 32px icon buttons so the row fits the screen;
+     the label stays for screen readers */
+  body:has(#admin-menu) #content table.list td.buttons > a.icon:not(.icon-only),
+  body.controller-projects.action-settings #content table.list td.buttons > a.icon:not(.icon-only),
+  body.controller-projects.action-settings #content .table-list-cell.buttons > a.icon:not(.icon-only) {
+    justify-content: center;
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    padding: 0;
+  }
+  body:has(#admin-menu) #content table.list td.buttons > a.icon:not(.icon-only) .icon-label,
+  body.controller-projects.action-settings #content table.list td.buttons > a.icon:not(.icon-only) .icon-label,
+  body.controller-projects.action-settings #content .table-list-cell.buttons > a.icon:not(.icon-only) .icon-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  body:has(#admin-menu) #content table.list:has(td.buttons > a.icon-del) td.buttons:not(:has(> a.icon-del)) > a:last-of-type { margin-right: 38px; } /* 32px icon + 2px margin + the 4px word space */
+
+  /* R4.14 simple filter rows (/groups, project settings > マイルストーン): label | control, then 適用 + クリア */
+  body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box),
+  body.controller-projects.action-settings #content #tab-content-versions > form fieldset {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+    gap: 8px 10px;
+  }
+  body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) :is(select, input[type=text]),
+  body.controller-projects.action-settings #content #tab-content-versions > form fieldset :is(select, input[type=text]) { width: 100%; min-width: 0; }
+  body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) input[type=submit],
+  body.controller-projects.action-settings #content #tab-content-versions > form fieldset input[type=submit] { justify-self: start; }
+  body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > a.icon-reload,
+  body.controller-projects.action-settings #content #tab-content-versions > form fieldset > a.icon-reload { justify-self: start; }
+
+  /* R4.15 project settings tab toolbars: primary create button first, links after it, one row */
+  body.controller-projects.action-settings #content .tab-content > .contextual:has(+ p > a.icon-add),
+  body.controller-projects.action-settings #content .tab-content > .contextual:has(> a.icon-add) { float: none; }
+  body.controller-projects.action-settings #content .tab-content:has(> .contextual):has(> p > a.icon-add) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    column-gap: 8px;
+  }
+  body.controller-projects.action-settings #content .tab-content:has(> .contextual):has(> p > a.icon-add) > * { order: 2; flex: 1 1 100%; min-width: 0; }
+  body.controller-projects.action-settings #content .tab-content:has(> .contextual):has(> p > a.icon-add) > p:has(> a.icon-add) { order: 0; flex: 0 0 auto; float: none; margin: 0 0 12px auto; }
+  body.controller-projects.action-settings #content .tab-content:has(> .contextual):has(> p > a.icon-add) > .contextual { order: 1; flex: 0 1 auto; float: none; margin: 0 0 12px auto; white-space: nowrap; }
+  body.controller-projects.action-settings #content .tab-content:has(> .contextual):has(> p > a.icon-add) > :is(script, input[type=hidden]) { display: none; }
+
+  /* R4.16 column chooser: each list takes the free width, its buttons sit beside it */
+  body:has(#admin-menu) #content #list-definition > div:has(> .query-columns) {
+    grid-template-columns: minmax(0, 1fr) 40px;
+    row-gap: 12px;
+  }
+
+  /* R4.17 /admin/plugins: name, description, author and version stacked in one card-like row */
+  body.controller-admin.action-plugins #content table.list.plugins thead { display: none; }
+  body.controller-admin.action-plugins #content table.list.plugins,
+  body.controller-admin.action-plugins #content table.list.plugins tbody,
+  body.controller-admin.action-plugins #content table.list.plugins tr { display: block; width: 100%; }
+  body.controller-admin.action-plugins #content table.list.plugins tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--gb-border);
+  }
+  body.controller-admin.action-plugins:has(#admin-menu) #content table.list.plugins td {
+    display: block;
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    text-align: left;
+  }
+  body.controller-admin.action-plugins #content table.list.plugins td.name { flex: 1 1 100%; min-width: 0; }
+  body.controller-admin.action-plugins #content table.list.plugins td.author { flex: 0 1 auto; }
+  body.controller-admin.action-plugins:has(#admin-menu) #content table.list.plugins td.version { flex: 0 0 auto; color: var(--gb-text-2); text-align: left; }
+  body.controller-admin.action-plugins #content table.list.plugins td.configure:empty { display: none; }
+  body.controller-admin.action-plugins #content .autoscroll:has(> table.list.plugins) { overflow: visible; }
+
+  /* R4.18 /admin/info: the environment block keeps its key/value columns and scrolls sideways */
+  body.controller-admin.action-info #content pre,
+  body.controller-admin.action-info #content .gb-envinfo {
+    padding: 12px 14px;
+    font-size: 12px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+}
+@media screen and (max-width: 600px) {
+  /* R4.19 phones: columns that are empty in every row are dropped; ✓ columns are narrower */
+  body:has(#admin-menu) #content table.list .gb-col-empty,
+  body.controller-projects.action-settings #content table.list .gb-col-empty { display: none; }
+  body:has(#admin-menu) #content table.list > thead > tr > th.gb-col-bool,
+  body:has(#admin-menu) #content table.list td.gb-col-bool,
+  body.controller-projects.action-settings #content table.list > thead > tr > th.gb-col-bool,
+  body.controller-projects.action-settings #content table.list td.gb-col-bool { min-width: 0; padding-left: 6px; padding-right: 6px; }
+  body:has(#admin-menu) #content table.list td.buttons,
+  body.controller-projects.action-settings #content table.list td.buttons { padding-left: 4px; padding-right: 4px; }
+  body:has(#admin-menu) #content .sort-handle,
+  body.controller-projects.action-settings #content .sort-handle { width: 32px; height: 32px; margin: 0; }
+}
+@media screen and (max-width: 600px) {
+  /* R4.20 phones: names don't reserve the 160px desktop minimum; ✓ headers may wrap; the status
+     workflow warning shows as its icon (full text in the title tooltip) so the row fits */
+  body:has(#admin-menu) #content table.list td:is(.name, .description),
+  body.controller-projects.action-settings #content table.list td:is(.name, .description) { min-width: 0; }
+  body:has(#admin-menu) #content table.list > thead > tr > th:not(:has(a)),
+  body.controller-projects.action-settings #content table.list > thead > tr > th:not(:has(a)) { white-space: normal; }
+  body.controller-issue_statuses:has(#admin-menu) #content table.list td > span.icon-warning {
+    display: inline-flex;
+    max-width: none;
+    font-size: 0;
+    line-height: 0;
+  }
+  body.controller-issue_statuses:has(#admin-menu) #content table.list td > span.icon-warning svg { margin: 0; }
+  body.controller-issue_statuses:has(#admin-menu) #content table.list td:has(> span.icon-warning) { padding-left: 4px; padding-right: 4px; }
+}
+@media screen and (max-width: 900px) {
+  /* R4.21 single boolean rows (checkbox + label): the Pattern T clearfix pseudo was a flex item between
+     the checkbox and its label and doubled the gap (16px instead of 8px) */
+  body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label:first-child + input[type=hidden] + input[type=checkbox]):not(:has(> select, > textarea, > input[type=text]))::after { display: none; }
+}
+@media screen and (max-width: 600px) {
+  /* R4.22 role edit: the two 「すべて…」 buttons share one row */
+  body.controller-roles:has(#admin-menu) #content #permissions > p.gb-checkall { flex-wrap: nowrap; }
+  body.controller-roles:has(#admin-menu) #content #permissions > p.gb-checkall > a { flex: 1 1 0; justify-content: center; min-width: 0; padding: 0 6px; white-space: nowrap; }
+}
+/* R4.23 /admin/plugins: the version text sits in a bare span.icon (no svg) — no icon gutter before it */
+body.controller-admin.action-plugins:has(#admin-menu) #content table.list.plugins td.version > span.icon { display: inline; padding-left: 0; }
+/* R4.24 /admin/info: core's <br> between the check list and the environment block added a second gap */
+body.controller-admin.action-info:has(#admin-menu) #content > table.list + br { display: none; }
+@media screen and (max-width: 600px) {
+  /* R4.25 project settings > フォーラム (div rows): the name hugs its text so the description gets the width */
+  body.controller-projects.action-settings #content #tab-content-boards .table-list .table-list-cell.name,
+  body.controller-projects.action-settings #content #tab-content-boards .table-list-header .table-list-cell.name { flex: 0 0 25%; }
+  body.controller-projects.action-settings #content #tab-content-boards .table-list-cell.description { flex: 1 1 0; }
+}
+
+/* =====================================================================
+   R5 — strict design review round (labels on one line, aligned toolbars, consistent states)
+   ===================================================================== */
+/* R5.2 tracker edit: the left column gets the room (the right one only lists projects);
+   標準フィールド checkboxes in two columns instead of one long list */
+@media screen and (min-width: 901px) {
+  body.controller-trackers:is(.action-edit, .action-new, .action-update, .action-create):has(#admin-menu) #content .splitcontentleft { flex: 3 1 0; }
+  body.controller-trackers:is(.action-edit, .action-new, .action-update, .action-create):has(#admin-menu) #content .splitcontentright { flex: 2 1 0; }
+  body.controller-trackers:is(.action-edit, .action-new, .action-update, .action-create):has(#admin-menu) #content .splitcontent :is(.tabular, fieldset.box) p:has(> label.block) {
+    grid-template-columns: calc(var(--gb-t-col) - 12px) repeat(2, minmax(0, 1fr));
+    column-gap: 12px;
+  }
+}
+/* R5.3 /roles/permissions on phones: role headers never break per character; the permission column
+   stays sticky and leaves room for at least two role columns (the matrix scrolls sideways) */
+@media screen and (max-width: 900px) {
+  body.controller-roles.action-permissions:has(#admin-menu) #content table.permissions :is(thead th, tr.group td.role) {
+    white-space: nowrap;
+    min-width: 72px;
+  }
+  body.controller-roles.action-permissions:has(#admin-menu) #content table.permissions :is(thead th:first-child, tbody td:first-child) {
+    position: sticky;
+    left: 0;
+    width: 176px;
+    max-width: 176px;
+    box-sizing: border-box;
+    white-space: normal;
+  }
+  body.controller-roles.action-permissions:has(#admin-menu) #content table.permissions tbody td:first-child { min-width: 0; }
+}
+@media screen and (max-width: 900px) {
+  /* wrapped permission names hang under their text (not under the row toggle) and break between phrases */
+  body.controller-roles.action-permissions:has(#admin-menu) #content table.permissions tbody tr:not(.group) td:first-child {
+    padding-left: 40px;
+    line-height: 18px;
+  }
+  body.controller-roles.action-permissions:has(#admin-menu) #content table.permissions tbody tr:not(.group) td:first-child > a.icon-checked {
+    float: left;
+    margin: -2.5px 0 0 -32px;
+  }
+}
+/* R5.4 settings > リポジトリ 修正用キーワード on phones: each keyword row is a small card of labelled
+   fields (column titles come from data-gb-label, set by 90-admin-settings.js); no squeezed selects */
+@media screen and (max-width: 600px) {
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords {
+    display: block;
+    width: 100%;
+    max-width: none;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody { display: flex; flex-direction: column; gap: 8px; }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 32px;
+    gap: 12px 8px;
+    align-items: start;
+    background: none;
+  }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr.commit-keywords {
+    padding: 12px;
+    border: 1px solid var(--gb-border);
+    border-radius: var(--gb-radius);
+    background: var(--gb-surface);
+  }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr > td {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    white-space: normal;
+  }
+  /* キーワード (full width) / トラッカー + 進捗率 / 適用されるステータス (full width); 削除 top right */
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr.commit-keywords > td:nth-child(2) { grid-area: 1 / 1 / 2 / 3; }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr.commit-keywords > td:nth-child(1) { grid-area: 2 / 1 / 3 / 2; }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr.commit-keywords > td:nth-child(4) { grid-area: 2 / 2 / 3 / 3; }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr.commit-keywords > td:nth-child(3) { grid-area: 3 / 1 / 4 / 3; }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr > td[data-gb-label]::before {
+    content: attr(data-gb-label);
+    font-size: 12px;
+    font-weight: var(--gb-fw-bold);
+    line-height: 16px;
+    color: var(--gb-text-2);
+  }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr > td:empty { display: none; }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr > td :is(select, input[type=text]) {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr > td.buttons {
+    grid-area: 1 / 3 / 2 / 4;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    width: 32px;
+    padding: 0;
+  }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr.commit-keywords > td.buttons { padding-top: 20px; } /* level with the keyword input under its label */
+  /* last row: help text under the cards, 「＋」 on its right */
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr:not(.commit-keywords) { grid-template-columns: minmax(0, 1fr) 32px; align-items: center; padding: 0 12px; }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr:not(.commit-keywords) > td:not(.buttons):not(:empty) { display: block; grid-column: 1; }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr:not(.commit-keywords) > td.buttons { grid-area: auto; grid-column: 2; grid-row: 1; align-self: center; }
+}
+/* R5.6 simple filter rows on phones (/groups, project settings > マイルストーン): label | control rows with
+   one shared label width, then 適用 + クリア side by side with the same 8px gap on every page */
+@media screen and (max-width: 600px) {
+  body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box),
+  body.controller-projects.action-settings #content #tab-content-versions > form fieldset {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > label,
+  body.controller-projects.action-settings #content #tab-content-versions > form fieldset > label { flex: 0 0 104px; margin: 0; }
+  body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > :is(select, input[type=text]),
+  body.controller-projects.action-settings #content #tab-content-versions > form fieldset > :is(select, input[type=text]) { flex: 1 1 calc(100% - 112px); width: auto; min-width: 0; margin: 0; }
+  body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > :is(input[type=submit], a.icon-reload),
+  body.controller-projects.action-settings #content #tab-content-versions > form fieldset > :is(input[type=submit], a.icon-reload) { flex: 0 0 auto; margin: 0; }
+  body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > input[type=submit],
+  body.controller-projects.action-settings #content #tab-content-versions > form fieldset > input[type=submit] { margin-left: 112px; }
+}
+/* R5.7 action bars on phones follow one rule everywhere: right-aligned, one row, 8px apart,
+   the primary button second from the right and the secondary link / 「…」 at the right edge */
+@media screen and (max-width: 600px) {
+  body.controller-projects.action-settings #content .tab-content:has(> .contextual):has(> p > a.icon-add) > p:has(> a.icon-add) { margin: 0 0 12px auto; }
+  body.controller-projects.action-settings #content .tab-content:has(> .contextual):has(> p > a.icon-add) > .contextual { margin: 0 0 12px 0; }
+  /* マイルストーン: the long 「完了したマイルストーンを終了にする」 link becomes a 32px icon button (label kept for
+     screen readers, shown as the tooltip) so it shares the row with 「新しいマイルストーン」 */
+  body.controller-projects.action-settings #content #tab-content-versions > .contextual > a.icon {
+    justify-content: center;
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--gb-border);
+    border-radius: var(--gb-radius-sm);
+    background: var(--gb-surface);
+  }
+  body.controller-projects.action-settings #content #tab-content-versions > .contextual > a.icon svg { margin: 0; }
+  body.controller-projects.action-settings #content #tab-content-versions > .contextual > a.icon .icon-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  /* page-level action bars (/users 「新しいユーザー」 + 「…」 …) hug the right edge */
+  body:has(#admin-menu) #content > .contextual,
+  body.controller-users.action-index:has(#admin-menu) #content > .contextual { justify-content: flex-end; margin-left: auto; gap: 8px; }
+  body.controller-users.action-index:has(#admin-menu) #content > .contextual > a { padding-left: 10px; padding-right: 14px; }
+}
+/* R5.8 /admin/plugins (desktop): author and version hug their text, the name/description column takes the rest */
+@media screen and (min-width: 601px) {
+  body.controller-admin.action-plugins:has(#admin-menu) #content table.list.plugins td:is(.author, .version) { width: 1%; white-space: nowrap; padding-left: 16px; }
+  body.controller-admin.action-plugins:has(#admin-menu) #content table.list.plugins td.name { width: 100%; }
+  body.controller-admin.action-plugins:has(#admin-menu) #content table.list.plugins thead th:not(:first-child) { white-space: nowrap; padding-left: 16px; }
+  /* no plugin has a 設定 link: the empty last column would only take width from the description */
+  body.controller-admin.action-plugins:has(#admin-menu) #content table.list.plugins:not(:has(td.configure:not(:empty))) :is(td.configure, thead th:last-child) { display: none; }
+}
+/* R5.9 /workflows/edit: the 「課題作成者に / 課題担当者に追加で許可する遷移」 rows — title centred between
+   the separators (12px above and below), icon on the matrix's first-column inset; 12px under the title when open */
+body.controller-workflows:has(#admin-menu) #content fieldset.collapsible {
+  display: flow-root;
+  margin: 0 !important; /* core view sets an inline style="padding: 0; margin-top: 0.5em" */
+  padding: 12px 10px !important;
+  border: 0;
+  border-top: 1px solid var(--gb-border);
+}
+body.controller-workflows:has(#admin-menu) #content fieldset.collapsible > legend {
+  float: left;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  line-height: 20px;
+  cursor: pointer;
+}
+body.controller-workflows:has(#admin-menu) #content fieldset.collapsible > legend + * { clear: both; }
+body.controller-workflows:has(#admin-menu) #content fieldset.collapsible:not(.collapsed) > legend { margin-bottom: 12px; }
+/* R5.10 settings > リポジトリ (desktop): the SCM table, its note and the 修正用キーワード table share one
+   720px measure (right edges line up; the note stays on one line) */
+body.controller-settings:has(#admin-menu) #content fieldset.enabled_scm > p:has(> em.info:only-child) > em.info { max-width: 720px; }
+@media screen and (min-width: 601px) {
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords { width: 100%; max-width: 720px; }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr:not(.commit-keywords) em.info { white-space: nowrap; }
+}
+/* R5.11 boolean ✓ cells look the same in admin lists and project settings (時間管理 システム作業分類):
+   16px brand-green check, false = quiet en dash */
+body:has(#admin-menu) #content table.list td:is(.tick, .gb-col-bool) .icon-checked svg,
+body.controller-projects.action-settings #content table.list td:is(.tick, .gb-col-bool) .icon-checked svg { width: 16px; height: 16px; }
+body.controller-projects.action-settings #content table.list td:is(.tick, .gb-col-bool) .icon-checked svg use { stroke: var(--gb-primary-strong); stroke-width: 2; }
+/* R5.13 settings > プロジェクト / 課題トラッキング: the column chooser keeps the normal field gap under the
+   「表示形式」 radios (it sat 8px under them, other fields are ~20px apart) */
+body:has(#admin-menu) #content fieldset.box > p:has(> input[type=radio]) + #list-definition { margin-top: 12px; }
+@media screen and (max-width: 600px) {
+  /* phones use 32px options (16px text): 6 whole rows + padding/border, no option cut in half */
+  body:has(#admin-menu) #content #list-definition .query-columns select { height: 202px; }
+}
+
+/* =====================================================================
+   R6 — strict design review round 2 (alignment to the 480px control edge, no stray / orphan elements)
+   ===================================================================== */
+/* R6.1 設定 > 全般「テキスト書式」: the Hardbreaks note is a block under the select
+   (checkbox left of its label, help below) — the same at every width */
+body.controller-settings:has(#admin-menu) #content p > #common_mark_info {
+  display: block;
+  margin-top: 6px;
+}
+body.controller-settings:has(#admin-menu) #content p > #common_mark_info.hidden { display: none; }
+body.controller-settings:has(#admin-menu) #content p > #common_mark_info > label.block {
+  float: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  min-height: 24px;
+  margin: 0 !important; /* beats the global label.block 16px gutter (also !important) */
+  padding: 0;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-normal);
+  line-height: 20px;
+}
+body.controller-settings:has(#admin-menu) #content p > #common_mark_info > label.block > input { float: none; margin: 0; }
+body.controller-settings:has(#admin-menu) #content p > #common_mark_info > em.info { display: block; margin-top: 2px; padding-left: 0; background: none; }
+
+/* R6.2 ウェルカムメッセージ: the editor takes the whole control column and its toolbar stays on one row */
+body.controller-settings:has(#admin-menu) #content p .jstBlock { max-width: none; }
+body.controller-settings:has(#admin-menu) #content p .jstBlock .jstEditor { max-width: none; }
+
+/* R6.3 受信メール: the two textareas end on the same 480px edge as every other control */
+body.controller-settings:has(#admin-menu) #content p > textarea:is(#settings_mail_handler_body_delimiters, #settings_mail_handler_excluded_filenames) {
+  justify-self: start;
+  width: 100%;
+  max-width: 480px;
+}
+@media screen and (min-width: 901px) {
+  body.controller-settings:has(#admin-menu) #content p:has(> textarea:is(#settings_mail_handler_body_delimiters, #settings_mail_handler_excluded_filenames)) {
+    grid-template-columns: calc(var(--gb-t-col) - 12px) minmax(0, 1fr);
+  }
+}
+/* API key + 「キーの生成」 together end on the 480px edge (no inline whitespace between them) */
+@media screen and (min-width: 901px) {
+  body.controller-settings:has(#admin-menu) #content p:has(> input:is(#settings_sys_api_key, #settings_mail_handler_api_key)) > input:is(#settings_sys_api_key, #settings_mail_handler_api_key) {
+    width: calc(100% - 96px);
+    max-width: 384px;
+  }
+  body.controller-settings:has(#admin-menu) #content p > input:is(#settings_sys_api_key, #settings_mail_handler_api_key) + a {
+    position: absolute;
+    top: 8px;
+    right: max(0px, calc(100% - var(--gb-t-col) - 480px));
+    width: 88px;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* R6.4 inline checkbox groups (休業日, パスワードの必須文字種別, 合計): four 108px tracks = the 480px control width */
+body:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> label.inline > input[type=checkbox]),
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:has(> input[type=hidden][name="settings[non_working_week_days][]"]) {
+  grid-template-columns: var(--gb-t-label) repeat(4, 108px);
+}
+/* column chooser: list | ⇄ | list | ↑↓ = 480px */
+body:has(#admin-menu) #content #list-definition > div:has(> .query-columns) {
+  grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr) 32px;
+  max-width: 480px;
+}
+
+/* R6.5 admin lists: a column that is empty in every row is dropped (not only on phones);
+   ✓ columns stay (their 「–」 means “no”). Empty text cells in the other columns show the same quiet 「–」 */
+body:has(#admin-menu) #content table.list .gb-col-empty:not(.gb-col-bool),
+body.controller-projects.action-settings #content table.list .gb-col-empty:not(.gb-col-bool) { display: none; }
+body:has(#admin-menu) #content table.list td.gb-cell-empty::before,
+body.controller-projects.action-settings #content table.list td.gb-cell-empty::before {
+  content: "–";
+  color: var(--gb-disabled);
+}
+/* /issue_statuses: with descriptions the workflow warning moves under the description (JS) */
+body.controller-issue_statuses:has(#admin-menu) #content table.list .gb-col-moved { display: none; }
+body.controller-issue_statuses:has(#admin-menu) #content table.list td.description > span.icon-warning {
+  display: block;
+  margin-top: 2px;
+  max-width: none;
+  font-size: 12px;
+}
+/* no description anywhere: the warning column takes the free width right after 終了した課題 */
+body.controller-issue_statuses:has(#admin-menu) #content table.list:not(:has(td.description:not(.gb-col-empty))) > thead > tr > th:nth-child(4) { width: 100%; }
+
+/* R6.6 custom field edit: the left column gets the room, like tracker edit (3:2) */
+@media screen and (min-width: 901px) {
+  body.controller-custom_fields:is(.action-edit, .action-new, .action-update, .action-create):has(#admin-menu) #content .splitcontentleft { flex: 3 1 0; }
+  body.controller-custom_fields:is(.action-edit, .action-new, .action-update, .action-create):has(#admin-menu) #content .splitcontentright { flex: 2 1 0; }
+}
+
+/* R6.7 新しいメンバー dialog: full-width search, 「ロール ✓」 like every other section title,
+   avatars and group icons in the same 20px slot */
+#ajax-modal #new_membership #principal_search { width: 100%; max-width: none; box-sizing: border-box; }
+#ajax-modal #new_membership fieldset > legend:has(> a.icon-checked) {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+#ajax-modal #new_membership fieldset > legend > a.icon-checked {
+  order: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--gb-radius-sm);
+}
+#ajax-modal #new_membership fieldset > legend > a.icon-checked:hover { background: var(--gb-surface-3); }
+#ajax-modal #new_membership fieldset > legend > a.icon-checked svg { margin: 0; }
+#ajax-modal #new_membership fieldset > legend > a.icon-checked .icon-label:empty { display: none; }
+#ajax-modal #principals_for_new_member #principals label > :is(.avatar, span.icon) {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+#ajax-modal #principals_for_new_member #principals label > span.icon svg { width: 16px; height: 16px; margin: 0; }
+#ajax-modal #principals_for_new_member #principals label > .avatar { font-size: 10px; line-height: 20px; }
+
+/* R6.8 リポジトリ 修正用キーワード on phones: one 12px rhythm, rows 2–3 span the whole card */
+@media screen and (max-width: 600px) {
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr.commit-keywords {
+    row-gap: 12px;
+    align-items: end;
+  }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr.commit-keywords > td:nth-child(1) { grid-area: 2 / 1 / 3 / 2; }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr.commit-keywords > td:nth-child(4) { grid-area: 2 / 2 / 3 / 4; }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr.commit-keywords > td:nth-child(3) { grid-area: 3 / 1 / 4 / 4; }
+  /* the delete icon is centred on the keyword input (the 20px above it is the label line) */
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords tbody > tr.commit-keywords > td.buttons {
+    align-self: stretch;
+    height: auto;
+    margin: 0; /* the global .buttons block margins made the first row 14px taller than the others */
+    padding-top: 20px;
+  }
+}
+
+/* R6.9 help text uses the control column's whole width (no lone word on a second line) */
+@media screen and (min-width: 901px) {
+  body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p > em.info {
+    max-width: none;
+  }
+}
+/* 認証 > セッション: the stand-alone 「警告: …」 is an inline notice under the last select, 480px wide */
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) > p:has(> em.info:only-child) {
+  margin: 0;
+  padding-left: var(--gb-t-col);
+  padding-top: 2px;
+  padding-bottom: 6px;
+  min-height: 0;
+}
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) > p > em.info:only-child {
+  display: block;
+  max-width: 480px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--gb-warning-border);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-warning-soft);
+  color: var(--gb-warning-text);
+  font-size: 12px;
+  line-height: 18px;
+}
+@media screen and (max-width: 900px) {
+  body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) > p:has(> em.info:only-child) { padding-left: 0; }
+}
+/* the notice sits 8px under the select (core's section-note margin would push it 16px away) */
+body.controller-settings:has(#admin-menu) #content #tab-content-authentication fieldset.box > p:has(> em.info:only-child) { margin-top: 0; }
+body.controller-settings:has(#admin-menu) #content #tab-content-authentication fieldset.box > .tabular:has(+ p > em.info:only-child) { margin-bottom: 0; }
+
+/* =====================================================================
+   R7 — strict design review round 3 (one right edge on /settings, one checkbox grid, phones)
+   ===================================================================== */
+/* R7.1 /settings: every row ends on one right edge — the control column, capped at 640px.
+   Inputs, selects, textareas, the welcome editor, the API key row, notices, checkbox grids,
+   the column chooser and the リポジトリ tables all stop there (1224px at a 1273px viewport).
+   240px labels + 16px gap + 680px = the full 960px form box, so help text gets the whole free width. */
+body.controller-settings:has(#admin-menu) { --gb-s-ctl: 680px; --gb-s-edge: calc(var(--gb-t-col) + var(--gb-s-ctl)); }
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p {
+  max-width: var(--gb-s-edge);
+  box-sizing: border-box;
+}
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p :is(input[type=text], input[type=email], input[type=password], input[type=url], input[type=date], select:not([multiple]), textarea) { max-width: 100%; }
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p > select:not([multiple]) { width: 100%; }
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p > textarea,
+body.controller-settings:has(#admin-menu) #content p > textarea:is(#settings_mail_handler_body_delimiters, #settings_mail_handler_excluded_filenames) { width: 100%; max-width: 100%; }
+body.controller-settings:has(#admin-menu) #content fieldset.box p:has(> select[id$="default_query"], > select[id*="query"]) > select { max-width: 100%; }
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) > p > em.info:only-child { max-width: none; }
+@media screen and (min-width: 901px) {
+  body.controller-settings:has(#admin-menu) #content p:has(> input:is(#settings_sys_api_key, #settings_mail_handler_api_key)) > input:is(#settings_sys_api_key, #settings_mail_handler_api_key) {
+    width: calc(100% - 96px);
+    max-width: none;
+  }
+  body.controller-settings:has(#admin-menu) #content p > input:is(#settings_sys_api_key, #settings_mail_handler_api_key) + a { right: 0; }
+}
+/* the column chooser: list | ⇄ | list | ↑↓ across the whole control column */
+body.controller-settings:has(#admin-menu) #content #list-definition {
+  max-width: var(--gb-s-edge);
+  box-sizing: border-box;
+}
+body.controller-settings:has(#admin-menu) #content #list-definition > div:has(> .query-columns) { max-width: none; }
+/* リポジトリ: the SCM table, its note and the 修正用キーワード table end on the same edge */
+body.controller-settings:has(#admin-menu) #content fieldset.enabled_scm table,
+body.controller-settings:has(#admin-menu) #content fieldset.enabled_scm > p:has(> em.info:only-child) > em.info,
+body.controller-settings:has(#admin-menu) #content table#commit-keywords {
+  width: 100%;
+  max-width: var(--gb-s-edge);
+  box-sizing: border-box;
+}
+@media screen and (min-width: 601px) {
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords { max-width: var(--gb-s-edge); }
+  body.controller-settings:has(#admin-menu) #content table#commit-keywords td :is(select, input[type=text]) { max-width: none; }
+}
+
+/* R7.2 /settings checkbox groups — one grid everywhere: four equal tracks across the control column,
+   32px rows, 8px checkbox–text gap; long labels (modules, オートウォッチ) take two tracks */
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:is(:has(> label.inline > input[type=checkbox]), :has(> label.block > input[type=checkbox])):not(:has(> textarea)) {
+  display: grid;
+  grid-template-columns: var(--gb-t-label) repeat(4, minmax(0, 1fr));
+  column-gap: 16px;
+  row-gap: 0;
+  align-items: center;
+  padding-left: 0;
+}
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:is(:has(> label.inline > input[type=checkbox]), :has(> label.block > input[type=checkbox])):not(:has(> textarea))::after { display: none; }
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:is(:has(> label.inline > input[type=checkbox]), :has(> label.block > input[type=checkbox])):not(:has(> textarea)) > label:first-child:not(.inline):not(.block) {
+  grid-column: 1;
+  grid-row: 1 / span 20;
+  align-self: start;
+  width: auto;
+  margin: 0;
+  float: none;
+}
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:is(:has(> label.inline > input[type=checkbox]), :has(> label.block > input[type=checkbox])):not(:has(> textarea)) > label:is(.inline, .block):not(:first-child) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0;
+  white-space: nowrap;
+}
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:is(:has(> label.inline > input[type=checkbox]), :has(> label.block > input[type=checkbox])):not(:has(> textarea)) > label:is(.inline, .block) > input { flex: none; margin: 0; }
+body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:is(:has(> label.inline > input[type=checkbox]), :has(> label.block > input[type=checkbox])):not(:has(> textarea)):has(> input[type=hidden]:is([name="settings[default_projects_modules][]"], [name="settings[default_users_auto_watch_on][]"])) > label.block:not(:first-child) { grid-column: auto / span 2; }
+@media screen and (max-width: 900px) {
+  /* phones / tablets: the row label on its own line, then as many 96px+ tracks as fit (all items visible) */
+  body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:is(:has(> label.inline > input[type=checkbox]), :has(> label.block > input[type=checkbox])):not(:has(> textarea)) {
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    column-gap: 8px;
+  }
+  body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:is(:has(> label.inline > input[type=checkbox]), :has(> label.block > input[type=checkbox])):not(:has(> textarea)):has(> input[type=hidden]:is([name="settings[default_projects_modules][]"], [name="settings[default_users_auto_watch_on][]"])) { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  /* three-character options (曜日, 文字種別): four per row, so 7 days are 4 + 3 instead of 3 + 3 + 1 */
+  body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:is(:has(> label.inline > input[type=checkbox]), :has(> label.block > input[type=checkbox])):not(:has(> textarea)):has(> input[type=hidden]:is([name="settings[non_working_week_days][]"], [name="settings[password_required_char_classes][]"])) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:is(:has(> label.inline > input[type=checkbox]), :has(> label.block > input[type=checkbox])):not(:has(> textarea)):has(> input[type=hidden]:is([name="settings[default_projects_modules][]"], [name="settings[default_users_auto_watch_on][]"])) > label.block:not(:first-child) { grid-column: auto / span 1; }
+  body.controller-settings:has(#admin-menu) #content :is(.tabular, fieldset.box) p:is(:has(> label.inline > input[type=checkbox]), :has(> label.block > input[type=checkbox])):not(:has(> textarea)) > label:first-child:not(.inline):not(.block) {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    margin: 0 0 4px;
+  }
+}
+
+/* R7.3 column chooser on phones / tablets: one column — 利用できる項目 (full width), the ↓↑ move buttons
+   centred under it, then 選択された項目 with its four reorder buttons in a 32px column on the right */
+@media screen and (max-width: 900px) {
+  body:has(#admin-menu) #content #list-definition > div:has(> .query-columns) {
+    grid-template-columns: minmax(0, 1fr) 32px;
+    column-gap: 8px;
+    max-width: none;
+  }
+  body:has(#admin-menu) #content #list-definition > div:has(> .query-columns) > .query-columns:first-child { grid-column: 1 / -1; grid-row: 1; }
+  body:has(#admin-menu) #content #list-definition > div:has(> .query-columns) > .buttons:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    flex-direction: row;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 0;
+  }
+  body:has(#admin-menu) #content #list-definition > div:has(> .query-columns) > .query-columns:nth-child(3) { grid-column: 1; grid-row: 3; }
+  body:has(#admin-menu) #content #list-definition > div:has(> .query-columns) > .buttons:nth-child(4) { grid-column: 2; grid-row: 3; }
+}
+
+/* R7.4 user edit メール通知 / オートウォッチ: checkbox + text on one centred line, 8px apart, 32px rows */
+body:has(#admin-menu) #content fieldset.box:not(.tabular) > p:has(> input[type=checkbox] + label):not(:has(> label:first-child)) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+body:has(#admin-menu) #content fieldset.box:not(.tabular) > p:has(> input[type=checkbox] + label):not(:has(> label:first-child))::after { display: none; }
+body:has(#admin-menu) #content fieldset.box:not(.tabular):not(:has(> p > label:first-child:not(.hidden-for-sighted))) > p:has(> input[type=checkbox] + label):not(:has(> label:first-child)) { min-height: 32px; }
+body:has(#admin-menu) #content fieldset.box:not(.tabular) > p:has(> input[type=checkbox] + label):not(:has(> label:first-child)) > input[type=checkbox] { flex: none; margin: 0; vertical-align: baseline; }
+body:has(#admin-menu) #content fieldset.box:not(.tabular) > p:has(> input[type=checkbox] + label):not(:has(> label:first-child)) > label {
+  display: block;
+  margin: 0;
+  line-height: 20px;
+}
+
+/* R7.5 list name columns: dark text, weight 500, green on hover — the same on every admin / project settings list
+   (core wraps some names in <span> / <em>, e.g. /roles) */
+body:has(#admin-menu) #content table.list td:is(.name, .project) > a:not(.icon):not(.icon-only),
+body.controller-projects.action-settings #content table.list td:is(.name, .project) > a:not(.icon):not(.icon-only),
+body:has(#admin-menu) #content table.list td:is(.name, .project) > :is(span, em):not(.gb-status-warn) > a:not(.icon):not(.icon-only),
+body.controller-projects.action-settings #content table.list td:is(.name, .project) > :is(span, em):not(.gb-status-warn) > a:not(.icon):not(.icon-only) {
+  color: var(--gb-text);
+  font-weight: var(--gb-fw-medium);
+  text-decoration: none;
+}
+body:has(#admin-menu) #content table.list td:is(.name, .project) > a:not(.icon):not(.icon-only):hover,
+body.controller-projects.action-settings #content table.list td:is(.name, .project) > a:not(.icon):not(.icon-only):hover,
+body:has(#admin-menu) #content table.list td:is(.name, .project) > :is(span, em):not(.gb-status-warn) > a:not(.icon):not(.icon-only):hover,
+body.controller-projects.action-settings #content table.list td:is(.name, .project) > :is(span, em):not(.gb-status-warn) > a:not(.icon):not(.icon-only):hover {
+  color: var(--gb-primary-strong);
+  text-decoration: underline;
+}
+
+
+/* R7.7 simple filter rows (/groups, project settings > マイルストーン): input, 適用 and クリア 8px apart */
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box),
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset { gap: 8px; }
+body:has(#admin-menu) #content > form > fieldset:has(> legend):not(:has(table)):not(.box) > :not(legend),
+body.controller-projects.action-settings #content #tab-content-versions > form fieldset > :not(legend) { margin: 0; }
+
+/* R7.8 /issue_statuses on phones: the workflow warning is readable text under the status name (JS mirrors it),
+   the ⚠-only column is dropped */
+body.controller-issue_statuses:has(#admin-menu) #content table.list td.name > .gb-status-warn { display: none; }
+@media screen and (max-width: 900px) {
+  body.controller-issue_statuses:has(#admin-menu) #content table.list td.name > .gb-status-warn {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: var(--gb-fw-normal);
+    line-height: 16px;
+    color: var(--gb-warning-text);
+    white-space: normal;
+  }
+  body.controller-issue_statuses:has(#admin-menu) #content table.list td.name { width: 100%; }
+  body.controller-issue_statuses:has(#admin-menu) #content table.list td.name > .gb-status-warn .icon-label { display: inline; margin: 0; padding: 0; }
+  body.controller-issue_statuses:has(#admin-menu) #content table.list td.name > .gb-status-warn a { color: inherit; text-decoration: underline; }
+  body.controller-issue_statuses:has(#admin-menu) #content table.list .gb-col-warn,
+  body.controller-issue_statuses:has(#admin-menu) #content table.list td.description > span.icon-warning { display: none; }
+}
+
+/* R7.9 新しいメンバー dialog: ロール uses the same column grid as the user / group list, so the columns line up */
+#ajax-modal .roles-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0 16px;
+}
+#ajax-modal .roles-selection label { min-width: 0; margin: 0; }
+
+/* R8.1 ≤900px (Pattern T → S fallback): every admin form stacks its controls at the full card width,
+   like /settings — no 480px cap leaving the right of the card empty on user / role / tracker / custom field forms.
+   Short fields (size 2–8, number) keep their compact width. */
+@media screen and (max-width: 900px) {
+  html body:has(#admin-menu) #content :is(.tabular, fieldset.box) p :is(input[type=text], input[type=email], input[type=password], input[type=url], input[type=date], input:not([type]), select:not([multiple]), textarea) {
+    max-width: 100%;
+  }
+  html body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > :is(input[type=text], input[type=email], input[type=password], input[type=url], input:not([type]), select:not([multiple]), textarea):not([size="2"], [size="3"], [size="4"], [size="5"], [size="6"], [size="8"]) {
+    width: 100%;
+  }
+  html body:has(#admin-menu) #content :is(.tabular, fieldset.box) p > select[multiple] { max-width: 100%; }
+  html body.controller-users:is(.action-edit, .action-new, .action-update, .action-create):has(#admin-menu) #content .splitcontentright fieldset.box:not(.tabular) select { max-width: 100%; }
+}
+
+/* R9.1 /enumerations ≤600px: every table keeps the same column set (デフォルト値 is shown even when no value
+   is the default, as a quiet –) and both ✓ columns get fixed widths, so 有効 sits on one x across all tables */
+@media screen and (max-width: 600px) {
+  html body.controller-enumerations.action-index:has(#admin-menu) #content table.list.enumerations .gb-col-empty.gb-col-bool { display: table-cell; }
+  html body.controller-enumerations.action-index:has(#admin-menu) #content table.list.enumerations > thead > tr > th.gb-col-bool { white-space: nowrap; }
+  html body.controller-enumerations.action-index:has(#admin-menu) #content table.list.enumerations > thead > tr > th.gb-col-bool:nth-child(2),
+  html body.controller-enumerations.action-index:has(#admin-menu) #content table.list.enumerations > tbody > tr > td.gb-col-bool:nth-child(2) { box-sizing: border-box; width: 84px; min-width: 84px; }
+  html body.controller-enumerations.action-index:has(#admin-menu) #content table.list.enumerations > thead > tr > th.gb-col-bool:nth-child(3),
+  html body.controller-enumerations.action-index:has(#admin-menu) #content table.list.enumerations > tbody > tr > td.gb-col-bool:nth-child(3) { box-sizing: border-box; width: 48px; min-width: 48px; }
+}

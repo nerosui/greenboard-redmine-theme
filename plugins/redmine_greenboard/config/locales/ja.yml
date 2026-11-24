@@ -1,0 +1,61 @@
+ja:
+  label_my_page: ダッシュボード
+  gb_projects: プロジェクト
+  gb_open_issues: 未完了
+  gb_closed_issues: 完了
+  gb_no_projects: 参加しているプロジェクトはありません
+  gb_board: ボード
+  gb_recent_updates: 最近の更新
+  gb_see_all: すべて見る
+  gb_see_all_count: "すべて見る（%{count}件）"
+  gb_status: 状態
+  gb_milestones: マイルストーン
+  gb_categories: カテゴリー
+  gb_done: 完了
+  gb_act_issue_add: さんが課題を追加しました
+  gb_act_issue_edit: さんが課題を更新しました
+  gb_act_issue_close: さんが課題を完了しました
+  gb_act_issue_comment: さんがコメントしました
+  gb_act_wiki: さんが Wiki を更新しました
+  gb_act_news: さんがニュースを追加しました
+  gb_act_document: さんが文書を追加しました
+  gb_act_file: さんがファイルを追加しました
+  gb_act_changeset: さんがコミットしました
+  gb_act_message: さんがフォーラムに投稿しました
+  gb_act_time: さんが作業時間を記録しました
+  gb_act_project: さんがプロジェクトを作成しました
+  gb_act_other: さんが更新しました
+  gb_ago: "%{value}前"
+  gb_updates: 最近の更新
+  gb_total_time: 合計
+  gb_show_all: すべて表示
+  gb_show_less: 折りたたむ
+  gb_act_noauthor: "%{type}が追加されました"
+  gb_add_block: ブロックを追加
+  gb_days_left: 期日まで
+  gb_hours_total: 合計
+  gb_log_time_title: 時間を記録
+  gb_edit_time_title: 作業時間を編集
+  gb_issue_search_placeholder: 課題番号または件名で検索
+  gb_hours_unit: 時間
+  gb_roadmap_filtered: "トラッカーで絞り込み中（%{total} 件中 %{shown} 件を表示）"
+  gb_roadmap_all_trackers: すべてのトラッカーを表示
+  gb_roadmap_tracker_heading: 表示するトラッカー
+  gb_activity_period: 表示期間
+  gb_show_more: もっと見る
+  gb_heading_anchor: この見出しへのリンク
+  gb_edit_document: 文書の編集
+  gb_empty_body: 内容を入力してください
+  gb_cal_more: "+%{count}件"
+  gb_report_add: 項目を追加
+  gb_all_users: すべてのユーザー
+  gb_year_option: "%{year}年"
+  gb_period_from: から
+  # P1: file sizes in Japanese units (「18 バイト」); KB / MB / GB stay as core prints them
+  number:
+    human:
+      storage_units:
+        units:
+          byte:
+            one: バイト
+            other: バイト

@@ -1,0 +1,15 @@
+# secrets / local environment
+.env
+*.env
+!.env.example
+docker/.env
+compose.yaml
+docker-compose.yml
+*.pem
+*.key
+.preview-user
+# local dev artefacts
+dev-bundle/
+.deploy.lock
+.DS_Store
+node_modules/

@@ -1,0 +1,1937 @@
+/* 65-wiki.css — owner: wiki (DESIGN.md §3.5)
+   1. Rendered .wiki prose, site-wide (issue descriptions, journals, news, documents, forums, previews)
+   2. Syntax highlighting (Rouge .syntaxhl classes)
+   3. Wiki page chrome (show): breadcrumb, action bar, section edit, footer meta, attachments
+   4. Right sidebar: wiki navigation + page tree (built by 65-wiki.js)
+   5. Edit / new / rename forms (+ split preview)
+   6. History, diff, annotate, old-version view
+   7. Index (name / date)
+*/
+
+/* =====================================================================
+   1. Rendered prose — base size 14px / 1.7; reading pages bump to 15px / 1.8
+   ===================================================================== */
+div.wiki {
+  --gbw-fs: 14px;
+  --gbw-lh: 1.7;
+  --gbw-h1: 20px;
+  --gbw-h2: 18px;
+  --gbw-h3: 15px;
+  --gbw-h4: 14px;
+  font-size: var(--gbw-fs);
+  line-height: var(--gbw-lh);
+  color: var(--gb-text);
+}
+
+/* reading pages: wiki pages + wiki previews, document / news / forum detail */
+.controller-wiki div.wiki.wiki-page,
+.controller-wiki div.wiki.wiki-preview,
+.controller-documents.action-show div.wiki,
+.controller-news.action-show div.wiki,
+.controller-messages.action-show div.wiki {
+  --gbw-fs: 15px;
+  --gbw-lh: var(--gb-lh-prose);
+  --gbw-h1: var(--gb-fs-2xl);
+  --gbw-h2: var(--gb-fs-xl);
+  --gbw-h3: var(--gb-fs-lg);
+  --gbw-h4: 15px;
+}
+.controller-wiki div.wiki.wiki-page,
+.controller-documents.action-show div.wiki,
+.controller-news.action-show div.wiki {
+  max-width: var(--gb-prose-max);
+}
+#sidebar div.wiki {
+  --gbw-fs: 13px;
+  --gbw-lh: 1.6;
+  --gbw-h1: 15px;
+  --gbw-h2: 14px;
+  --gbw-h3: 13px;
+  --gbw-h4: 13px;
+}
+
+/* paragraphs */
+div.wiki p {
+  margin: 0 0 1em;
+  padding: 0;
+  line-height: inherit;
+}
+div.wiki > :last-child,
+div.wiki > p:last-child { margin-bottom: 0; }
+div.wiki strong, div.wiki b { font-weight: var(--gb-fw-bold); color: var(--gb-text); }
+/* DESIGN §1.2: no italics for Japanese text — emphasis becomes a soft marker */
+div.wiki em, div.wiki i {
+  font-style: normal;
+  background: linear-gradient(transparent 62%, var(--gb-warning-border) 62%);
+  padding: 0 1px;
+}
+div.wiki del, div.wiki s, div.wiki strike { color: var(--gb-muted); }
+div.wiki ins { text-decoration-color: var(--gb-primary); text-underline-offset: 3px; }
+div.wiki mark { background: var(--gb-warning-soft); color: inherit; padding: 0 2px; border-radius: 2px; }
+div.wiki abbr[title] { text-decoration: underline dotted; cursor: help; }
+div.wiki sup, div.wiki sub { font-size: .75em; }
+
+/* headings */
+div.wiki h1, div.wiki h2, div.wiki h3, div.wiki h4, div.wiki h5, div.wiki h6 {
+  color: var(--gb-text);
+  font-weight: var(--gb-fw-bold);
+  line-height: var(--gb-lh-tight);
+  position: relative;
+  scroll-margin-top: calc(var(--gb-topbar-h) + 16px);
+}
+div.wiki h1 {
+  font-size: var(--gbw-h1);
+  margin: 0 0 16px;
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--gb-border);
+}
+div.wiki h2 {
+  font-size: var(--gbw-h2);
+  margin: 32px 0 12px;
+  padding: 0 0 6px;
+  border-bottom: 1px solid var(--gb-border);
+}
+div.wiki h3 {
+  font-size: var(--gbw-h3);
+  margin: 24px 0 8px;
+  padding: 0 0 0 10px;
+  border-bottom: 0;
+  border-left: 3px solid var(--gb-primary);
+}
+div.wiki h4 {
+  font-size: var(--gbw-h4);
+  margin: 20px 0 6px;
+  padding: 0;
+  border: 0;
+}
+div.wiki h5 { font-size: var(--gbw-fs); margin: 16px 0 4px; padding: 0; border: 0; }
+div.wiki h6 { font-size: 13px; margin: 16px 0 4px; padding: 0; border: 0; color: var(--gb-text-2); }
+/* the first heading of a block never gets top space (anchor <a name> precedes it) */
+div.wiki > :is(h1, h2, h3, h4, h5, h6):first-child,
+div.wiki > a[name]:first-child + :is(h1, h2, h3, h4, h5, h6),
+div.wiki > .contextual:first-child + a[name] + :is(h1, h2, h3, h4, h5, h6) { margin-top: 0; }
+div.wiki a[name] { scroll-margin-top: calc(var(--gb-topbar-h) + 16px); }
+
+/* target highlight (core paints #DDEEFF) */
+div.wiki a:target + :is(h1, h2, h3, h4, h5, h6) {
+  background-color: var(--gb-primary-softer);
+  box-shadow: -8px 0 0 var(--gb-primary-softer), 8px 0 0 var(--gb-primary-softer);
+  border-radius: 2px;
+}
+
+/* ¶ permalink — 24px icon button at the heading's right edge, visible on hover/focus, never shifts layout */
+div.wiki :is(h1, h2, h3, h4, h5, h6):has(> a.wiki-anchor) { padding-right: 32px; }
+div.wiki-page :is(h1, h2, h3, h4, h5, h6).gb-wiki-has-sedit:has(> a.wiki-anchor) { padding-right: 64px; }
+a.wiki-anchor,
+h1:hover a.wiki-anchor, h2:hover a.wiki-anchor, h3:hover a.wiki-anchor,
+h4:hover a.wiki-anchor, h5:hover a.wiki-anchor, h6:hover a.wiki-anchor {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 0;
+  line-height: 0;
+  color: var(--gb-text-2);
+  text-decoration: none;
+  visibility: visible;
+  opacity: 0;
+  transition: opacity var(--gb-dur-1) var(--gb-ease), background-color var(--gb-dur-1);
+}
+a.wiki-anchor::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 14a4.5 4.5 0 0 0 6.4 0l3.2-3.2a4.5 4.5 0 0 0-6.4-6.4L12 5.6'/%3E%3Cpath d='M14 10a4.5 4.5 0 0 0-6.4 0l-3.2 3.2a4.5 4.5 0 0 0 6.4 6.4L12 18.4'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 14a4.5 4.5 0 0 0 6.4 0l3.2-3.2a4.5 4.5 0 0 0-6.4-6.4L12 5.6'/%3E%3Cpath d='M14 10a4.5 4.5 0 0 0-6.4 0l-3.2 3.2a4.5 4.5 0 0 0 6.4 6.4L12 18.4'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+/* h1/h2 carry a bottom rule + padding: centre on the text, not the box */
+div.wiki h1 > a.wiki-anchor { top: calc(50% - 5px); }
+div.wiki h2 > a.wiki-anchor { top: calc(50% - 3px); }
+/* next to the section-edit pencil (28px at right: 0) */
+div.wiki-page .gb-wiki-has-sedit > a.wiki-anchor { right: 32px; }
+:is(h1, h2, h3, h4, h5, h6):is(:hover, :focus-within) > a.wiki-anchor,
+a.wiki-anchor:focus-visible { opacity: 1; }
+a.wiki-anchor:hover { background: var(--gb-surface-3); color: var(--gb-text) !important; }
+@media (hover: none) {
+  a.wiki-anchor { opacity: .6; }
+}
+
+/* links */
+div.wiki a, div.wiki a:link, div.wiki a:visited { color: var(--gb-primary-strong); text-underline-offset: 3px; }
+div.wiki a:hover { color: var(--gb-primary-hover); text-decoration: underline; }
+div.wiki a.external {
+  background: none;
+  padding-left: 0;
+}
+div.wiki a.external::after {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 0 1px 0 3px;
+  vertical-align: -1px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6'/%3E%3Cpath d='M20 4l-9 9'/%3E%3Cpath d='M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6'/%3E%3Cpath d='M20 4l-9 9'/%3E%3Cpath d='M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5'/%3E%3C/svg%3E") center / contain no-repeat;
+  opacity: .7;
+}
+div.wiki a.new, div.wiki a.new:link, div.wiki a.new:visited {
+  color: var(--gb-danger);
+  text-decoration: underline dashed;
+  text-decoration-thickness: 1px;
+}
+div.wiki a.new:hover { color: var(--gb-danger-hover); }
+
+/* lists */
+div.wiki ul, div.wiki ol {
+  margin: 0 0 1em;
+  padding-left: 1.6em;
+}
+div.wiki li {
+  line-height: inherit;
+  margin: 4px 0;
+}
+div.wiki li > ul, div.wiki li > ol { margin: 2px 0; }
+div.wiki li > p { margin: 0 0 .4em; }
+div.wiki ul > li::marker { color: var(--gb-text-2); }
+div.wiki ol > li::marker { color: var(--gb-text-2); font-weight: var(--gb-fw-medium); }
+div.wiki dl { margin: 0 0 1em; }
+div.wiki dt { font-weight: var(--gb-fw-bold); margin-top: 8px; }
+div.wiki dd { margin: 2px 0 0 1.6em; color: var(--gb-text-2); }
+
+/* task lists: no bullet, 16px green checkbox, checked text stays readable */
+div.wiki ul.contains-task-list,
+div.wiki ul.task-list { padding-left: 0; list-style: none; }
+div.wiki li > ul.contains-task-list { padding-left: 1.6em; }
+div.wiki .contains-task-list .task-list-item,
+div.wiki .task-list .task-list-item {
+  list-style: none;
+  position: relative;
+  padding-left: 26px;
+}
+div.wiki .contains-task-list .task-list-item::marker { content: none; }
+div.wiki input.task-list-item-checkbox,
+div.wiki .contains-task-list .task-list-item-checkbox,
+div.wiki .task-list input.task-list-item-checkbox {
+  -webkit-appearance: none;
+          appearance: none;
+  position: absolute;
+  left: 0;
+  top: calc((var(--gbw-lh) * 1em - 16px) / 2);
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 1.5px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface) center / 12px 12px no-repeat;
+  opacity: 1;
+  cursor: default;
+}
+div.wiki input.task-list-item-checkbox:checked {
+  background-color: var(--gb-primary-strong);
+  border-color: var(--gb-primary-strong);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+}
+div.wiki .task-list-item:has(> input.task-list-item-checkbox:checked) { color: var(--gb-text-2); }
+
+/* inline code */
+div.wiki *:not(pre) > code,
+div.wiki > code,
+div.wiki tt {
+  font-family: var(--gb-font-mono);
+  font-size: .875em;
+  background: var(--gb-surface-3);
+  color: #b3404a;
+  border-radius: var(--gb-radius-sm);
+  padding: 1px 5px;
+  white-space: break-spaces;
+}
+div.wiki a > code { color: inherit; }
+
+/* code blocks */
+div.wiki div.pre-wrapper {
+  position: relative;
+  margin: 16px 0;
+}
+div.wiki pre {
+  margin: 16px 0;
+  padding: 14px 16px;
+  background: var(--gb-surface-2);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  font-family: var(--gb-font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--gb-text);
+  width: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: pre;
+  tab-size: 4;
+}
+div.wiki div.pre-wrapper > pre { margin: 0; }
+div.wiki div.pre-wrapper[data-gb-lang] > pre { padding-top: 28px; }
+div.wiki pre code {
+  font: inherit;
+  background: none;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+  white-space: inherit;
+}
+/* language label (set by 65-wiki.js) + copy button */
+div.wiki div.pre-wrapper[data-gb-lang]::before {
+  content: attr(data-gb-lang);
+  position: absolute;
+  top: 6px;
+  left: 16px;
+  font: var(--gb-fw-bold) 12px/16px var(--gb-font);
+  color: var(--gb-muted);
+  letter-spacing: .02em;
+  pointer-events: none;
+}
+/* live preview: core has not wrapped the <pre> yet, so the label sits on the <pre> itself */
+div.wiki pre[data-gb-lang] { position: relative; padding-top: 28px; }
+div.wiki pre[data-gb-lang]::before {
+  content: attr(data-gb-lang);
+  position: absolute;
+  top: 6px;
+  left: 16px;
+  font: var(--gb-fw-bold) 12px/16px var(--gb-font);
+  color: var(--gb-muted);
+  letter-spacing: .02em;
+  pointer-events: none;
+}
+div.wiki div.pre-wrapper > pre[data-gb-lang]::before { content: none; }
+div.wiki div.pre-wrapper:not([data-gb-lang]) > pre[data-gb-lang] { padding-top: 14px; }
+div.pre-wrapper a.copy-pre-content-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  inset-inline-end: 6px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  box-shadow: var(--gb-shadow);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--gb-dur-1) var(--gb-ease), background-color var(--gb-dur-1);
+}
+div.pre-wrapper:hover a.copy-pre-content-link,
+div.pre-wrapper a.copy-pre-content-link:focus-visible { display: inline-flex; opacity: 1; }
+div.pre-wrapper a.copy-pre-content-link:hover { background: var(--gb-surface-3); }
+div.pre-wrapper a.copy-pre-content-link .icon-svg { stroke: var(--gb-text-2); width: 16px; height: 16px; }
+@media (hover: none) {
+  div.pre-wrapper a.copy-pre-content-link { opacity: 1; }
+}
+
+/* blockquote */
+div.wiki blockquote {
+  margin: 16px 0;
+  padding: 4px 0 4px 16px;
+  border-left: 3px solid var(--gb-border-strong);
+  color: var(--gb-text-2);
+  font-style: normal;
+}
+div.wiki blockquote > :last-child { margin-bottom: 0; }
+div.wiki blockquote blockquote { margin: 8px 0; }
+
+/* tables: rounded frame, header strip, wide tables scroll in place */
+div.wiki table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 16px 0;
+  padding: 0;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--gb-fs-md);
+  line-height: 1.6;
+  background: var(--gb-surface);
+}
+div.wiki th, div.wiki td {
+  border: 0;
+  border-right: 1px solid var(--gb-border);
+  border-bottom: 1px solid var(--gb-border);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+  /* cells never shrink to 1–2 characters: a narrow container makes the table scroll instead */
+  min-width: 6em;
+  max-width: 32em;
+}
+div.wiki td { min-width: 8em; }
+div.wiki td:empty { min-width: 3em; }
+/* phones: off-screen columns of wide tables (4+ columns) wrap less, so rows stay even */
+@media (max-width: 600px) {
+  div.wiki table:has(tr > :nth-child(4)) :is(th, td) { min-width: 10em; max-width: 20em; }
+  div.wiki table:has(tr > :nth-child(4)) td:empty { min-width: 3em; }
+}
+div.wiki th {
+  background: var(--gb-surface-2);
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+  white-space: nowrap;
+}
+div.wiki tr > :last-child { border-right: 0; }
+div.wiki tbody > tr:last-child > td,
+div.wiki tbody > tr:last-child > th,
+div.wiki table > tr:last-child > td { border-bottom: 0; }
+div.wiki tbody > tr:hover > td { background: var(--gb-primary-softer); }
+div.wiki table td[align=right], div.wiki table th[align=right] { text-align: right; }
+div.wiki table td[align=center], div.wiki table th[align=center] { text-align: center; }
+div.wiki .wiki-class-noborder,
+div.wiki .wiki-class-noborder td,
+div.wiki .wiki-class-noborder th { border: 0; background: none; }
+
+/* rule, images */
+div.wiki hr {
+  height: 0;
+  border: 0;
+  border-top: 1px solid var(--gb-border);
+  background: none;
+  margin: 24px 0;
+}
+div.wiki img { max-width: 100%; height: auto; border-radius: var(--gb-radius-sm); vertical-align: middle; }
+div.wiki p > img:only-child,
+div.wiki p > a:only-child > img { display: block; margin: 8px 0; border: 1px solid var(--gb-border); }
+
+/* table of contents ({{toc}}, {{>toc}}) */
+div.wiki ul.toc {
+  display: block;
+  width: fit-content;
+  min-width: 220px;
+  max-width: 100%;
+  margin: 8px 0 24px;
+  padding: 12px 16px 12px 14px;
+  background: var(--gb-surface-2);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  font-size: 13px;
+  line-height: 1.5;
+  list-style: none;
+}
+div.wiki ul.toc.right { float: right; clear: right; margin: 4px 0 16px 24px; max-width: 260px; }
+div.wiki ul.toc.left { float: left; clear: left; margin: 4px 24px 16px 0; max-width: 260px; }
+div.wiki ul.toc ul { margin: 0; padding: 0 0 0 14px; list-style: none; border-left: 1px solid var(--gb-border); }
+div.wiki ul.toc li { list-style: none; margin: 0; padding: 0; }
+div.wiki ul.toc li li { margin-left: 0; }
+div.wiki ul.toc > li:first-child {
+  margin-bottom: 6px;
+  color: var(--gb-text-2);
+  font-size: 12px;
+}
+div.wiki ul.toc > li:first-child strong { font-weight: var(--gb-fw-bold); color: var(--gb-text-2); }
+div.wiki ul.toc > li + li > ul { border-left: 0; padding-left: 0; }
+div.wiki ul.toc a, div.wiki ul.toc a:link, div.wiki ul.toc a:visited {
+  display: block;
+  padding: 3px 8px;
+  margin-left: -8px;
+  border-radius: var(--gb-radius-sm);
+  font-size: 13px;
+  color: var(--gb-text-2);
+  text-decoration: none;
+}
+div.wiki ul.toc a:hover { color: var(--gb-primary-strong); background: var(--gb-primary-soft); text-decoration: none; }
+div.wiki ul.toc > li:nth-child(2) > a { color: var(--gb-text); font-weight: var(--gb-fw-medium); }
+
+/* macro output */
+div.wiki .collapsible-macro, div.wiki p.collapsible { margin: 0 0 1em; }
+div.wiki div.flash, div.wiki .warning { font-size: var(--gb-fs-md); }
+
+/* =====================================================================
+   2. Syntax highlighting (Rouge, pygments class names) — site-wide
+   ===================================================================== */
+.syntaxhl, .syntaxhl * { background: none; font-weight: inherit; font-style: normal; }
+.syntaxhl .k, .syntaxhl .kc, .syntaxhl .kd, .syntaxhl .kn, .syntaxhl .kp, .syntaxhl .kr, .syntaxhl .kt,
+.syntaxhl .ow, .syntaxhl .nt { color: #8250df; }
+.syntaxhl .s, .syntaxhl .s1, .syntaxhl .s2, .syntaxhl .sa, .syntaxhl .sb, .syntaxhl .sc, .syntaxhl .dl,
+.syntaxhl .sd, .syntaxhl .sh, .syntaxhl .sx, .syntaxhl .sr, .syntaxhl .ss, .syntaxhl .se, .syntaxhl .si { color: #0a6e4f; }
+.syntaxhl .c, .syntaxhl .c1, .syntaxhl .cm, .syntaxhl .ch, .syntaxhl .cpf, .syntaxhl .cs, .syntaxhl .cp,
+.syntaxhl .go { color: var(--gb-muted); font-style: normal; }
+.syntaxhl .m, .syntaxhl .mi, .syntaxhl .mf, .syntaxhl .mh, .syntaxhl .mo, .syntaxhl .mb, .syntaxhl .il { color: #b35900; }
+.syntaxhl .nf, .syntaxhl .fm, .syntaxhl .nc, .syntaxhl .nn, .syntaxhl .nb, .syntaxhl .bp, .syntaxhl .na,
+.syntaxhl .nd, .syntaxhl .ne, .syntaxhl .nl { color: #2f6fb0; }
+.syntaxhl .no, .syntaxhl .nv, .syntaxhl .vc, .syntaxhl .vg, .syntaxhl .vi, .syntaxhl .vm { color: #b35900; }
+.syntaxhl .o, .syntaxhl .p, .syntaxhl .w { color: inherit; }
+.syntaxhl .gi { color: var(--gb-success-text); background: #dff5ea; }
+.syntaxhl .gd { color: var(--gb-danger-text); background: #fde4e1; }
+.syntaxhl .gh, .syntaxhl .gu { color: #2f6fb0; font-weight: var(--gb-fw-bold); }
+.syntaxhl .err { color: var(--gb-danger); }
+.syntaxhl .hll { background: var(--gb-warning-soft); }
+
+/* =====================================================================
+   3. Wiki page (show) chrome
+   ===================================================================== */
+/* breadcrumb: 12px grey path with › separators (separators injected by 65-wiki.js) */
+.controller-wiki #content > p.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+  min-height: 32px;
+  margin: 0 0 8px;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+}
+.controller-wiki #content > p.breadcrumb a,
+.controller-wiki #content > p.breadcrumb a:link,
+.controller-wiki #content > p.breadcrumb a:visited { color: var(--gb-text-2); text-decoration: none; }
+.controller-wiki #content > p.breadcrumb a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+.controller-wiki #content > p.breadcrumb :is(.gb-wiki-crumb-sep, .gbd-sep),
+.gb-wiki-crumb-sep { color: var(--gb-disabled); font-size: 13px; line-height: 1; margin: 0; }
+.controller-wiki #content > p.breadcrumb :is(.gb-wiki-crumb-sep, .gbd-sep):last-child { display: none; }
+.gb-wiki-crumb-home { display: inline-flex; align-items: center; gap: 4px; }
+.gb-wiki-crumb-home .icon-svg { width: 14px; height: 14px; stroke: currentColor; }
+
+/* the page body always starts below the floated action bar */
+.controller-wiki #content > div.wiki.wiki-page { clear: right; }
+.controller-wiki.action-show #content > div.wiki.wiki-page { margin-top: 4px; }
+.controller-wiki.action-show #content > .contextual + div.wiki.wiki-page { padding-top: 8px; }
+
+/* action bar on a wiki page: 編集 = primary sm, ウォッチ = text, … = icon button */
+.controller-wiki.action-show #content > .contextual {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 8px 16px;
+}
+.controller-wiki.action-show #content > .contextual > a.icon-edit,
+.controller-wiki.action-show #content > .contextual > a.icon-edit:link,
+.controller-wiki.action-show #content > .contextual > a.icon-edit:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px 0 12px;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-primary-strong);
+  color: #fff;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  text-decoration: none;
+  order: -1;
+}
+.controller-wiki.action-show #content > .contextual > a.icon-edit:hover { background: var(--gb-primary-hover); color: #fff; }
+.controller-wiki.action-show #content > .contextual > a.icon-edit .icon-svg,
+.controller-wiki.action-show #content > .contextual > a.icon-edit:hover .icon-svg { stroke: #fff; width: 16px; height: 16px; }
+
+/* section edit pencils: moved into their heading by JS; visible on heading hover/focus */
+div.wiki-page .contextual[id^="section-"] {
+  float: right;
+  margin: 0 0 0 8px;
+  padding: 0;
+  font-size: 0;
+  opacity: 1;
+}
+div.wiki-page :is(h1, h2, h3, h4, h5, h6) > .contextual[id^="section-"] {
+  float: none;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+}
+div.wiki-page h1 > .contextual[id^="section-"] { top: calc(50% - 5px); }
+div.wiki-page h2 > .contextual[id^="section-"] { top: calc(50% - 3px); }
+div.wiki-page .gb-wiki-has-sedit { padding-right: 36px; }
+div.wiki-page h3.gb-wiki-has-sedit { padding-right: 36px; }
+div.wiki-page .contextual[id^="section-"] a,
+div.wiki-page .contextual[id^="section-"] a.icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: var(--gb-radius-sm);
+  opacity: 0;
+  transition: opacity var(--gb-dur-1) var(--gb-ease), background-color var(--gb-dur-1);
+}
+div.wiki-page .contextual[id^="section-"] a .icon-svg { stroke: var(--gb-text-2); width: 16px; height: 16px; }
+div.wiki-page :is(h1, h2, h3, h4, h5, h6):hover > .contextual[id^="section-"] a,
+div.wiki-page .contextual[id^="section-"]:hover a,
+div.wiki-page .contextual[id^="section-"] a:focus-visible { opacity: 1; }
+div.wiki-page .contextual[id^="section-"] a:hover { background: var(--gb-surface-3); }
+div.wiki-page .contextual[id^="section-"] a:hover .icon-svg { stroke: var(--gb-primary-strong); }
+@media (hover: none) {
+  div.wiki-page .contextual[id^="section-"] a { opacity: .6; }
+}
+
+/* footer meta row: avatar + 「○○ さんが…前に更新」 + 履歴 link */
+.controller-wiki p.wiki-update-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  max-width: var(--gb-prose-max);
+  margin: 32px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--gb-border);
+  text-align: left;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+}
+.controller-wiki p.wiki-update-info a.user { color: var(--gb-text); font-weight: var(--gb-fw-bold); }
+.controller-wiki p.wiki-update-info a { color: var(--gb-text-2); }
+.controller-wiki p.wiki-update-info a:hover { color: var(--gb-primary-strong); }
+.controller-wiki p.wiki-update-info .gb-avatar { margin-right: 2px; }
+.controller-wiki p.wiki-update-info a.gb-wiki-history-link,
+.controller-wiki p.wiki-update-info a.gb-wiki-history-link:link,
+.controller-wiki p.wiki-update-info a.gb-wiki-history-link:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  margin-left: auto;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-primary-strong);
+  font-weight: var(--gb-fw-medium);
+  text-decoration: none;
+}
+.controller-wiki p.wiki-update-info a.gb-wiki-history-link:hover { background: var(--gb-primary-soft); }
+.controller-wiki p.wiki-update-info a.gb-wiki-history-link .icon-svg { width: 14px; height: 14px; stroke: currentColor; }
+.controller-wiki p.wiki-update-info .gb-wiki-dot { display: none; }
+
+/* attachments section of a wiki page */
+.controller-wiki.action-show #content > fieldset.collapsible {
+  max-width: var(--gb-prose-max);
+  margin: 32px 0 0;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--gb-border);
+  border-radius: 0;
+  background: none;
+}
+.controller-wiki.action-show #content > fieldset.collapsible > legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px 0 0;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+  cursor: pointer;
+  background: var(--gb-surface);
+}
+.controller-wiki.action-show #content > fieldset.collapsible > legend .icon-svg { width: 16px; height: 16px; stroke: var(--gb-text-2); }
+.controller-wiki.action-show #content > fieldset.collapsible > div { padding: 12px 0 0; }
+.controller-wiki.action-show #content > fieldset.collapsible + p.wiki-update-info { margin-top: 16px; border-top: 0; padding-top: 0; }
+.controller-wiki.action-show #wiki_add_attachment .box { margin: 0 0 12px; }
+.controller-wiki.action-show #content > p.other-formats { max-width: var(--gb-prose-max); }
+
+/* old version view (/wiki/Page/1): revision meta strip */
+.controller-wiki.action-show #content > h2 + p {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  background: var(--gb-surface-2);
+  border-radius: var(--gb-radius);
+  font-size: 13px;
+  color: var(--gb-text-2);
+  line-height: 1.7;
+}
+.controller-wiki.action-show #content > h2 + p em { font-style: normal; }
+.controller-wiki.action-show #content > h2 + p + hr { display: none; }
+
+/* page titles of the secondary views: 「ページ » 履歴 » リビジョン 2」 */
+.controller-wiki #content > h2 {
+  font-size: var(--gb-fs-xl);
+  font-weight: var(--gb-fw-bold);
+  line-height: var(--gb-lh-tight);
+  margin: 0 0 16px;
+}
+.controller-wiki #content > h2 a,
+.controller-wiki #content > h2 a:link,
+.controller-wiki #content > h2 a:visited { color: var(--gb-text-2); font-weight: var(--gb-fw-medium); text-decoration: none; }
+.controller-wiki #content > h2 a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+.controller-wiki #content > h2 .gb-wiki-title-action { color: var(--gb-text-2); font-weight: var(--gb-fw-medium); }
+.controller-wiki #content > h2 .gb-wiki-crumb-sep { margin: 0 8px; font-size: 18px; color: var(--gb-disabled); font-weight: var(--gb-fw-normal); }
+
+/* =====================================================================
+   4. Right sidebar on wiki pages
+   ===================================================================== */
+.controller-wiki #sidebar h3 + ul,
+.controller-wiki #sidebar ul.gb-wiki-nav {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+}
+.controller-wiki #sidebar ul.gb-wiki-nav > li { margin: 0; padding: 0; list-style: none; }
+.controller-wiki #sidebar ul.gb-wiki-nav > li > a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  font-size: 13px;
+  color: var(--gb-text);
+  text-decoration: none;
+}
+.controller-wiki #sidebar ul.gb-wiki-nav > li > a .icon-svg { width: 16px; height: 16px; stroke: var(--gb-text-2); flex: none; }
+.controller-wiki #sidebar ul.gb-wiki-nav > li > a:hover { background: var(--gb-primary-soft); color: var(--gb-primary-strong); }
+.controller-wiki #sidebar ul.gb-wiki-nav > li > a:hover .icon-svg { stroke: var(--gb-primary-strong); }
+.controller-wiki #sidebar ul.gb-wiki-nav > li > a.gb-current {
+  background: var(--gb-primary-soft);
+  color: var(--gb-primary-strong);
+  font-weight: var(--gb-fw-bold);
+}
+.controller-wiki #sidebar ul.gb-wiki-nav > li > a.gb-current .icon-svg { stroke: var(--gb-primary-strong); }
+
+/* page tree */
+.gb-wiki-tree-section { margin: 16px 0 8px; }
+.gb-wiki-tree-section > h3 { display: flex; align-items: center; justify-content: space-between; }
+.gb-wiki-tree-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-xs);
+  font-weight: var(--gb-fw-bold);
+}
+ul.gb-wiki-tree, ul.gb-wiki-tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+/* nested levels: 16px indent + guide line (beats core's `#sidebar ul { padding: 0 }`) */
+#sidebar .gb-wiki-tree-section ul.gb-wiki-tree ul,
+ul.gb-wiki-tree ul {
+  margin: 0 0 0 9px;
+  padding: 0 0 0 7px;
+  border-left: 1px solid var(--gb-border);
+}
+ul.gb-wiki-tree li { margin: 0; padding: 0; list-style: none; }
+ul.gb-wiki-tree li.gb-collapsed > ul { display: none; }
+.gb-wiki-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 28px;
+  border-radius: var(--gb-radius-sm);
+}
+.gb-wiki-tree-row:hover { background: var(--gb-primary-softer); }
+.gb-wiki-tree-toggle,
+.gb-wiki-tree-spacer {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+.gb-wiki-tree-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  border: 0;
+  border-radius: var(--gb-radius-sm);
+  background: none;
+  box-shadow: none;
+  color: var(--gb-text-2);
+  cursor: pointer;
+}
+.gb-wiki-tree-toggle:hover { background: var(--gb-surface-3); }
+.gb-wiki-tree-toggle .icon-svg { width: 14px; height: 14px; stroke: currentColor; transition: transform var(--gb-dur-1) var(--gb-ease); transform: rotate(90deg); }
+li.gb-collapsed > .gb-wiki-tree-row .gb-wiki-tree-toggle .icon-svg { transform: rotate(0deg); }
+.gb-wiki-tree-row > a,
+.gb-wiki-tree-row > a:link,
+.gb-wiki-tree-row > a:visited {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 2px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--gb-text);
+  text-decoration: none;
+}
+.gb-wiki-tree-row > a span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gb-wiki-tree-row > a .icon-svg { flex: none; width: 14px; height: 14px; stroke: var(--gb-muted); }
+.gb-wiki-tree-row > a:hover { color: var(--gb-primary-strong); }
+.gb-wiki-tree-row.gb-current { background: var(--gb-primary-soft); }
+.gb-wiki-tree-row.gb-current > a { color: var(--gb-primary-strong); font-weight: var(--gb-fw-bold); }
+.gb-wiki-tree-row.gb-current > a .icon-svg { stroke: var(--gb-primary-strong); }
+.gb-wiki-tree-more { margin: 4px 0 0; font-size: 12px; }
+/* first visit of the session only: reserve the tree's space until the index arrives */
+.gb-wiki-tree-skel { display: flex; flex-direction: column; gap: 0; min-height: 168px; }
+.gb-wiki-tree-skel > span {
+  display: block;
+  height: 10px;
+  margin: 9px 6px 9px 22px;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-3);
+  animation: gb-wiki-skel 1.2s var(--gb-ease) infinite alternate;
+}
+.gb-wiki-tree-skel > span:nth-child(3n+2) { margin-right: 40px; }
+.gb-wiki-tree-skel > span:nth-child(3n) { margin-left: 38px; margin-right: 24px; }
+@keyframes gb-wiki-skel { from { opacity: 1; } to { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .gb-wiki-tree-skel > span { animation: none; } }
+
+/* 「サイドバーを編集」: 28px icon-only button on the first h3 line */
+.controller-wiki #sidebar-wrapper > .contextual:has(> a.icon-edit[href$="/sidebar/edit"]) {
+  float: right;
+  display: flex;
+  justify-content: flex-end;
+  width: auto;
+  /* centred on the h3 line; the right 32px stay reserved for the sidebar collapse button (30-sidebar-nav) */
+  margin: -5px 0 -12px 8px;
+  position: relative;
+  z-index: 1;
+}
+.controller-wiki #sidebar-wrapper > .contextual > a.icon-edit[href$="/sidebar/edit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--gb-radius-sm);
+  background: none;
+  color: var(--gb-text-2);
+}
+.controller-wiki #sidebar-wrapper > .contextual > a.icon-edit[href$="/sidebar/edit"]:hover { background: var(--gb-surface-3); color: var(--gb-primary-strong); }
+.controller-wiki #sidebar-wrapper > .contextual > a.icon-edit[href$="/sidebar/edit"] .icon-svg { width: 16px; height: 16px; stroke: currentColor; margin: 0; }
+.controller-wiki #sidebar-wrapper > .contextual > a.icon-edit[href$="/sidebar/edit"] .icon-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* sidebar watchers on wiki */
+.controller-wiki #sidebar #watchers { margin-top: 16px; }
+
+/* =====================================================================
+   5. Edit / new / rename forms
+   ===================================================================== */
+.controller-wiki :is(form#wiki_form, form#new_page, form#edit_wiki_page) { display: block; }
+.controller-wiki form#wiki_form { max-width: var(--gb-form-max); }
+.controller-wiki form#wiki_form > .box.tabular,
+.controller-wiki form#new_page > .box.tabular,
+.controller-wiki form#edit_wiki_page > .box.tabular {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0 0 8px;
+}
+.controller-wiki form#wiki_form > .box.tabular {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  column-gap: 24px;
+  align-items: start;
+}
+.controller-wiki form#wiki_form > .box.tabular > * { grid-column: 1 / -1; }
+.controller-wiki form#wiki_form > .box.tabular > p:has(#wiki_page_parent_id) { grid-column: 1; }
+.controller-wiki form#wiki_form > .box.tabular > p:has(#wiki_page_parent_id) + p:has(#content_comments) { grid-column: 2; }
+
+/* Pattern S fields inside wiki forms */
+.controller-wiki :is(#wiki_form, #new_page, #edit_wiki_page) .tabular p {
+  padding: 0;
+  margin: 0 0 20px;
+  min-height: 0;
+}
+.controller-wiki :is(#wiki_form, #new_page, #edit_wiki_page) .tabular p > label:first-child,
+.controller-wiki :is(#wiki_form, #new_page, #edit_wiki_page) .tabular p > label {
+  float: none;
+  display: block;
+  width: auto;
+  margin: 0 0 6px;
+  padding: 0;
+  text-align: left;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+  line-height: 1.5;
+}
+.controller-wiki :is(#wiki_form, #new_page, #edit_wiki_page) .tabular p em.info {
+  display: block;
+  margin: 6px 0 0;
+  padding: 0;
+  font-size: var(--gb-fs-sm);
+  font-style: normal;
+  color: var(--gb-text-2);
+}
+.controller-wiki #wiki_form #wiki_page_parent_id { width: 100%; max-width: 320px; }
+.controller-wiki #wiki_form #content_comments { width: 100%; }
+
+/* editor (C-editor, §6.11): wiki pages start at 320px and grow with their text */
+.controller-wiki #wiki_form { --gb-editor-min: 320px; }
+.controller-wiki #wiki_form .jstBlock { margin: 0 0 24px; }
+
+/* split view: textarea | live preview (toggle injected by 65-wiki.js) */
+.gb-wiki-split-item { margin-left: auto !important; display: flex; align-items: center; padding: 0 4px; list-style: none; }
+button.gb-wiki-split-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  min-width: 0;
+  padding: 0 10px;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: var(--gb-radius-sm);
+  background: none;
+  box-shadow: none;
+  color: var(--gb-text-2);
+  font: var(--gb-fw-bold) 12px/1 var(--gb-font);
+  white-space: nowrap;
+  cursor: pointer;
+}
+button.gb-wiki-split-toggle:hover { background: var(--gb-surface-3); color: var(--gb-text); border-color: transparent; }
+button.gb-wiki-split-toggle[aria-pressed="true"] {
+  background: var(--gb-primary-soft);
+  border-color: var(--gb-primary-border);
+  color: var(--gb-primary-strong);
+}
+button.gb-wiki-split-toggle .gb-wiki-split-icon {
+  width: 14px;
+  height: 12px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  background: linear-gradient(currentColor, currentColor) center / 1.5px 100% no-repeat;
+  box-sizing: border-box;
+}
+#content .jstBlock.gb-wiki-split .jstTabs.tabs li:has(> a.tab-edit),
+#content .jstBlock.gb-wiki-split .jstTabs.tabs li:has(> a.tab-preview) { display: none; }
+.jstBlock.gb-wiki-split .jstTabs .tab-elements,
+.jstBlock.gb-wiki-split .jstElements.hidden { display: flex !important; }
+.jstBlock.gb-wiki-split .jstEditor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+.jstBlock.gb-wiki-split .jstEditor > textarea.wiki-edit,
+.jstBlock.gb-wiki-split .jstEditor > textarea.wiki-edit.hidden {
+  display: block !important;
+  grid-column: 1;
+  grid-row: 1;
+}
+.jstBlock.gb-wiki-split .jstEditor > .wiki-preview,
+.jstBlock.gb-wiki-split .jstEditor > .wiki-preview.hidden {
+  display: block !important;
+  grid-column: 2;
+  grid-row: 1;
+}
+.jstBlock.gb-wiki-split .jstEditor > :not(textarea):not(.wiki-preview) { grid-column: 1 / -1; }
+.gb-wiki-preview-empty { color: var(--gb-muted); font-size: 14px; margin: 0; }
+.gb-wiki-preview-status {
+  position: sticky;
+  top: 0;
+  float: right;
+  margin: -4px -6px 0 8px;
+  padding: 2px 8px;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: 12px;
+  line-height: 18px;
+  opacity: 0;
+  transition: opacity var(--gb-dur-2);
+  pointer-events: none;
+}
+.gb-wiki-preview-status.is-busy { opacity: 1; }
+@media (max-width: 1023px) {
+  .gb-wiki-split-item { display: none !important; }
+  .jstBlock.gb-wiki-split .jstEditor { display: block; }
+  .jstBlock.gb-wiki-split .jstEditor > .wiki-preview { display: none !important; }
+}
+
+/* files section in the edit form */
+.controller-wiki #wiki_form .box.tabular > fieldset {
+  margin: 0 0 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  min-width: 0;
+}
+.controller-wiki #wiki_form .box.tabular > fieldset > legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 6px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+}
+.controller-wiki #wiki_form .box.tabular > fieldset > legend + * { clear: both; }
+.controller-wiki #wiki_form #new-attachments { display: block !important; }
+
+/* attachments dropzone on wiki pages — mirrors the shared §2.12 look (markup .gb-drop is added by 66-*.js).
+   Remove once global-shell ships one unscoped .gb-drop implementation. */
+.controller-wiki span.attachments_form { display: block; }
+.controller-wiki #new-attachments { display: block !important; width: 100%; }
+.controller-wiki span.add_attachment.gb-drop {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 10px;
+  width: 100%;
+  min-height: 72px;
+  padding: 14px 16px;
+  font-size: var(--gb-fs-md);
+  line-height: 1.5;
+  color: var(--gb-text-2);
+  background: var(--gb-surface-2);
+  border: 1.5px dashed var(--gb-border-strong);
+  border-radius: var(--gb-radius);
+  cursor: pointer;
+  transition: border-color var(--gb-dur-1), background-color var(--gb-dur-1);
+}
+.controller-wiki span.add_attachment.gb-drop:hover { border-color: var(--gb-primary); background: var(--gb-primary-softer); }
+.controller-wiki .fileover span.add_attachment.gb-drop,
+.controller-wiki form.fileover span.add_attachment.gb-drop,
+.controller-wiki .filedroplistner.fileover span.add_attachment.gb-drop {
+  border-style: solid;
+  border-color: var(--gb-primary);
+  background: var(--gb-primary-soft);
+}
+.controller-wiki .gb-drop > input.file_selector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+}
+.controller-wiki .gb-drop__icon { display: inline-flex; color: var(--gb-muted); }
+.controller-wiki .gb-drop__icon svg { width: 20px; height: 20px; stroke: currentColor; }
+.controller-wiki .gb-drop__btn {
+  display: inline-flex;
+  align-items: center;
+  height: var(--gb-control-h-sm);
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm);
+  cursor: pointer;
+}
+.controller-wiki .gb-drop__btn:hover { color: var(--gb-primary-strong); border-color: var(--gb-primary); }
+.controller-wiki .gb-drop:has(> input.file_selector:focus-visible) .gb-drop__btn { border-color: var(--gb-primary); box-shadow: var(--gb-focus); }
+.controller-wiki .gb-drop__limit { flex: 0 0 100%; font-size: 12px; color: var(--gb-text-2); text-align: center; }
+.controller-wiki .attachments_fields:has(> span) {
+  display: block;
+  margin: 0 0 8px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  overflow: hidden;
+}
+.controller-wiki .attachments_fields > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 6px 0 12px;
+  white-space: nowrap;
+  background: var(--gb-surface);
+  border-bottom: 1px solid var(--gb-border);
+}
+.controller-wiki .attachments_fields > span:last-child { border-bottom: 0; }
+.controller-wiki .attachments_fields > span > svg { flex: none; width: 16px; height: 16px; }
+.controller-wiki .attachments_fields input.filename {
+  flex: 0 1 auto; width: auto; min-width: 80px; max-width: 45% !important;
+  height: 28px; padding: 0; border: 0; background: transparent; box-shadow: none;
+  font-size: 14px; font-weight: var(--gb-fw-medium);
+}
+.controller-wiki .attachments_fields input.description { flex: 1 1 auto; min-width: 0; height: 28px; }
+.controller-wiki #wiki_add_attachment .box.filedroplistner { background: none; border: 0; padding: 0; margin: 0 0 12px; }
+.controller-wiki #wiki_add_attachment .box.filedroplistner > p { margin: 0; padding: 0; }
+
+/* sticky action bar */
+.controller-wiki form#wiki_form > p:has(> input[type=submit]),
+.controller-wiki form#new_page > input[type=submit],
+.controller-wiki form#edit_wiki_page > input[type=submit] { margin: 0; }
+.controller-wiki form#wiki_form > p:has(> input[type=submit]) {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--gb-z-sticky);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px -24px -20px;
+  padding: 12px 24px;
+  background: var(--gb-surface);
+  border-top: 1px solid var(--gb-border);
+  border-radius: 0 0 var(--gb-radius) var(--gb-radius);
+}
+.controller-wiki form#wiki_form > p:has(> input[type=submit]) > input[type=submit] { min-width: 96px; }
+.controller-wiki form#wiki_form > p:has(> input[type=submit]) > a,
+.controller-wiki form#wiki_form > p:has(> input[type=submit]) > a:link,
+.controller-wiki form#wiki_form > p:has(> input[type=submit]) > a:visited {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-primary-strong);
+  font-weight: var(--gb-fw-bold);
+  text-decoration: none;
+}
+.controller-wiki form#wiki_form > p:has(> input[type=submit]) > a:hover { background: var(--gb-primary-soft); }
+.gb-wiki-kbd-hint { margin-left: auto; font-size: var(--gb-fs-sm); color: var(--gb-muted); white-space: nowrap; }
+.gb-wiki-kbd-hint kbd {
+  display: inline-block;
+  min-width: 20px;
+  padding: 0 5px;
+  margin: 0 1px;
+  border: 1px solid var(--gb-border-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  font: var(--gb-fw-medium) 12px/18px var(--gb-font);
+  color: var(--gb-text-2);
+  text-align: center;
+}
+
+/* new page: big title field */
+.controller-wiki form#new_page #page_title,
+#ajax-modal form#new_page #page_title {
+  width: 100%;
+  height: var(--gb-control-h-lg);
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-medium);
+}
+.controller-wiki form#new_page { max-width: 640px; }
+.controller-wiki form#new_page > input[type=submit] { min-width: 96px; }
+#ajax-modal form#new_page .box.tabular { background: none; border: 0; padding: 0; margin: 0 0 16px; }
+#ajax-modal form#new_page .tabular p { padding: 0; margin: 0; }
+#ajax-modal form#new_page .tabular p > label {
+  float: none; display: block; width: auto; margin: 0 0 6px; text-align: left;
+  font-size: 13px; font-weight: var(--gb-fw-bold); color: var(--gb-text);
+}
+#ajax-modal form#new_page .tabular p em.info { display: block; margin-top: 6px; font-size: 12px; font-style: normal; color: var(--gb-text-2); }
+
+/* rename: title + boolean rows + selects */
+.controller-wiki form#edit_wiki_page { max-width: 640px; }
+.controller-wiki form#edit_wiki_page #wiki_page_title {
+  width: 100%;
+  height: var(--gb-control-h-lg);
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-medium);
+}
+.controller-wiki form#edit_wiki_page :is(#wiki_page_wiki_id, #wiki_page_parent_id) { width: 100%; max-width: 360px; }
+.controller-wiki #edit_wiki_page .tabular p:has(> input[type=checkbox]) {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.controller-wiki #edit_wiki_page .tabular p > input[type=checkbox] { order: -1; margin: 0; }
+.controller-wiki #edit_wiki_page .tabular p:has(> input[type=checkbox]) > label {
+  margin: 0;
+  font-weight: var(--gb-fw-normal);
+  font-size: var(--gb-fs-md);
+  cursor: pointer;
+}
+.controller-wiki #edit_wiki_page .tabular p:has(> input[type=checkbox]) + p:not(:has(> input[type=checkbox])) { margin-top: 20px; }
+.controller-wiki form#edit_wiki_page > input[type=submit] { min-width: 96px; }
+
+/* action row for new / rename: [primary] キャンセル (added by 65-wiki.js) */
+.controller-wiki .gb-wiki-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+.controller-wiki .gb-wiki-form-actions > input[type=submit] { min-width: 96px; margin: 0; }
+.controller-wiki a.gb-wiki-cancel,
+.controller-wiki a.gb-wiki-cancel:link,
+.controller-wiki a.gb-wiki-cancel:visited {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-primary-strong);
+  font-weight: var(--gb-fw-bold);
+  text-decoration: none;
+}
+.controller-wiki a.gb-wiki-cancel:hover { background: var(--gb-primary-soft); }
+
+/* conflict (concurrent edit) */
+.controller-wiki .conflict { max-width: var(--gb-form-max); }
+
+/* =====================================================================
+   6. History / diff / annotate
+   ===================================================================== */
+.controller-wiki.action-history #content form > p:has(> input[type=submit]) { margin: 0 0 12px; }
+.controller-wiki.action-history #content form > table + p:has(> input[type=submit]) { margin: 12px 0 0; }
+.controller-wiki.action-history #content form > p > input[type=submit] {
+  height: var(--gb-control-h-sm);
+  padding: 0 12px;
+  font-size: 12px;
+}
+table.list.wiki-page-versions { width: 100%; }
+table.list.wiki-page-versions th { text-align: left; white-space: nowrap; }
+table.list.wiki-page-versions td { text-align: left; vertical-align: middle; }
+table.list.wiki-page-versions td.id,
+table.list.wiki-page-versions th:first-child { width: 48px; }
+table.list.wiki-page-versions td.id a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-3);
+  color: var(--gb-primary-strong);
+  font-size: 12px;
+  font-weight: var(--gb-fw-bold);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+table.list.wiki-page-versions td.id a:hover { background: var(--gb-primary-soft); }
+table.list.wiki-page-versions tr:first-child td.id a { background: var(--gb-primary-strong); color: #fff; }
+table.list.wiki-page-versions td.checkbox { width: 36px; padding-left: 0; padding-right: 0; text-align: center; }
+table.list.wiki-page-versions td.checkbox input[type=radio] { margin: 0; vertical-align: middle; }
+table.list.wiki-page-versions td.updated_on { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--gb-text-2); text-align: left; }
+table.list.wiki-page-versions td.author { white-space: nowrap; text-align: left; }
+table.list.wiki-page-versions td.author a.user { display: inline-flex; align-items: center; gap: 6px; color: var(--gb-text); }
+table.list.wiki-page-versions td.author .gb-avatar { margin-right: 6px; vertical-align: middle; }
+table.list.wiki-page-versions td.comments { color: var(--gb-text); width: 40%; }
+table.list.wiki-page-versions td.buttons { white-space: nowrap; text-align: right; width: 1%; }
+table.list.wiki-page-versions td.buttons a,
+table.list.wiki-page-versions td.buttons a:link,
+table.list.wiki-page-versions td.buttons a:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-primary-strong);
+  font-size: 12px;
+  font-weight: var(--gb-fw-medium);
+  text-decoration: none;
+}
+table.list.wiki-page-versions td.buttons a:hover { background: var(--gb-primary-soft); }
+table.list.wiki-page-versions td.buttons a.icon-del,
+table.list.wiki-page-versions td.buttons a.icon-del:link { color: var(--gb-danger); }
+table.list.wiki-page-versions td.buttons a.icon-del:hover { background: var(--gb-danger-soft); }
+table.list.wiki-page-versions td.buttons a .icon-svg { width: 14px; height: 14px; stroke: currentColor; }
+table.list.wiki-page-versions td.buttons a.icon-del .icon-svg { stroke: var(--gb-danger); }
+.controller-wiki.action-history .pagination { margin-top: 12px; }
+
+/* diff: header card + readable diff body */
+.controller-wiki.action-diff #content > h2 + p,
+.controller-wiki.action-annotate #content > h2 + p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  background: var(--gb-surface-2);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  font-size: 13px;
+  color: var(--gb-text-2);
+  line-height: 1.7;
+}
+.controller-wiki.action-diff #content > h2 + p em,
+.controller-wiki.action-annotate #content > h2 + p em { font-style: normal; color: var(--gb-text-2); }
+.controller-wiki.action-diff #content > h2 + p > a { font-weight: var(--gb-fw-bold); }
+.controller-wiki.action-annotate #content > h2 + p { display: block; }
+.controller-wiki.action-annotate #content > h2 + p br { display: block; content: ""; margin-top: 2px; }
+.gb-wiki-rev {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px 2px 4px;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+}
+.gb-wiki-rev-key {
+  display: inline-block;
+  padding: 0 8px;
+  height: 20px;
+  line-height: 20px;
+  white-space: nowrap;
+  border-radius: var(--gb-radius-pill);
+  font-size: 12px;
+  font-weight: var(--gb-fw-bold);
+  color: #fff;
+}
+.gb-wiki-rev--from .gb-wiki-rev-key { background: var(--gb-danger); }
+.gb-wiki-rev--to .gb-wiki-rev-key { background: var(--gb-primary-strong); }
+.gb-wiki-rev-key a, .gb-wiki-rev-key a:link, .gb-wiki-rev-key a:visited { color: #fff; text-decoration: none; }
+.gb-wiki-rev-arrow { color: var(--gb-muted); font-size: 16px; }
+.gb-wiki-rev em { font-style: normal; font-size: 12px; }
+
+pre.text-diff,
+.controller-wiki pre.text-diff {
+  margin: 0;
+  padding: 20px 24px;
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  color: var(--gb-text);
+  font-family: var(--gb-font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  max-width: var(--gb-prose-max);
+}
+.text-diff .diff_in, .text-diff ins.diffins, ins.diffmod, ins.diffins {
+  background: #dff5ea;
+  color: var(--gb-success-text);
+  text-decoration: none;
+  border-radius: 2px;
+}
+.text-diff .diff_out, .text-diff del.diffdel, del.diffmod, del.diffdel {
+  background: #fde4e1;
+  color: var(--gb-danger-text);
+  text-decoration: line-through;
+  text-decoration-color: rgba(143, 42, 42, .5);
+  border-radius: 2px;
+}
+.text-diff .diff_in span, .text-diff .diff_out span { background: none; }
+.gb-wiki-diff-legend {
+  display: flex;
+  gap: 16px;
+  margin: 0 0 8px;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+}
+.gb-wiki-diff-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.gb-wiki-diff-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.gb-wiki-diff-legend .is-in i { background: #dff5ea; border: 1px solid var(--gb-success-border); }
+.gb-wiki-diff-legend .is-out i { background: #fde4e1; border: 1px solid var(--gb-danger-border); }
+
+/* annotate */
+.controller-wiki table.filecontent.annotate {
+  width: 100%;
+  max-width: var(--gb-content-max);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  font-family: var(--gb-font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  background: var(--gb-surface);
+}
+.controller-wiki table.annotate tr > * {
+  padding: 2px 12px;
+  border: 0;
+  vertical-align: top;
+  background: none;
+}
+.controller-wiki table.annotate th.line-num {
+  width: 1%;
+  text-align: right;
+  color: var(--gb-muted);
+  font-weight: var(--gb-fw-normal);
+  background: var(--gb-surface-2);
+  border-right: 1px solid var(--gb-border);
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+.controller-wiki table.annotate td.revision { width: 1%; white-space: nowrap; text-align: right; font-family: var(--gb-font); font-size: 12px; }
+.controller-wiki table.annotate td.revision a { font-weight: var(--gb-fw-bold); }
+.controller-wiki table.annotate td.author {
+  width: 1%;
+  white-space: nowrap;
+  font-family: var(--gb-font);
+  font-size: 12px;
+  color: var(--gb-text-2);
+  border-right: 1px solid var(--gb-border);
+}
+.controller-wiki table.annotate td.line-code pre {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  white-space: pre-wrap;
+  background: none;
+  border: 0;
+}
+.controller-wiki table.annotate tr.bloc-0 + tr.bloc-1 > *,
+.controller-wiki table.annotate tr.bloc-1 + tr.bloc-0 > * { border-top: 1px solid var(--gb-border); }
+.controller-wiki table.filecontent.annotate tr td.line-code {
+  border-left: 0;
+  background: none;
+  padding: 2px 12px;
+}
+.controller-wiki table.filecontent.annotate th.line-num { padding: 2px 10px 2px 14px; min-width: 24px; font-size: 12px; }
+.controller-wiki table.filecontent.annotate td.revision,
+.controller-wiki table.filecontent.annotate td.author { padding: 2px 12px; }
+.controller-wiki table.filecontent.annotate tr:target td.line-code { background: var(--gb-warning-soft); }
+.controller-wiki table.annotate tr:hover > td { background: var(--gb-primary-softer); }
+
+/* =====================================================================
+   7. Index (名前順) / date index (日付順)
+   ===================================================================== */
+.controller-wiki #content > ul.pages-hierarchy,
+.controller-wiki.action-date_index #content > ul {
+  max-width: 720px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+.controller-wiki #content ul.pages-hierarchy { list-style: none; margin: 0; padding: 0; }
+.controller-wiki #content ul.pages-hierarchy ul.pages-hierarchy {
+  margin: 0 0 0 19px;
+  padding: 0 0 0 12px;
+  border-left: 1px solid var(--gb-border);
+}
+.controller-wiki #content ul.pages-hierarchy li,
+.controller-wiki.action-date_index #content > ul > li { list-style: none; margin: 0; padding: 0; }
+.controller-wiki #content ul.pages-hierarchy li > a,
+.controller-wiki.action-date_index #content > ul > li > a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: var(--gb-radius-sm);
+  font-size: var(--gb-fs-md);
+  color: var(--gb-text);
+  text-decoration: none;
+}
+.controller-wiki #content ul.pages-hierarchy li > a:hover,
+.controller-wiki.action-date_index #content > ul > li > a:hover { background: var(--gb-primary-softer); color: var(--gb-primary-strong); }
+.controller-wiki #content ul.pages-hierarchy li > a .icon-svg,
+.controller-wiki.action-date_index #content > ul > li > a .icon-svg { width: 16px; height: 16px; stroke: var(--gb-text-2); flex: none; }
+.controller-wiki #content ul.pages-hierarchy li > a:hover .icon-svg,
+.controller-wiki.action-date_index #content > ul > li > a:hover .icon-svg { stroke: var(--gb-primary-strong); }
+.controller-wiki #content ul.pages-hierarchy li > a .gb-wiki-row-meta,
+.controller-wiki.action-date_index #content > ul > li > a .gb-wiki-row-meta {
+  margin-left: auto;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-muted);
+  white-space: nowrap;
+}
+.controller-wiki #content > ul.pages-hierarchy > li > a { font-weight: var(--gb-fw-bold); }
+
+.controller-wiki.action-date_index #content > h3 {
+  margin: 24px 0 4px;
+  padding: 0 0 6px;
+  max-width: 720px;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text-2);
+  border-bottom: 1px solid var(--gb-border);
+  font-variant-numeric: tabular-nums;
+}
+.controller-wiki.action-date_index #content > h2 + h3 { margin-top: 0; }
+.controller-wiki.action-index #content > h2 + p.nodata,
+.controller-wiki.action-date_index #content > h2 + p.nodata { max-width: 720px; }
+.controller-wiki:is(.action-index, .action-date_index) #content > .contextual { display: flex; align-items: center; gap: 4px; }
+
+/* =====================================================================
+   Narrow screens (component-level only; page layout lives in 95-responsive)
+   ===================================================================== */
+@media (max-width: 899px) {
+  .controller-wiki form#wiki_form > .box.tabular { display: block; }
+  .controller-wiki form#wiki_form > p:has(> input[type=submit]) { margin: 8px -16px -16px; padding: 12px 16px; }
+  .gb-wiki-kbd-hint { display: none; }
+  div.wiki ul.toc.right, div.wiki ul.toc.left { float: none; margin: 8px 0 24px; max-width: 100%; }
+  .controller-wiki.action-show #content > .contextual { margin-left: 8px; }
+
+  /* core responsive.css boxes every action (padding 9px + border): keep 編集 primary, the rest quiet */
+  .controller-wiki.action-show #content > .contextual > a:not(.icon-edit),
+  .controller-wiki.action-show #content > .contextual > a:not(.icon-edit):link,
+  .controller-wiki.action-show #content > .contextual > a:not(.icon-edit):visited {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    margin: 0;
+    padding: 0 10px;
+    border: 0;
+    border-radius: var(--gb-radius-sm);
+    background: none;
+    font-weight: var(--gb-fw-bold);
+  }
+  .controller-wiki.action-show #content > .contextual > a.icon-edit { margin: 0; border: 0; }
+  .controller-wiki.action-show #content > .contextual .drdn {
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+  }
+  .controller-wiki.action-show #content > .contextual .drdn > .drdn-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+  }
+
+  /* edit form: full-width parent select, natural-width file button */
+  .controller-wiki #wiki_form #wiki_page_parent_id { max-width: none; }
+  .controller-wiki span.add_attachment.gb-drop { justify-content: flex-start; }
+  .controller-wiki .gb-drop__btn { flex: none; width: auto; }
+
+  /* core responsive.css makes #wrapper a scroll container (overflow-x: hidden), which disables the sticky 保存 bar.
+     clip keeps the horizontal clipping without creating a scroll container. */
+  .controller-wiki:is(.action-edit, .action-update, .action-new, .action-create) #wrapper { overflow-x: clip; overflow-y: visible; }
+}
+
+/* print: clean prose */
+@media print {
+  div.wiki { --gbw-fs: 11pt; color: #000; max-width: none !important; }
+  div.wiki pre { white-space: pre-wrap; }
+  .gb-wiki-tree-section, .gb-wiki-split-item, div.pre-wrapper a.copy-pre-content-link { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  div.pre-wrapper a.copy-pre-content-link,
+  div.wiki-page .contextual[id^="section-"] a,
+  .gb-wiki-tree-toggle .icon-svg,
+  .gb-wiki-preview-status { transition: none; }
+}
+
+/* =====================================================================
+   10. Round 2 polish (R2, R9 + audit)
+   ===================================================================== */
+/* touch screens: no hover, so permalink / section-edit icons would sit there permanently (and mis-aligned
+   next to an invisible pencil). Hide both and release the space they reserve. */
+@media (hover: none) {
+  div.wiki a.wiki-anchor,
+  div.wiki-page .contextual[id^="section-"] { display: none; }
+  div.wiki :is(h1, h2, h3, h4, h5, h6):has(> a.wiki-anchor),
+  div.wiki-page :is(h1, h2, h3, h4, h5, h6).gb-wiki-has-sedit { padding-right: 0; }
+}
+
+/* breadcrumb sharing a row with the action bar: vertically centred on the buttons (95-responsive sets flow-root) */
+html body.controller-wiki #content > .contextual:first-of-type + p.breadcrumb,
+html body.controller-wiki #content > p.breadcrumb {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+}
+
+/* right edges: text buttons in the footer rows end on the prose edge, not 8px inside it */
+.controller-wiki p.wiki-update-info a.gb-wiki-history-link,
+.controller-wiki p.wiki-update-info a.gb-wiki-history-link:link,
+.controller-wiki p.wiki-update-info a.gb-wiki-history-link:visited { margin-right: -8px; }
+.controller-wiki.action-show #content > p.other-formats { margin-right: -8px; }
+.controller-wiki.action-show #content > p.other-formats { max-width: calc(var(--gb-prose-max) + 8px); }
+
+/* counts as the shared pill (ページ 7 / ファイル 1 on issues) instead of "(0)" */
+.gb-wiki-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-xs);
+  font-weight: var(--gb-fw-bold);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.controller-wiki #sidebar #watchers h3 { display: flex; align-items: center; }
+
+/* old version view: 「リビジョン 1/2  ‹ 前  次 ›」 / avatar + author · date / comment */
+.controller-wiki.action-show #content > h2 + p.gb-wiki-oldrev {
+  display: grid;
+  gap: 6px;
+  padding: 12px 16px;
+  border: 1px solid var(--gb-border);
+}
+.gb-wiki-oldrev-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.gb-wiki-oldrev-head .gb-wiki-rev-key { background: var(--gb-text-2); }
+.gb-wiki-oldrev-nav { display: inline-flex; gap: 4px; margin-left: auto; }
+.gb-wiki-oldrev-nav a,
+.gb-wiki-oldrev-nav a:link,
+.gb-wiki-oldrev-nav a:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  color: var(--gb-text);
+  font-size: 12px;
+  font-weight: var(--gb-fw-medium);
+  text-decoration: none;
+}
+.gb-wiki-oldrev-nav a .icon-svg { width: 14px; height: 14px; flex: none; stroke: currentColor; }
+.gb-wiki-oldrev-nav a:hover { border-color: var(--gb-primary); color: var(--gb-primary-strong); background: var(--gb-surface-2); }
+.gb-wiki-oldrev-by { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--gb-text-2); }
+.gb-wiki-oldrev-by em { font-style: normal; }
+.gb-wiki-oldrev-by a.user { color: var(--gb-text); font-weight: var(--gb-fw-bold); }
+.gb-wiki-oldrev-note { color: var(--gb-text); }
+
+/* secondary titles: every 「ページ › 操作」 title reads the same (page = quiet link, current step = strong) */
+.controller-wiki #content > h2 .gb-wiki-title-action { color: var(--gb-text); font-weight: var(--gb-fw-bold); }
+
+/* history: one 差分を表示 above the table; the bottom one only for long histories (≥ 10 rows) */
+.controller-wiki.action-history #content form > table + p:has(> input[type=submit]) { display: none; }
+.controller-wiki.action-history #content form:has(table.wiki-page-versions tbody > tr:nth-child(10)) > table + p:has(> input[type=submit]) { display: block; }
+.controller-wiki.action-history #content form > p > input[type=submit] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  line-height: 1;
+}
+.controller-wiki.action-history #content form > .pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-muted);
+}
+.controller-wiki.action-history #content form > .pagination ul.pages:empty { display: none; }
+.controller-wiki.action-history #content form > .pagination .items { padding: 0; }
+table.list.wiki-page-versions td.buttons a .icon-svg { flex: none; }
+table.list.wiki-page-versions td.buttons a { vertical-align: middle; }
+
+/* diff: body and header card share the same right edge */
+.controller-wiki pre.text-diff { box-sizing: border-box; }
+.controller-wiki.action-diff #content > h2 + p { box-sizing: border-box; }
+.controller-wiki.action-diff #content > h2 + p,
+.controller-wiki.action-diff .gb-wiki-diff-legend { max-width: var(--gb-prose-max); }
+
+@media (max-width: 600px) {
+  /* wiki page footer: meta and 履歴 left-aligned on their own rows instead of an orphan right-aligned link */
+  .controller-wiki p.wiki-update-info:has(> a.gb-wiki-history-link) {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    justify-items: start;
+  }
+  .controller-wiki p.wiki-update-info a.gb-wiki-history-link,
+  .controller-wiki p.wiki-update-info a.gb-wiki-history-link:link,
+  .controller-wiki p.wiki-update-info a.gb-wiki-history-link:visited { grid-column: 1 / -1; margin: 2px 0 0 -8px; }
+  .controller-wiki #content > p.other-formats { justify-content: flex-start; margin: 8px 0 0; }
+
+  /* history: each version is a compact card row — # / radios / date, then author · comment, actions right */
+  table.list.wiki-page-versions,
+  table.list.wiki-page-versions tbody { display: block; width: 100%; }
+  table.list.wiki-page-versions thead { display: none; }
+  table.list.wiki-page-versions tr.wiki-page-version {
+    display: grid;
+    grid-template-columns: auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "id from to date date"
+      "author author author author buttons"
+      "comments comments comments comments comments";
+    align-items: center;
+    column-gap: 4px;
+    row-gap: 4px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gb-border);
+  }
+  table.list.wiki-page-versions tr.wiki-page-version > td {
+    display: flex;
+    align-items: center;
+    height: auto;
+    min-height: 28px;
+    padding: 0;
+    border: 0;
+    width: auto;
+  }
+  table.list.wiki-page-versions tr > td.id { grid-area: id; }
+  table.list.wiki-page-versions tr > td.checkbox { width: 24px; justify-content: center; }
+  table.list.wiki-page-versions tr > td.checkbox:nth-child(2) { grid-area: from; }
+  table.list.wiki-page-versions tr > td.checkbox:nth-child(3) { grid-area: to; }
+  table.list.wiki-page-versions tr > td.updated_on { grid-area: date; padding-left: 4px; font-size: var(--gb-fs-sm); }
+  table.list.wiki-page-versions tr > td.author { grid-area: author; font-size: var(--gb-fs-sm); }
+  table.list.wiki-page-versions tr > td.comments { grid-area: comments; display: block; min-height: 0; width: auto; font-size: var(--gb-fs-sm); color: var(--gb-text-2); }
+  table.list.wiki-page-versions tr > td.comments:empty { display: none; }
+  table.list.wiki-page-versions tr > td.buttons { grid-area: buttons; display: flex; justify-content: flex-end; margin: 0; }
+  .controller-wiki.action-history #content form > table { border: 0; border-top: 1px solid var(--gb-border); }
+
+  /* diff header: one revision per row (no 2-line text inside a pill, no orphan arrow) */
+  .controller-wiki.action-diff #content > h2 + p { display: grid; gap: 8px; }
+  .controller-wiki.action-diff .gb-wiki-rev {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 6px 10px 6px 6px;
+    border-radius: var(--gb-radius);
+  }
+  .controller-wiki.action-diff .gb-wiki-rev-arrow { display: none; }
+
+  /* annotate: give the source column the width — revision number stays, author name goes to the title */
+  .controller-wiki table.annotate td.author { display: none; }
+  .controller-wiki table.annotate td.revision { border-right: 1px solid var(--gb-border); }
+  .controller-wiki table.filecontent.annotate th.line-num { padding: 2px 8px; }
+  .controller-wiki table.filecontent.annotate td.revision { padding: 2px 8px; }
+
+
+}
+
+
+/* index rows: 8px side padding so the 「…前に更新」 column ends on the same edge as the export links below */
+.controller-wiki #content ul.pages-hierarchy li > a,
+.controller-wiki.action-date_index #content > ul > li > a { padding: 0 8px; }
+
+/* =====================================================================
+   11. Round 3 polish
+   ===================================================================== */
+/* syntax: colour only — core's Rouge backgrounds (.s2 pink, .si grey …) never show inside the code frame */
+div.wiki pre .syntaxhl span[class]:not(.gi, .gd, .hll),
+div.wiki pre code span[class]:not(.gi, .gd, .hll),
+pre .syntaxhl span[class]:not(.gi, .gd, .hll) { background: transparent; }
+
+/* tables: the wrapper scrolls and carries the frame; the table stays a real table, so a table that fits
+   never becomes a scroll area (no 1px overflow, no idle scrollbar) */
+div.wiki .gb-wiki-table-scroll {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin: 16px 0;
+  overflow-x: auto;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface);
+  box-sizing: border-box;
+}
+div.wiki .gb-wiki-table-scroll > table {
+  display: table;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+}
+/* a narrow column is fine when the table fits; only 4+ column tables keep wide cells on phones (rule above) */
+div.wiki td { min-width: 5em; }
+div.wiki th { min-width: 4em; }
+
+/* index rows: the 「…前に更新」 column is never bold (top-level links are) */
+.controller-wiki #content ul.pages-hierarchy li > a .gb-wiki-row-meta,
+.controller-wiki.action-date_index #content > ul > li > a .gb-wiki-row-meta { font-weight: var(--gb-fw-normal); }
+
+/* both indexes: list -> 「他の形式にエクスポート」 is exactly 16px on every width */
+.controller-wiki:is(.action-index, .action-date_index) #content > ul { margin-bottom: 0; }
+.controller-wiki:is(.action-index, .action-date_index) #content > p.other-formats { margin-top: 16px; }
+
+/* revision by-line (old version, diff, annotate): avatar + name + date, comment on the next row */
+.gb-wiki-by {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--gb-text-2);
+}
+.gb-wiki-by .gb-avatar { flex: none; }
+.gb-wiki-by .gb-wiki-by-name,
+.gb-wiki-by a.gb-wiki-by-name:link,
+.gb-wiki-by a.gb-wiki-by-name:visited { color: var(--gb-text); font-weight: var(--gb-fw-bold); }
+.gb-wiki-by-date { color: var(--gb-text-2); font-variant-numeric: tabular-nums; }
+.gb-wiki-rev .gb-wiki-by { font-size: 12px; }
+.controller-wiki.action-annotate #content > h2 + p.gb-wiki-revinfo {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.controller-wiki.action-annotate #content > h2 + p.gb-wiki-revinfo .gb-wiki-oldrev-note { color: var(--gb-text); }
+
+/* diff: full card width like history / annotate */
+.controller-wiki.action-diff #content > h2 + p,
+.controller-wiki.action-diff .gb-wiki-diff-legend,
+.controller-wiki.action-diff pre.text-diff { max-width: none; }
+
+/* annotate: DESIGN §3.5 mono 13px/1.6; number / revision / author cells share the same line box */
+html body.controller-wiki table.filecontent.annotate td.line-code pre { font: 13px/1.6 var(--gb-font-mono); }
+html body.controller-wiki table.filecontent.annotate tr > * { line-height: 20.8px; }
+
+/* 「…」 menu divider before 削除 */
+html body .contextual .drdn-items > .gb-wiki-menu-sep {
+  display: block;
+  min-height: 0;
+  height: 1px;
+  margin: 4px 0;
+  padding: 0;
+  background: var(--gb-border);
+  border-radius: 0;
+}
+
+/* edit form: 960px cap, but when the card is less than 48px wider the form fills it (no lopsided 7px gap) */
+.controller-wiki form#wiki_form {
+  max-width: max(var(--gb-form-max), min(100%, calc((var(--gb-form-max) + 48px - 100%) * 1000 + 100%)));
+}
+.controller-wiki form#wiki_form > .box.tabular,
+.controller-wiki form#wiki_form > div.tabular { max-width: none; }
+
+/* touch / phones: no drag & drop copy — just the file button with the size limit centred under it */
+@media (max-width: 480px), (hover: none) {
+  .controller-wiki :is(#wiki_form, #wiki_add_attachment) span.add_attachment.gb-drop {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 0;
+    text-align: center;
+  }
+  .controller-wiki :is(#wiki_form, #wiki_add_attachment) .gb-drop .gb-drop__icon,
+  .controller-wiki :is(#wiki_form, #wiki_add_attachment) .gb-drop .gb-drop__text { display: none; }
+  .controller-wiki :is(#wiki_form, #wiki_add_attachment) .gb-drop .gb-drop__limit { flex: none; }
+}
+
+/* drawer (≤ 899px): the page tree keeps its hierarchy and the current page uses the drawer's selected row */
+@media screen and (max-width: 899px) {
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section ul.gb-wiki-tree ul {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-row {
+    gap: 4px;
+    min-height: 40px;
+    margin: 0 -16px;
+    padding: 0 16px;
+    border-radius: 0;
+  }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section ul.gb-wiki-tree ul .gb-wiki-tree-row { padding-left: 32px; }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section ul.gb-wiki-tree ul ul .gb-wiki-tree-row { padding-left: 48px; }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section ul.gb-wiki-tree ul ul ul .gb-wiki-tree-row { padding-left: 64px; }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section ul.gb-wiki-tree ul ul ul ul .gb-wiki-tree-row { padding-left: 80px; }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-toggle,
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-spacer { width: 24px; height: 24px; }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-toggle { color: var(--gb-nav-text); }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-toggle:hover { background: var(--gb-nav-active); color: #fff; }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-row > a,
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-row > a:link,
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-row > a:visited {
+    min-height: 40px;
+    padding: 0;
+    color: var(--gb-nav-text);
+    font-weight: var(--gb-fw-medium);
+  }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-row > a .icon-svg { stroke: currentColor; }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-row:hover { background: var(--gb-nav-active); }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-row:hover > a { color: #fff; }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-row.gb-current,
+  html body .flyout-menu #sidebar-wrapper ul.gb-wiki-nav > li > a.gb-current {
+    background: var(--gb-nav-active);
+    color: #fff;
+    box-shadow: inset 3px 0 0 var(--gb-primary);
+  }
+  html body .flyout-menu #sidebar-wrapper .gb-wiki-tree-section .gb-wiki-tree-row.gb-current > a { color: #fff; font-weight: var(--gb-fw-bold); }
+  html body .flyout-menu #sidebar-wrapper ul.gb-wiki-nav > li > a.gb-current .icon-svg { stroke: currentColor; }
+}
+
+/* indexes: the short 「新規ページ」 label is for phones only */
+.controller-wiki #content > .contextual .gb-wiki-label-short { display: none; }
+/* phones: title and actions on one row (like the desktop header), no right-aligned orphan action row */
+@media (max-width: 600px) {
+  html body.controller-wiki:is(.action-index, .action-date_index) #content {
+    flex-flow: row wrap;
+    align-items: center;
+    column-gap: 8px;
+  }
+  html body.controller-wiki:is(.action-index, .action-date_index) #content > * { flex: 0 0 100%; min-width: 0; }
+  html body.controller-wiki:is(.action-index, .action-date_index) #content > h2 { flex: 1 1 auto; width: auto; margin: 0 0 16px; }
+  html body.controller-wiki:is(.action-index, .action-date_index) #content > .contextual { flex: none; width: auto; margin: 0 0 16px auto; }
+  html body.controller-wiki:is(.action-index, .action-date_index) #content > .contextual .gb-wiki-label-full { display: none; }
+  html body.controller-wiki:is(.action-index, .action-date_index) #content > .contextual .gb-wiki-label-short { display: inline; }
+  /* ウォッチ: icon button here (name kept for assistive tech) */
+  html body.controller-wiki:is(.action-index, .action-date_index) #content > .contextual > a[class*="-watcher"] {
+    width: 32px;
+    padding: 0;
+    justify-content: center;
+  }
+  html body.controller-wiki:is(.action-index, .action-date_index) #content > .contextual > a[class*="-watcher"] .icon-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* phones (#content padding 16px 12px): the sticky 保存 bar spans exactly the card's inner width */
+@media (max-width: 479px) {
+  .controller-wiki form#wiki_form > p:has(> input[type=submit]) { margin: 8px -12px -16px; padding: 12px; }
+}
+
+/* index / date index: title and the action row share one 32px line (same vertical centre) */
+/* (one-line title; 95-responsive makes it flow-root on phones, so centre with the line box, not flex) */
+.controller-wiki:is(.action-index, .action-date_index) #content > h2 { min-height: 32px; line-height: 32px; }
+
+/* =====================================================================
+   Round 3 polish
+   ===================================================================== */
+/* annotate: the line-number column is one seamless band (core's per-cell top/bottom rules removed);
+   the revision-block divider stays as a row line (tr.bloc-0 + tr.bloc-1 above) */
+html body.controller-wiki table.annotate th.line-num { border-top: 0; border-bottom: 0; }
+html body.controller-wiki table.annotate tr.bloc-0 + tr.bloc-1 > th.line-num,
+html body.controller-wiki table.annotate tr.bloc-1 + tr.bloc-0 > th.line-num { border-top: 1px solid var(--gb-border); }
+
+/* 「サイドバーを編集」: right edge on the card's right line (count pills / 追加), and the Wiki heading row
+   moves just below the collapse toggle so the two buttons never overlap */
+@media screen and (min-width: 900px) {
+  body.controller-wiki #sidebar:has(#sidebar-switch-panel) #sidebar-wrapper > .contextual:has(> a.icon-edit[href$="/sidebar/edit"]) { padding-right: 0; }
+  body.controller-wiki #sidebar:has(#sidebar-switch-panel) #sidebar-wrapper > .contextual:has(> a.icon-edit[href$="/sidebar/edit"]) + h3 { margin-top: 30px; }
+}
+
+/* annotate: 「リビジョン n/総数」 pill on top of the meta card, like the old version view */
+.controller-wiki.action-annotate #content > h2 + p.gb-wiki-revinfo .gb-wiki-oldrev-head { justify-content: flex-start; }

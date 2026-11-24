@@ -1,0 +1,1009 @@
+/* ==========================================================================
+   80-account-search-misc.css — login, my account / password, projects index,
+   search, user profile, home, error pages. owner: global-shell (DESIGN §3.1)
+   ========================================================================== */
+
+/* ---------- login / lost password / register (logged-out) ---------- */
+body.controller-account #main, body.action-login #main { justify-content: center; padding-top: 48px; }
+body.controller-account #content:has(#login-form), body.controller-account #content:has(> h2 + .box.tabular) {
+  flex: 0 1 auto;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+#login-form {
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  margin: 0 auto 32px;
+  padding: 32px 32px 28px;
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius-lg);
+  box-shadow: var(--gb-shadow);
+  box-sizing: border-box;
+}
+#login-form form { display: block; }
+#login-form::before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 24px;
+  border-radius: 11px;
+  background:
+    linear-gradient(#fff, #fff) 10px 10px / 8px 20px no-repeat,
+    linear-gradient(#fff, #fff) 22px 10px / 8px 12px no-repeat,
+    var(--gb-primary);
+}
+#login-form h3 { text-align: center; font-size: var(--gb-fs-lg); margin: 0 0 16px; }
+#login-form label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+}
+#login-form label[for=autologin] { display: inline-flex; gap: 8px; font-weight: var(--gb-fw-normal); font-size: var(--gb-fs-md); margin: 0 0 16px; }
+#login-form a.lost_password { float: none; font-size: 13px; font-weight: var(--gb-fw-normal); }
+#login-form input[type=text], #login-form input[type=password] {
+  display: block;
+  width: 100%;
+  height: var(--gb-control-h-lg);
+  margin: 0 0 20px;
+  font-size: var(--gb-fs-md);
+}
+#login-form input[type=submit], #login-form input#login-submit {
+  display: block;
+  width: 100%;
+  height: var(--gb-control-h-lg);
+  margin: 4px 0 0;
+  font-size: 15px;
+  line-height: calc(var(--gb-control-h-lg) - 2px);
+}
+#login-form #openid-url, #login-form .openid { margin-top: 8px; }
+#login-form + p, #login-form ~ p, .action-login #content > p { text-align: center; font-size: 13px; color: var(--gb-text-2); }
+.action-login #footer, .action-lost_password #footer, .action-register #footer { margin-left: 0; }
+
+/* lost password / register / activation forms */
+body.controller-account:not(.action-login) #content {
+  flex: 0 1 auto;
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+body.controller-account:not(.action-login) #content form > .box.tabular { margin-bottom: 0; }
+body.controller-account:not(.action-login) #content form > .box.tabular > p:last-child { margin-bottom: 0; }
+body.controller-account:not(.action-login) #content form > .box.tabular > p > input[type=submit] { display: block; margin: 20px 0 0; }
+body.controller-account:not(.action-login) #content form > input[type=submit],
+body.controller-account:not(.action-login) #content form > p.buttons { margin-top: 20px; }
+/* core sizes some user fields to 90% by id; every control in these forms is full width */
+body.controller-account:not(.action-login) #content .tabular input[type=text],
+body.controller-account:not(.action-login) #content .tabular input[type=password],
+body.controller-account:not(.action-login) #content .tabular input[type=email],
+body.controller-account:not(.action-login) #content .tabular select:not([multiple]) { width: 100%; max-width: 100%; }
+
+/* ---------- my account / my password (Pattern S, single column, max 640px) ---------- */
+body.controller-my.action-account #content > form > .splitcontent,
+body.controller-users.action-edit_membership #content > form > .splitcontent { display: block; max-width: 640px; }
+body.controller-my.action-account .splitcontentleft,
+body.controller-my.action-account .splitcontentright { width: 100%; }
+body.controller-my.action-account fieldset.box {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--gb-border);
+  border-radius: 0;
+  padding: 24px 0 4px;
+  margin: 0;
+}
+body.controller-my.action-account .splitcontentleft > fieldset.box:first-child { border-top: 0; padding-top: 0; }
+body.controller-my.action-account fieldset.box p { margin-bottom: 16px; }
+body.controller-my.action-account fieldset.box p:has(> input[type=checkbox]) { margin-bottom: 16px; }
+body.controller-my.action-account fieldset.box p:has(> input[type=checkbox]):has(+ p > input[type=checkbox]) { margin-bottom: 4px; }
+/* one width for every control in the 640px column (core sets several of them to 90% by id) */
+body.controller-my.action-account fieldset.box input[type=text],
+body.controller-my.action-account fieldset.box input[type=email],
+body.controller-my.action-account fieldset.box input[type=password],
+body.controller-my.action-account fieldset.box select:not([multiple]),
+body.controller-my.action-account fieldset.box textarea,
+body.controller-my.action-account #user_mail_notification { width: 100%; max-width: 100%; box-sizing: border-box; }
+body.controller-my.action-account label.hidden-for-sighted { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+body.controller-my.action-account #notified-projects { border: 1px solid var(--gb-border); border-radius: var(--gb-radius); padding: 12px 16px; margin: 0 0 16px; }
+body.controller-my.action-account #notified-projects legend { margin-bottom: 8px; }
+body.controller-my.action-account #notified-projects ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 4px 16px; }
+body.controller-my.action-account #notified-projects label { display: inline-flex; align-items: center; gap: 8px; min-height: 28px; }
+body.controller-my.action-account textarea#pref_toolbar_language_options { min-height: 72px; }
+body.controller-my.action-account input#pref_recently_used_projects { width: 96px; }
+/* the save button sits at the bottom of the single column */
+body.controller-my.action-account .splitcontentleft > p.mobile-hide { display: none; }
+body.controller-my.action-account .splitcontentright > p.mobile-show {
+  display: flex;
+  margin: 8px 0 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--gb-border);
+}
+body.controller-my #content > .box.tabular, body.controller-my form > .box.tabular { max-width: 640px; }
+body.controller-my.action-password #content > form.tabular { display: block; max-width: 640px; }
+
+/* sidebar of my account: key/value list */
+body.controller-my #sidebar p { color: var(--gb-text-2); }
+body.controller-my #sidebar pre { white-space: pre-wrap; font-size: var(--gb-fs-sm); background: var(--gb-surface-2); border-radius: var(--gb-radius-sm); padding: 8px; }
+
+/* ---------- projects index: board (cards) ---------- */
+#projects-index { margin: 0 0 8px; }
+#projects-index ul.projects.root {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#projects-index ul.projects li.root { margin: 0; padding: 0; list-style: none; min-width: 0; border: 0; box-shadow: none; background: none; border-radius: 0; display: flex; flex-direction: column; }
+#projects-index ul.projects li.root > div.root { flex: 1 1 auto; }
+#projects-index ul.projects div.root {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  grid-template-areas: "av name name" "av ident mine" "desc desc desc" "sub sub sub" "foot foot foot";
+  grid-template-rows: auto 20px auto auto 1fr;
+  column-gap: 12px;
+  align-items: center;
+  align-content: start;
+  height: 100%;
+  margin: 0;
+  padding: 16px 18px 12px;
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  box-sizing: border-box;
+  transition: border-color var(--gb-dur-1) var(--gb-ease), box-shadow var(--gb-dur-1) var(--gb-ease);
+}
+#projects-index ul.projects div.root:hover { border-color: var(--gb-primary-border); box-shadow: var(--gb-shadow); }
+#projects-index ul.projects div.root > .gb-proj-avatar { grid-area: av; align-self: start; }
+#projects-index ul.projects div.root > a.project {
+  grid-area: name;
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+  background: none;
+  padding: 0;
+  line-height: 1.4;
+}
+#projects-index ul.projects div.root > a.project:hover { color: var(--gb-primary-strong); }
+#projects-index ul.projects div.root > a.project svg { display: none; }
+#projects-index ul.projects div.root > a.project::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+#projects-index ul.projects div.root > span.my-project {
+  grid-area: mine;
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  line-height: 20px;
+  position: relative;
+  z-index: 1;
+  height: 20px;
+  min-width: 0;
+  padding: 0 8px;
+  gap: 4px;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-primary-soft);
+  color: var(--gb-primary-strong);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  cursor: default;
+}
+#projects-index ul.projects div.root > span.my-project:hover { background: var(--gb-primary-soft); }
+#projects-index ul.projects div.root > span.my-project svg { flex: none; width: 12px; height: 12px; margin: 0; stroke: currentColor; vertical-align: 0; }
+#projects-index ul.projects div.root > span.my-project .icon-label.hidden { display: inline; }
+#projects-index ul.projects div.root > .gb-proj-ident {
+  grid-area: ident;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-muted);
+  line-height: 20px;
+  height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#projects-index ul.projects div.root > .wiki.description {
+  grid-area: desc;
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--gb-text-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+#projects-index ul.projects div.root > .wiki.description p { margin: 0; }
+#projects-index ul.projects div.root > .wiki.description * { font-size: inherit; margin: 0; padding: 0; border: 0; }
+#projects-index ul.projects div.root > .gb-proj-links {
+  grid-area: foot;
+  align-self: end;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 2px;
+  margin: 12px -8px 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--gb-border);
+}
+#projects-index ul.projects div.root > .gb-proj-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-sm);
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-primary-strong);
+}
+#projects-index ul.projects div.root > .gb-proj-links a:hover { background: var(--gb-primary-soft); text-decoration: none; }
+#projects-index ul.projects div.root > .gb-proj-links svg { width: 16px; height: 16px; stroke: currentColor; }
+#projects-index ul.projects div.root > .gb-proj-links:empty { display: none; }
+/* subprojects listed inside the parent's card */
+#projects-index ul.projects li.root > ul.projects {
+  margin: -4px 0 0;
+  padding: 8px 18px 12px;
+  border: 1px solid var(--gb-border);
+  border-top: 0;
+  border-radius: 0 0 var(--gb-radius) var(--gb-radius);
+  list-style: none;
+  font-size: 13px;
+}
+#projects-index ul.projects li.root:has(> ul.projects) > div.root { border-radius: var(--gb-radius) var(--gb-radius) 0 0; }
+#projects-index ul.projects ul.projects li { list-style: none; margin: 4px 0; }
+#projects-index ul.projects ul.projects div.child { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+#projects-index ul.projects ul.projects div.child > a.project { font-weight: var(--gb-fw-medium); }
+#projects-index ul.projects ul.projects div.child .wiki.description { flex-basis: 100%; color: var(--gb-text-2); font-size: var(--gb-fs-sm); }
+#projects-index ul.projects ul.projects div.child .wiki.description p { margin: 0; }
+/* icon legend (マイプロジェクト / ブックマーク): a small, clearly labelled key on the left.
+   Board view hides it: the cards already carry the マイプロジェクト pill. */
+body.controller-projects.action-index #content > p:has(.my-project), body.controller-projects.action-index #content > p.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px 16px;
+  margin: 12px 0 0;
+  font-size: var(--gb-fs-sm);
+  line-height: 1.5;
+  color: var(--gb-muted);
+}
+body.controller-projects.action-index #content > p:has(.my-project)::before,
+body.controller-projects.action-index #content > p.legend::before { content: "凡例:"; color: var(--gb-muted); }
+body.controller-projects.action-index #content > p:has(.my-project) .icon,
+body.controller-projects.action-index #content > p.legend .icon { display: inline-flex; align-items: center; gap: 4px; color: var(--gb-muted); font-size: var(--gb-fs-sm); }
+body.controller-projects.action-index #content > p .icon svg { width: 14px; height: 14px; }
+body.controller-projects.action-index #content > p:has(.my-project) .icon svg { stroke: var(--gb-muted); }
+body.controller-projects.action-index #projects-index ~ p:has(.my-project),
+body.controller-projects.action-index #projects-index ~ p.legend { display: none; }
+
+/* projects list view (table) */
+body.controller-projects.action-index table.list.projects td.name { min-width: 240px; }
+body.controller-projects.action-index table.list.projects td.name > span:not(.gb-proj-avatar) { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; }
+body.controller-projects.action-index table.list.projects td.name > a { vertical-align: middle; }
+body.controller-projects.action-index table.list.projects td.name > span.gb-proj-avatar { display: inline-flex; justify-content: center; align-items: center; vertical-align: middle; margin: -2px 8px 0 0; }
+body.controller-projects.action-index table.list.projects td.name a { font-weight: var(--gb-fw-medium); color: var(--gb-text); }
+body.controller-projects.action-index table.list.projects td.name a:hover { color: var(--gb-primary-strong); }
+body.controller-projects.action-index table.list.projects td.short_description { color: var(--gb-text-2); font-size: 13px; }
+body.controller-projects.action-index table.list.projects td.identifier { font-family: var(--gb-font-mono); font-size: 13px; color: var(--gb-text-2); }
+body.controller-projects.action-index table.list.projects tr.archived td, body.controller-projects.action-index table.list.projects tr.closed td { color: var(--gb-muted); }
+body.controller-projects.action-index table.list.projects td.name span.expander { width: 16px; }
+
+/* ---------- search ---------- */
+body.controller-search #search-form,
+body.controller-search #content > form:has(#search-input) {
+  display: block;
+  margin: 0 0 20px;
+}
+body.controller-search #content > form .box,
+body.controller-search #search-form .box {
+  background: var(--gb-surface-2);
+  border: 0;
+  border-radius: var(--gb-radius);
+  padding: 16px;
+  margin: 0;
+}
+body.controller-search #search-form p, body.controller-search #content > form .box > p { margin: 0 0 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+body.controller-search #search-input { width: min(420px, 100%); height: var(--gb-control-h); font-size: 15px; }
+body.controller-search #content > form select#scope, body.controller-search #content > form select { height: var(--gb-control-h); }
+body.controller-search #content > form label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+body.controller-search #content > form fieldset {
+  border: 0;
+  padding: 8px 0 0;
+  margin: 8px 0 0;
+  border-top: 1px solid var(--gb-border);
+}
+body.controller-search #content > form fieldset legend { float: none; width: auto; margin: 0 0 6px; font-size: var(--gb-fs-sm); color: var(--gb-text-2); display: inline-flex; align-items: center; gap: 4px; }
+body.controller-search #content > form fieldset p, body.controller-search #search-form fieldset p { margin: 0; gap: 4px 16px; }
+body.controller-search #content > form fieldset label { min-height: 28px; }
+body.controller-search #content > form fieldset.collapsible.collapsed > div { display: none; }
+body.controller-search #content > form p > input[type=submit] { margin-top: 4px; }
+body.controller-search #content > form p:last-child { margin-bottom: 0; }
+
+/* result counters by type */
+body.controller-search #search-results-counts { float: none; margin: 0 0 12px; }
+body.controller-search #search-results-counts ul { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+body.controller-search #search-results-counts li { margin: 0; padding: 0; list-style: none; }
+body.controller-search #search-results-counts a {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-3);
+  color: var(--gb-text);
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+}
+body.controller-search #search-results-counts a:hover { background: var(--gb-primary-soft); color: var(--gb-primary-strong); text-decoration: none; }
+body.controller-search #search-results-counts a.selected { background: var(--gb-primary-strong); color: #fff; }
+body.controller-search #content > h3 { font-size: 13px; color: var(--gb-text-2); font-weight: var(--gb-fw-bold); margin: 16px 0 4px; }
+
+/* results as timeline-like rows */
+dl#search-results { margin: 0; padding: 0; }
+dl#search-results dt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--gb-border);
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-medium);
+  line-height: 1.5;
+  background: none;
+}
+dl#search-results dt:first-child { border-top: 0; padding-top: 4px; }
+dl#search-results dt > svg.icon-svg {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  box-sizing: border-box;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-primary-soft);
+  stroke: var(--gb-primary-strong);
+}
+dl#search-results dt a { color: var(--gb-text); min-width: 0; }
+dl#search-results dt a:hover { color: var(--gb-primary-strong); }
+dl#search-results dt span.project { color: var(--gb-text-2); font-size: var(--gb-fs-sm); font-weight: var(--gb-fw-normal); flex: none; }
+dl#search-results dd {
+  margin: 0;
+  padding: 4px 0 14px 38px;
+  font-size: 13px;
+  color: var(--gb-text-2);
+  line-height: 1.6;
+}
+dl#search-results dd span.description { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; }
+dl#search-results dd span.author:not(.gb-search-date) { font-size: var(--gb-fs-sm); color: var(--gb-muted); font-variant-numeric: tabular-nums; }
+dl#search-results span.highlight { background: var(--gb-warning-soft); color: var(--gb-text); padding: 0 2px; border-radius: 2px; }
+dl#search-results dt span.highlight { background: var(--gb-warning-soft); }
+body.controller-search p.pagination, body.controller-search span.pagination { border-top: 1px solid var(--gb-border); padding-top: 16px; }
+
+/* ---------- user profile (/users/:id) ---------- */
+body.controller-users.action-show .gb-profile-head {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  column-gap: 16px;
+  align-items: center;
+  margin: 0 0 24px;
+  padding: 0 0 20px;
+  border-bottom: 1px solid var(--gb-border);
+}
+body.controller-users.action-show .gb-profile-head > h2 {
+  display: contents;
+}
+body.controller-users.action-show .gb-profile-head > h2 > .avatar,
+body.controller-users.action-show .gb-profile-head > h2 > .gb-avatar {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  inline-size: 64px;
+  block-size: 64px;
+  width: 64px;
+  height: 64px;
+  font-size: 26px;
+  margin: 0;
+}
+body.controller-users.action-show .gb-profile-head__name {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+  font-size: var(--gb-fs-xl);
+  font-weight: var(--gb-fw-bold);
+  line-height: 1.3;
+  color: var(--gb-text);
+}
+body.controller-users.action-show .gb-profile-head > ul {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 20px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--gb-text-2);
+}
+body.controller-users.action-show .gb-profile-head > ul li { list-style: none; }
+body.controller-users.action-show .gb-profile-head > .contextual { grid-column: 3; grid-row: 1 / span 2; float: none; margin: 0; align-self: start; }
+body.controller-users.action-show #content > .splitcontent { gap: 24px; }
+body.controller-users.action-show .splitcontentleft > h3,
+body.controller-users.action-show .splitcontentright > h3 { font-size: var(--gb-fs-lg); margin: 24px 0 12px; }
+body.controller-users.action-show .splitcontentleft > h3:first-child,
+body.controller-users.action-show .splitcontentleft > :first-child + h3 { margin-top: 0; }
+body.controller-users.action-show table.list.issue-report td:not(.name), body.controller-users.action-show table.list.issue-report th:not(:first-child) { text-align: right; }
+body.controller-users.action-show table.list.issue-report td.total { font-weight: var(--gb-fw-bold); }
+body.controller-users.action-show .splitcontentright {
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  padding: 0 20px 12px;
+  align-self: flex-start;
+}
+body.controller-users.action-show .splitcontentright > h3:first-child { margin-top: 16px; }
+body.controller-users.action-show .splitcontentleft > h3 a,
+body.controller-users.action-show .splitcontentright > h3 a,
+body.controller-users.action-show .splitcontentright > h3 a:visited { color: var(--gb-text); text-decoration: none; }
+body.controller-users.action-show .splitcontentleft > h3 a:hover,
+body.controller-users.action-show .splitcontentright > h3 a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+body.controller-users.action-show .splitcontentright > p.other-formats { border-top: 1px solid var(--gb-border); padding-top: 8px; }
+
+/* ---------- home (/) ---------- */
+body.controller-welcome #content > h2 { margin-bottom: 16px; }
+/* logged out without a nav (projects not public): keep the card the width of the other pages, centred */
+body.controller-welcome:not(:has(#main-menu)) #content { max-width: var(--gb-content-max); margin-inline: auto; }
+body.controller-welcome .splitcontent { gap: 16px; }
+body.controller-welcome .splitcontentleft > .wiki,
+body.controller-welcome .splitcontentleft > div.wiki {
+  max-width: var(--gb-prose-max);
+}
+body.controller-welcome .splitcontentleft:empty, body.controller-welcome .splitcontentright:empty { display: none; }
+body.controller-welcome .splitcontentright > .news, body.controller-welcome .splitcontentright > div.box {
+  background: var(--gb-surface-2);
+  border: 0;
+  border-radius: var(--gb-radius);
+  padding: 16px 20px;
+}
+body.controller-welcome .splitcontentright h3 { font-size: var(--gb-fs-lg); margin: 0 0 12px; display: flex; align-items: center; gap: 6px; }
+body.controller-welcome .splitcontentright h3 svg { width: 18px; height: 18px; }
+body.controller-welcome .splitcontentright ul { list-style: none; margin: 0; padding: 0; }
+body.controller-welcome .splitcontentright li { padding: 10px 0; border-top: 1px solid var(--gb-border); }
+body.controller-welcome .splitcontentright li:first-child { border-top: 0; padding-top: 0; }
+body.controller-welcome .splitcontentright li .wiki, body.controller-welcome .splitcontentright li p { margin: 4px 0 0; font-size: 13px; color: var(--gb-text-2); }
+body.controller-welcome .splitcontentright li .author, body.controller-welcome .splitcontentright p.author { font-size: var(--gb-fs-sm); color: var(--gb-muted); }
+
+/* ---------- error pages (404 / 403 / 422) ---------- */
+body:has(#content > p#errorExplanation) #main { justify-content: flex-start; }
+body:has(#content > p#errorExplanation) #main #content,
+body.gb-error-page #main #content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 56px 24px 48px;
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  box-shadow: var(--gb-shadow);
+}
+#content > h2:has(+ p#errorExplanation) {
+  order: 1;
+  font-size: 40px;
+  line-height: 1.2;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-border-strong);
+  margin: 0 0 8px;
+  font-variant-numeric: tabular-nums;
+}
+#content > p#errorExplanation {
+  order: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 480px;
+  margin: 0 auto 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-medium);
+  line-height: 1.7;
+}
+#content > p#errorExplanation > svg.icon-svg { display: none; }
+#content > h2:has(+ p#errorExplanation)::before {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  background: var(--gb-text-2);
+  opacity: .35;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5M9 9l4 4M13 9l-4 4'/%3E%3C/svg%3E") center / 48px 48px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5M9 9l4 4M13 9l-4 4'/%3E%3C/svg%3E") center / 48px 48px no-repeat;
+}
+#content > h2:has(+ p#errorExplanation) { order: 2; }
+#content > p#errorExplanation { order: 3; }
+#content > p#errorExplanation::before { content: none; }
+#content > p#errorExplanation ~ p { order: 4; margin: 0; }
+#content > p#errorExplanation ~ p > a,
+#content > p#errorExplanation ~ p > a:link,
+#content > p#errorExplanation ~ p > a:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--gb-control-h);
+  padding: 0 12px;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-primary-strong);
+  font-weight: var(--gb-fw-medium);
+  text-decoration: none;
+}
+#content > p#errorExplanation ~ p > a:hover { background: var(--gb-primary-soft); }
+#content > p#errorExplanation ~ div[style*="clear"] { order: 5; }
+
+/* search: type checkboxes on one row, "toggle all" as an icon button before them */
+body.controller-search #search-form fieldset.box {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  padding: 10px 0 0;
+  margin: 10px 0 0;
+  background: transparent;
+  border-top: 1px solid var(--gb-border);
+  border-radius: 0;
+}
+body.controller-search #search-form fieldset.box > legend { float: left; width: auto; margin: 0; padding: 0; }
+body.controller-search #search-form fieldset.box > legend a.icon-checked {
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px; height: 28px; padding: 0 8px; margin-right: 8px;
+  border-radius: var(--gb-radius-sm); color: var(--gb-primary-strong); font-size: 13px; font-weight: var(--gb-fw-medium); text-decoration: none;
+}
+body.controller-search #search-form fieldset.box > legend a.icon-checked:hover { background: var(--gb-primary-soft); color: var(--gb-primary-strong); text-decoration: none; }
+body.controller-search #search-form fieldset.box > legend a.icon-checked svg { width: 16px; height: 16px; stroke: currentColor; margin: 0; }
+/* options: a plain disclosure row, no rule through the legend */
+body.controller-search #search-form fieldset.collapsible,
+body.controller-search #content > form fieldset.collapsible { border: 0; padding-top: 4px; }
+body.controller-search #search-form fieldset.collapsible > legend { float: none; width: auto; display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 6px 0 2px; margin: 0; border-radius: var(--gb-radius-sm); }
+body.controller-search #search-form fieldset.collapsible > legend:hover { background: var(--gb-surface-3); color: var(--gb-text); }
+body.controller-search #search-form p#search-types { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; }
+body.controller-search #search-form p#search-types label a, body.controller-search #search-form p#search-types label a:link { color: var(--gb-text); text-decoration: none; }
+body.controller-search #search-form p#search-types label a:hover { color: var(--gb-primary-strong); }
+body.controller-search #search-form fieldset.collapsible { margin-top: 8px; padding-top: 8px; }
+body.controller-search #search-form fieldset.collapsible > legend { margin: 0; font-size: 13px; font-weight: var(--gb-fw-bold); color: var(--gb-text-2); cursor: pointer; }
+body.controller-search #search-form #options-content { padding: 8px 0 0; }
+body.controller-search #search-form #options-content p { margin: 0 0 6px; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+body.controller-search #search-form > p { margin: 12px 0 0; }
+body.controller-search label.hidden-for-sighted { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+/* query row: input + 検索 button side by side (JS wraps them in .gb-search-bar) */
+body.controller-search #search-form .gb-search-bar { display: flex; align-items: center; gap: 8px; flex: 1 1 420px; max-width: 640px; min-width: 0; }
+body.controller-search #search-form .gb-search-bar #search-input { flex: 1 1 auto; width: auto; min-width: 0; }
+body.controller-search #search-form .gb-search-bar input[type=submit] { flex: none; margin: 0; height: var(--gb-control-h); padding: 0 20px; }
+/* 検索対象: caption + plain text button on their own line, checkboxes below */
+body.controller-search #search-form fieldset.box > legend { float: left; width: 100%; display: flex; align-items: center; gap: 0; margin: 0 0 4px; }
+body.controller-search #search-form .gb-search-types__caption { font-size: 13px; font-weight: var(--gb-fw-bold); color: var(--gb-text-2); padding-right: 12px; margin-right: 4px; border-right: 1px solid var(--gb-border); line-height: 16px; }
+body.controller-search #search-form fieldset.box > legend a.gb-toggle-all { display: inline-flex; align-items: center; height: 28px; padding: 0 8px; margin: 0; font-size: 13px; font-weight: var(--gb-fw-normal); color: var(--gb-primary-strong); }
+body.controller-search #search-form fieldset.box > legend a.gb-toggle-all:hover { text-decoration: underline; background: transparent; }
+body.controller-search #search-form fieldset.box > p#search-types { clear: both; width: 100%; }
+/* zero hits */
+body.controller-search #content > [hidden] { display: none; }
+body.controller-search #content > p.gb-search-empty { margin: 8px 0 0; }
+
+
+/* home: latest news card rows */
+body.controller-welcome .splitcontentright .news a:first-child, body.controller-welcome .splitcontentright li > a:first-of-type { font-weight: var(--gb-fw-medium); }
+
+/* search results: date on the title line (right), empty excerpts collapse (JS moves span.author into the dt) */
+dl#search-results dt > .gb-search-date {
+  flex: none;
+  margin-left: auto;
+  padding-left: 12px;
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-normal);
+  color: var(--gb-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  align-self: flex-start;
+  line-height: 24px;
+}
+dl#search-results dt { align-items: flex-start; padding-bottom: 14px; }
+dl#search-results dt > svg.icon-svg { margin-top: -2px; }
+dl#search-results dt > span.project { line-height: 24px; }
+dl#search-results dt:has(+ dd:not(.gb-search-dd--empty)) { padding-bottom: 0; }
+dl#search-results dd.gb-search-dd--empty, dl#search-results dd:has(> span.description:empty):not(:has(> span.author)) { display: none; }
+dl#search-results dd span.description { margin-bottom: 0; }
+
+/* user profile: stack the two columns when the card is narrow; keep short cells on one line */
+body.controller-users.action-show table.list.projects td.roles,
+body.controller-users.action-show table.list.projects td:last-child,
+body.controller-users.action-show table.list.projects th,
+body.controller-users.action-show table.list.issue-report td.name,
+body.controller-users.action-show table.list.issue-report th { white-space: nowrap; }
+@media screen and (max-width: 1150px) {
+  body.controller-users.action-show #content > .splitcontent { flex-direction: column; gap: 24px; }
+  body.controller-users.action-show #content > .splitcontent > .splitcontentleft,
+  body.controller-users.action-show #content > .splitcontent > .splitcontentright { flex: none; width: 100%; box-sizing: border-box; }
+}
+
+/* ==========================================================================
+   Round 3 polish (global-shell audit 2026-11-23)
+   ========================================================================== */
+
+/* ---------- home: Japanese welcome block (JS replaces Redmine's untouched English default) ---------- */
+body.controller-welcome .gb-welcome { max-width: var(--gb-prose-max); }
+body.controller-welcome .gb-welcome__lead { margin: 0 0 16px; font-size: var(--gb-fs-md); color: var(--gb-text-2); line-height: 1.7; }
+body.controller-welcome .gb-welcome__links { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+body.controller-welcome .gb-welcome__links li { margin: 0; padding: 0; list-style: none; }
+body.controller-welcome a.gb-welcome__link,
+body.controller-welcome a.gb-welcome__link:link,
+body.controller-welcome a.gb-welcome__link:visited {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  color: var(--gb-text);
+  text-decoration: none;
+  transition: border-color var(--gb-dur-1) var(--gb-ease), background-color var(--gb-dur-1) var(--gb-ease);
+}
+body.controller-welcome a.gb-welcome__link:hover { border-color: var(--gb-primary); background: var(--gb-primary-softer); text-decoration: none; }
+body.controller-welcome a.gb-welcome__link:focus-visible { outline: none; box-shadow: var(--gb-focus-ring); }
+body.controller-welcome svg.gb-welcome__icon {
+  width: 36px; height: 36px; padding: 8px; box-sizing: border-box;
+  border-radius: var(--gb-radius-sm); background: var(--gb-primary-soft);
+  stroke: var(--gb-primary-strong); fill: none;
+}
+body.controller-welcome .gb-welcome__body { display: flex; flex-direction: column; min-width: 0; }
+body.controller-welcome .gb-welcome__title { font-size: var(--gb-fs-md); font-weight: var(--gb-fw-bold); line-height: 1.5; }
+body.controller-welcome .gb-welcome__text { font-size: 13px; color: var(--gb-text-2); line-height: 1.5; }
+
+/* ---------- home: latest news rows (project / title + count / summary / meta) ---------- */
+body.controller-welcome .splitcontentright .news .gb-home-news { padding: 12px 0; border-top: 1px solid var(--gb-border); }
+body.controller-welcome .splitcontentright .news h3 + .gb-home-news { border-top: 0; padding-top: 0; }
+body.controller-welcome .gb-home-news__project { display: block; font-size: var(--gb-fs-sm); color: var(--gb-text-2); line-height: 1.5; }
+body.controller-welcome .gb-home-news__head { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+body.controller-welcome a.gb-home-news__title,
+body.controller-welcome a.gb-home-news__title:link,
+body.controller-welcome a.gb-home-news__title:visited { font-size: var(--gb-fs-md); font-weight: var(--gb-fw-bold); color: var(--gb-text); line-height: 1.5; min-width: 0; }
+body.controller-welcome a.gb-home-news__title:hover { color: var(--gb-primary-strong); }
+body.controller-welcome .gb-home-news__comments {
+  flex: none; display: inline-flex; align-items: center; gap: 3px; height: 18px; padding: 0 6px;
+  border-radius: var(--gb-radius-pill); background: var(--gb-surface-3); color: var(--gb-text-2);
+  font-size: 11px; font-weight: var(--gb-fw-bold); font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center;
+}
+body.controller-welcome svg.gb-home-news__cicon { width: 12px; height: 12px; stroke: currentColor; fill: none; }
+body.controller-welcome .gb-home-news__summary { margin: 2px 0 0; font-size: 13px; color: var(--gb-text-2); line-height: 1.6; }
+body.controller-welcome .splitcontentright .news .gb-home-news__meta { display: block; margin-top: 4px; font-size: var(--gb-fs-sm); color: var(--gb-muted); }
+body.controller-welcome .gb-home-news__meta a.user { color: var(--gb-text-2); font-weight: var(--gb-fw-medium); }
+body.controller-welcome .gb-home-news__meta abbr { text-decoration: none; border: 0; cursor: help; }
+body.controller-welcome .splitcontentright .news a.gb-home-news__all { display: inline-flex; align-items: center; height: 28px; margin: 4px -8px 0; padding: 0 8px; border-radius: var(--gb-radius-sm); font-size: 13px; font-weight: var(--gb-fw-medium); }
+body.controller-welcome .splitcontentright .news a.gb-home-news__all:hover { background: var(--gb-primary-soft); text-decoration: none; }
+
+/* ---------- projects ---------- */
+/* card without a description: a muted line keeps the cards of a row the same shape */
+/* rendered .wiki gets a top padding site-wide; inside a card it would push the line below the no-description line */
+#projects-index ul.projects div.root > .wiki.description { padding: 0; }
+#projects-index ul.projects div.root > .gb-proj-nodesc { grid-area: desc; margin: 12px 0 0; font-size: 13px; line-height: 1.6; color: var(--gb-muted); }
+/* list: same cells as /admin/projects — identifier in mono 13px (as on the project settings field),
+   an empty 説明 shows a quiet 「–」 (desktop table only; the phone rows drop the empty part) */
+body.controller-projects.action-index table.list.projects td.identifier { font-family: var(--gb-font-mono); font-size: 13px; color: var(--gb-text-2); white-space: nowrap; }
+@media screen and (min-width: 600px) {
+  body.controller-projects.action-index table.list.projects td.short_description:empty::before { content: "–"; color: var(--gb-muted); }
+  /* rows with and without the マイプロジェクト icon are one height (the icon made them 49px vs 44px), as on /admin/projects */
+  body.controller-projects.action-index table.list.projects > tbody > tr > td { height: 49px; box-sizing: border-box; }
+}
+/* counter row and the legend start on the same left edge */
+body.controller-projects.action-index #content > .pagination { margin-top: 12px; }
+body.controller-projects.action-index #content > .pagination + p:has(.my-project),
+body.controller-projects.action-index #content > .pagination + p.legend { margin-top: 6px; }
+
+/* ---------- search ---------- */
+/* core appends " - " after the project name; the gap separates it already */
+dl#search-results dt span.project::after { content: none; }
+dl#search-results dt .gb-key { font-variant-numeric: tabular-nums; }
+/* すべての単語 / タイトルのみ stay together */
+body.controller-search #search-form .gb-search-opts { display: inline-flex; flex-wrap: nowrap; align-items: center; gap: 16px; }
+/* pagination: no second divider under the last result's own divider area */
+body.controller-search p.pagination, body.controller-search span.pagination { border-top: 1px solid var(--gb-border); padding-top: 12px; margin-top: 4px; }
+body.controller-search dl#search-results + .pagination,
+body.controller-search dl#search-results + p.pagination { margin-top: 0; }
+
+/* ---------- user profile ---------- */
+/* 活動 is a plain column like 課題 / プロジェクト: both headings on one line, no card inside the card */
+body.controller-users.action-show .splitcontentright { border: 0; border-radius: 0; padding: 0; }
+body.controller-users.action-show .splitcontentright > h3:first-child { margin-top: 0; }
+/* projects table: names may wrap, short columns never get cut */
+body.controller-users.action-show table.list.projects { width: 100%; }
+body.controller-users.action-show table.list.projects td.name { white-space: normal; }
+
+/* ---------- my account ---------- */
+/* boolean preferences: checkbox + label with a hanging indent when the label wraps */
+body.controller-my.action-account fieldset.box p:has(> input[type=checkbox]) { display: flex; align-items: flex-start; gap: 8px; }
+body.controller-my.action-account fieldset.box p:has(> input[type=checkbox]) > input[type=checkbox] { flex: none; margin: 3px 0 0; }
+body.controller-my.action-account fieldset.box p:has(> input[type=checkbox]) > label { margin: 0; font-weight: var(--gb-fw-normal); }
+
+/* ---------- error pages ---------- */
+#content > p#errorExplanation { text-align: center; }
+
+/* ---------- phones ---------- */
+@media screen and (max-width: 599px) {
+  /* projects list: stacked rows (name / identifier · description) instead of a squeezed 3-column table */
+  body.controller-projects.action-index table.list.projects,
+  body.controller-projects.action-index table.list.projects tbody { display: block; width: 100%; }
+  body.controller-projects.action-index table.list.projects thead { display: none; }
+  body.controller-projects.action-index table.list.projects tr {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gb-border);
+  }
+  body.controller-projects.action-index table.list.projects td { display: block; height: auto; min-height: 0; padding: 0; border: 0; min-width: 0; line-height: 20px; }
+  body.controller-projects.action-index table.list.projects td.name { line-height: 24px; margin-bottom: 2px; }
+  /* the マイプロジェクト / bookmark icons sit inside the 24px name line (rows with and without them are one height) */
+  body.controller-projects.action-index table.list.projects td.name > span:not(.gb-proj-avatar) { height: 24px; vertical-align: top; }
+  body.controller-projects.action-index table.list.projects td.short_description * { display: inline; margin: 0; padding: 0; font-size: inherit; }
+  body.controller-projects.action-index table.list.projects td.name { grid-column: 1 / -1; min-width: 0; }
+  body.controller-projects.action-index table.list.projects td.identifier { grid-column: 1; padding-left: 28px; font-size: var(--gb-fs-sm); }
+  body.controller-projects.action-index table.list.projects td.short_description { grid-column: 2; font-size: var(--gb-fs-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  body.controller-projects.action-index table.list.projects td.short_description:not(:empty)::before { content: "・"; color: var(--gb-muted); }
+  body.controller-projects.action-index .autoscroll:has(> table.list.projects) { overflow: visible; }
+
+  /* profile head: avatar + name on one row, meta items below (each item kept whole), edit as a corner button */
+  body.controller-users.action-show .gb-profile-head { grid-template-columns: 48px minmax(0, 1fr) auto; column-gap: 12px; row-gap: 8px; }
+  body.controller-users.action-show .gb-profile-head > h2 > .avatar,
+  body.controller-users.action-show .gb-profile-head > h2 > .gb-avatar { grid-row: 1; inline-size: 48px; block-size: 48px; width: 48px; height: 48px; font-size: 20px; }
+  body.controller-users.action-show .gb-profile-head__name { grid-row: 1; align-self: center; font-size: var(--gb-fs-lg); }
+  body.controller-users.action-show .gb-profile-head > ul { grid-column: 1 / -1; grid-row: 2; flex-direction: column; gap: 2px; margin: 0; }
+  body.controller-users.action-show .gb-profile-head > ul li { white-space: nowrap; }
+  body.controller-users.action-show .gb-profile-head > .contextual { grid-column: 3; grid-row: 1; align-self: center; }
+  /* project names wrap beside their avatar (not under it) */
+  body.controller-users.action-show table.list.projects td.name > span { display: flex; align-items: flex-start; gap: 8px; }
+  body.controller-users.action-show table.list.projects td.name > span > .gb-proj-avatar { flex: none; margin: 2px 0 0; }
+  body.controller-users.action-show table.list.projects td.name > span > a { min-width: 0; white-space: normal; }
+  body.controller-users.action-show table.list.projects td.name, body.controller-users.action-show table.list.projects td.name > span { white-space: normal; }
+  body.controller-users.action-show table.list.projects th,
+  body.controller-users.action-show table.list.projects td { padding-left: 8px; padding-right: 8px; }
+
+  /* my account: the page actions never squeeze the form into a side column */
+  body.controller-my.action-account #content > form { display: block; clear: both; }
+  /* (the form is inline in core; its fieldsets are block formatting contexts and shrank beside the floated actions) */
+
+  /* search: query row = input + button, then scope select and the two options */
+  body.controller-search #search-form .gb-search-bar { flex-basis: 100%; }
+}
+/* issue key being resolved (project name -> identifier): invisible, no "#9" -> "WEBSITE-9" flicker */
+.gb-key.gb-key--pending { visibility: hidden; }
+/* search rows: project on its own small line above the title, so every title starts on the same left edge
+   (icon | project … date / title) */
+dl#search-results dt {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  column-gap: 10px;
+  row-gap: 0;
+  align-items: start;
+}
+dl#search-results dt > svg.icon-svg { grid-column: 1; grid-row: 1 / span 2; margin-top: 2px; }
+dl#search-results dt > span.project { grid-column: 2; grid-row: 1; line-height: 20px; }
+dl#search-results dt > a { grid-column: 2 / span 2; grid-row: 2; }
+dl#search-results dt > .gb-search-date { grid-column: 3; grid-row: 1; line-height: 20px; padding-left: 12px; }
+dl#search-results dt:not(:has(> span.project)) > a { grid-row: 1; grid-column: 2; }
+/* login: a title under the mark, so the card does not open straight on a bare field label */
+body.action-login #login-form::before { margin-bottom: 12px; }
+body.action-login #login-form > form::before {
+  content: "アカウントにログイン";
+  display: block;
+  margin: 0 0 24px;
+  text-align: center;
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-bold);
+  line-height: 1.4;
+  color: var(--gb-text);
+}
+
+/* ==========================================================================
+   Round 4 polish (strict review 2026-11-23)
+   ========================================================================== */
+body.controller-search #content > p.buttons { margin: 4px 0 12px; }
+
+@media screen and (max-width: 599px) {
+  /* mobile submit = lg (44px), the same height as the 44px inputs beside / above it */
+  body.controller-search #wrapper #search-form .gb-search-bar input[type=submit],
+  body.controller-my:is(.action-account, .action-password) #wrapper #content form input[type=submit] {
+    height: var(--gb-control-h-lg);
+  }
+
+  /* search: 「課題のフィルタを適用」 starts on the same left edge as the heading and the result rows
+     (phones give p.buttons links a text-button padding; it is pulled into the gutter) */
+  html body.controller-search #content > p.buttons > a.icon { margin-left: -8px; }
+
+  /* /my/account: title and both actions on one row (compact text buttons, as on the desktop) */
+  html body.controller-my.action-account #wrapper #content > .contextual:first-of-type {
+    max-width: none;
+    flex-wrap: nowrap;
+    gap: 4px;
+    margin-left: 8px;
+  }
+  html body.controller-my.action-account #wrapper #content > .contextual:first-of-type > a { padding: 0 4px; }
+
+  /* /projects: the create action is a 32px icon button on the title row (accessible name = its hidden label) */
+  html body.controller-projects.action-index #wrapper #content > .contextual > a.icon-add {
+    width: 32px;
+    padding: 0;
+    justify-content: center;
+    margin-left: 0;
+  }
+  html body.controller-projects.action-index #wrapper #content > .contextual > a.icon-add .icon-label {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  html body.controller-projects.action-index #wrapper #content > .contextual > a.icon-add .icon-svg { width: 18px; height: 18px; margin: 0; }
+
+  /* /projects list: identifier · description with the same space on both sides of the dot */
+  body.controller-projects.action-index table.list.projects tr { column-gap: 0; }
+  body.controller-projects.action-index table.list.projects td.short_description:not(:empty)::before {
+    content: "・";
+    display: inline-block;
+    width: 16px;
+    text-align: center;
+    font-feature-settings: normal;
+  }
+}
+
+/* ==========================================================================
+   Round 5 polish (strict review round 2, 2026-11-24)
+   ========================================================================== */
+/* search 「オプション」: geometry and colour come from the shared disclosure-legend rule in 10-global.css */
+
+@media screen and (max-width: 599px) {
+  /* search: the scope select spans the full row, the same edges as the input + 検索 row above */
+  body.controller-search #wrapper #search-form .box > p > select#scope { flex: 1 1 100%; width: 100%; max-width: none; }
+  /* search: 検索対象 in two even columns instead of a ragged 3/2/2 wrap */
+  body.controller-search #wrapper #search-form p#search-types {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 16px;
+  }
+  body.controller-search #wrapper #search-form p#search-types > label { min-width: 0; margin: 0; }
+  /* /my/account and /my/password: the same full-width 保存 */
+  body.controller-my:is(.action-account, .action-password) #wrapper #content form input[type=submit] { width: 100%; margin-left: 0; margin-right: 0; }
+}
+
+/* ==========================================================================
+   Round 6 polish (strict review round 3, 2026-11-24)
+   ========================================================================== */
+/* search: the query field uses the 14px of the scope select and 検索 beside it (phones keep the 16px touch size) */
+@media screen and (min-width: 900px) {
+  body.controller-search #search-form #search-input,
+  body.controller-search #search-form input[type=text] { font-size: var(--gb-fs-md); }
+}
+
+/* issue titles on /users/:id 活動 and /search: [tracker] KEY subject [status], as on /activity (JS: 80-pages.js) */
+.gb-issue-title { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.gb-issue-title > .gb-tracker,
+.gb-issue-title > .gb-status { flex: none; height: 20px; min-width: 0; padding: 0 8px; font-size: var(--gb-fs-xs); }
+/* one tracker badge width (= 「サポート」), as on /activity and every other timeline */
+.gb-issue-title > .gb-tracker { min-width: 64px; justify-content: center; }
+.gb-issue-title > a { min-width: 0; order: 1; }
+.gb-issue-title > .gb-status { order: 2; }
+.gb-issue-title > a .gb-key { color: var(--gb-primary-strong); }
+dl#search-results dt > .gb-issue-title { grid-column: 2 / span 2; grid-row: 2; }
+dl#search-results dt:not(:has(> span.project)) > .gb-issue-title { grid-row: 1; grid-column: 2; }
+
+/* user profile: 課題 counts in fixed narrow columns (the label column takes the rest, never cut);
+   both tables start their text on the same 12px inset */
+body.controller-users.action-show table.list.issue-report th:not(:first-child),
+body.controller-users.action-show table.list.issue-report td:not(.name) { width: 56px; }
+body.controller-users.action-show table.list.issue-report th:first-child,
+body.controller-users.action-show table.list.issue-report td.name { width: auto; white-space: nowrap; }
+
+@media screen and (max-width: 599px) {
+  /* search rows: project and date share one centred line (no 5px step between them) */
+  html body #wrapper #content dl#search-results > dt > svg.icon-svg { margin-top: 0; }
+  html body #wrapper #content dl#search-results > dt > .gb-search-date { align-self: center; line-height: 20px; }
+  body.controller-users.action-show table.list.projects th,
+  body.controller-users.action-show table.list.projects td { padding-left: 12px; padding-right: 12px; }
+  /* (the global 160px name minimum would push 登録日 6px past the card edge at 375px) */
+  body.controller-users.action-show table.list.projects td.name { min-width: 0; }
+}
+
+/* ==========================================================================
+   Round 7 polish (strict review round 4, 2026-11-24)
+   ========================================================================== */
+/* /my/account: every boolean row (メール通知, オートウォッチ, 設定) is the same checkbox row —
+   16px box, 22.4px label line, 22px minimum row, 8px gap; the 設定 rows lost their core .tabular sizing */
+body.controller-my.action-account #my_account_form fieldset.box p:has(> input[type=checkbox]) {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 22px;
+  margin-top: 0;
+  padding: 0;
+}
+body.controller-my.action-account #my_account_form fieldset.box p:has(> input[type=checkbox]) > input[type=checkbox] {
+  order: 1;
+  margin: 3px 0 0;
+}
+body.controller-my.action-account #my_account_form fieldset.box p:has(> input[type=checkbox]) > label {
+  order: 2;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  float: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-normal);
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+/* search: 検索対象 as an even grid — 7 columns when they fit, else 4 + 3, phones 2 (no orphan
+   「プロジェクト」 alone on a ragged last row) */
+html body.controller-search #search-form fieldset.box:has(> p#search-types) { container: gb-search-types / inline-size; }
+html body.controller-search #search-form p#search-types {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 16px;
+}
+@container gb-search-types (min-width: 496px) {
+  html body.controller-search #search-form p#search-types { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@container gb-search-types (min-width: 880px) {
+  html body.controller-search #search-form p#search-types { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+}
+html body.controller-search #search-form p#search-types > label { display: inline-flex; align-items: center; min-width: 0; min-height: 28px; margin: 0; white-space: nowrap; }
+/* search terms are never split across lines (「デ/ザイン」) */
+dl#search-results span.highlight { white-space: nowrap; }
+
+/* /search result row: [icon] title ……… date / excerpt (activity lists are C-timeline: 15-c-timeline.css) */
+/* issue titles on all three pages: [tracker] KEY subject [status] as one inline run; wrapped lines go back to
+   the left edge under the badge, and the status pill always follows the last word (never its own row) */
+html body dl#search-results > dt > .gb-issue-title {
+  display: block;
+  min-width: 0;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-medium);
+  line-height: 22px;
+}
+html body dl#search-results > dt > .gb-issue-title > :is(.gb-tracker, .gb-status) {
+  display: inline-flex;
+  justify-content: center;
+  height: 20px;
+  min-width: 0;
+  margin: 1px 0 0;
+  padding: 0 8px;
+  font-size: var(--gb-fs-xs);
+  vertical-align: top;
+  white-space: nowrap;
+}
+html body dl#search-results > dt > .gb-issue-title > .gb-tracker { min-width: 64px; margin-right: 6px; }
+html body dl#search-results > dt > .gb-issue-title > .gb-status { margin-left: 6px; }
+html body dl#search-results > dt > .gb-issue-title > a,
+html body dl#search-results > dt > .gb-issue-title > a:is(:link, :visited) {
+  display: inline;
+  min-width: 0;
+  overflow: visible;
+  white-space: normal;
+  text-overflow: clip;
+}
+html body dl#search-results > dt > .gb-issue-title .gb-key { white-space: nowrap; }
+/* the same geometry as the timelines: 28px lead column + 12px gap */
+html body dl#search-results > dt { column-gap: 12px; }

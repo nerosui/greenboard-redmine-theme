@@ -1,0 +1,53 @@
+en:
+  label_my_page: Dashboard
+  gb_projects: Projects
+  gb_open_issues: Open
+  gb_closed_issues: Closed
+  gb_no_projects: You are not a member of any project
+  gb_board: Board
+  gb_recent_updates: Recent updates
+  gb_see_all: See all
+  gb_see_all_count: "See all (%{count})"
+  gb_status: Status
+  gb_milestones: Milestones
+  gb_categories: Categories
+  gb_done: done
+  gb_act_issue_add: added an issue
+  gb_act_issue_edit: updated an issue
+  gb_act_issue_close: closed an issue
+  gb_act_issue_comment: commented
+  gb_act_wiki: updated the wiki
+  gb_act_news: posted news
+  gb_act_document: added a document
+  gb_act_file: added a file
+  gb_act_changeset: committed
+  gb_act_message: posted to a forum
+  gb_act_time: logged time
+  gb_act_project: created the project
+  gb_act_other: updated
+  gb_ago: "%{value} ago"
+  gb_updates: Recent updates
+  gb_total_time: Total
+  gb_show_all: Show all
+  gb_show_less: Show less
+  gb_act_noauthor: "%{type} was added"
+  gb_add_block: Add a block
+  gb_days_left: Due in
+  gb_hours_total: Total
+  gb_log_time_title: Log time
+  gb_edit_time_title: Edit time entry
+  gb_issue_search_placeholder: Search by issue number or subject
+  gb_hours_unit: hours
+  gb_roadmap_filtered: "Filtered by tracker (showing %{shown} of %{total})"
+  gb_roadmap_all_trackers: Show all trackers
+  gb_roadmap_tracker_heading: Trackers to show
+  gb_activity_period: Period
+  gb_show_more: Show more
+  gb_heading_anchor: Link to this heading
+  gb_edit_document: Edit document
+  gb_empty_body: Please enter some content
+  gb_cal_more: "+%{count} more"
+  gb_report_add: Add criteria
+  gb_all_users: All users
+  gb_year_option: "%{year}"
+  gb_period_from: from

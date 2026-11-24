@@ -1,0 +1,1985 @@
+/* ==========================================================================
+   75 — Project pages: activity, roadmap / version, calendar, gantt, time entries
+   owner: project-pages   DESIGN.md §3.7, §2.17
+   ========================================================================== */
+
+/* shared pieces used on these pages (same look as lists / board) */
+/* scoped to #content: the header's own avatar (global .gb-avatar[data-av]) must keep its colour
+   (activity lists are C-timeline: 15-c-timeline.css) */
+.controller-versions #content .gb-avatar { display: inline-grid; place-items: center; flex: none; border-radius: 50%; color: #fff; font-weight: var(--gb-fw-bold); line-height: 1; user-select: none; }
+
+.controller-versions .gb-tracker,
+.controller-timelog .gb-tracker,
+.controller-versions .gb-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  height: 20px;
+  min-width: 0;
+  padding: 0 8px;
+  border-radius: var(--gb-radius-pill);
+  font-size: var(--gb-fs-xs);
+  font-weight: var(--gb-fw-bold);
+  line-height: 1;
+  color: #fff;
+  white-space: nowrap;
+}
+.controller-versions .gb-tracker, .controller-timelog .gb-tracker { background: var(--gb-tr-default); }
+.controller-versions .gb-tracker-1, .controller-timelog .gb-tracker-1 { background: var(--gb-tr-1); }
+.controller-versions .gb-tracker-2, .controller-timelog .gb-tracker-2 { background: var(--gb-tr-2); }
+.controller-versions .gb-tracker-3, .controller-timelog .gb-tracker-3 { background: var(--gb-tr-3); }
+.controller-versions .gb-status { height: 22px; min-width: 64px; padding: 0 10px; font-size: var(--gb-fs-sm); }
+.controller-versions .gb-status { background: var(--gb-st-6); }
+.controller-versions .gb-status-1 { background: var(--gb-st-1); }
+.controller-versions .gb-status-2 { background: var(--gb-st-2); }
+.controller-versions .gb-status-3 { background: var(--gb-st-3); }
+.controller-versions .gb-status-4 { background: var(--gb-st-4); }
+.controller-versions .gb-status-5 { background: var(--gb-st-5); }
+
+/* prev / next pagination links as secondary sm buttons (activity, gantt) */
+.controller-activities #content > .pagination ul.pages,
+.controller-gantts #content > .pagination ul.pages {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.controller-activities #content > .pagination,
+.controller-gantts #content > .pagination { display: block; margin: 12px 0 0; }
+.controller-activities #content > .pagination li.page,
+.controller-gantts #content > .pagination li.page { margin: 0; padding: 0; border: 0; background: none; }
+.controller-activities #content > .pagination li.page a,
+.controller-gantts #content > .pagination li.page a,
+.gb-cal-nav__btn {
+  display: inline-flex;
+  align-items: center;
+  height: var(--gb-control-h-sm);
+  min-width: 0;
+  padding: 0 12px;
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  color: var(--gb-text);
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--gb-dur-1) var(--gb-ease), border-color var(--gb-dur-1) var(--gb-ease);
+}
+.controller-activities #content > .pagination li.page a:hover,
+.controller-gantts #content > .pagination li.page a:hover,
+.gb-cal-nav__btn:hover {
+  background: var(--gb-surface-2);
+  border-color: var(--gb-primary);
+  color: var(--gb-primary-strong);
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   Activity — Backlog-like timeline grouped by day (§2.17)
+   ========================================================================== */
+.controller-activities #content > h2 { margin-bottom: 4px; }
+.controller-activities #content > p.subtitle {
+  margin: 0 0 16px;
+  font-size: 13px;
+  font-style: normal;
+  color: var(--gb-text-2);
+  font-variant-numeric: tabular-nums;
+}
+.controller-activities #activity { max-width: 920px; }
+.controller-activities #content > p.nodata { margin: 24px 0; }
+
+/* activity filter (right sidebar) */
+.controller-activities #activity_scope_form { display: block; }
+.controller-activities #activity_scope_form h3 { margin-top: 0; }
+.controller-activities #activity_scope_form .gb-act-filter__label {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+}
+.controller-activities #activity_scope_form > p.gb-act-filter__submit,
+.controller-activities #activity_scope_form > p:last-child { margin-bottom: 0; }
+.controller-activities #activity_scope_form p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--gb-text-2);
+}
+.controller-activities #activity_scope_form input[type="date"] { width: 150px; height: var(--gb-control-h-sm); font-size: 13px; }
+.controller-activities #activity_scope_form select { width: 100%; height: var(--gb-control-h-sm); font-size: 13px; }
+.controller-activities #activity_scope_form ul { list-style: none; margin: 0 0 12px; padding: 0; }
+.controller-activities #activity_scope_form ul li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 4px;
+  border-radius: var(--gb-radius-sm);
+}
+.controller-activities #activity_scope_form ul li:hover { background: var(--gb-primary-softer); }
+.controller-activities #activity_scope_form ul li input[type="checkbox"] { margin: 0; accent-color: var(--gb-primary-strong); }
+.controller-activities #activity_scope_form ul li label { flex: 1; min-width: 0; cursor: pointer; }
+.controller-activities #activity_scope_form ul li label a,
+.controller-activities #activity_scope_form ul li label a:link,
+.controller-activities #activity_scope_form ul li label a:visited { color: var(--gb-text); font-size: 13px; text-decoration: none; }
+.controller-activities #activity_scope_form ul li label a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+.controller-activities #activity_scope_form input[type="submit"] { width: 100%; }
+
+/* ==========================================================================
+   Roadmap (/projects/:id/roadmap) — one card per version
+   ========================================================================== */
+.controller-versions.action-index #content {
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  padding: 0;
+  min-height: 0;
+}
+.controller-versions.action-index #content > h2 { margin: 0 0 16px; line-height: 36px; }
+.controller-versions.action-index #content > .contextual { margin: 0; min-height: 36px; display: flex; align-items: center; gap: 4px; }
+.controller-versions.action-index #content > p.nodata {
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  box-shadow: var(--gb-shadow);
+}
+.controller-versions.action-index #roadmap { display: flex; flex-direction: column; gap: 16px; }
+.controller-versions.action-index #roadmap article.version-article {
+  position: relative;
+  margin: 0;
+  padding: 20px 24px;
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  box-shadow: var(--gb-shadow);
+  min-width: 0;
+}
+.controller-versions.action-index #roadmap article.version-article > .contextual {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  margin: 0;
+  float: none;
+}
+.controller-versions.action-index #roadmap article.version-article > .contextual a.icon-only {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-text-2);
+}
+.controller-versions.action-index #roadmap article.version-article > .contextual a.icon-only:hover { background: var(--gb-surface-3); color: var(--gb-text); }
+.controller-versions.action-index #roadmap article.version-article > .contextual svg { width: 16px; height: 16px; stroke: currentColor; }
+.controller-versions.action-index #roadmap article header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 40px 8px 0;
+}
+.controller-versions.action-index #roadmap article header h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 18px;
+  font-weight: var(--gb-fw-bold);
+  line-height: 1.35;
+}
+.controller-versions.action-index #roadmap article header h3 svg {
+  width: 20px;
+  height: 20px;
+  color: var(--gb-primary);
+  stroke: currentColor;
+  flex: none;
+}
+.controller-versions.action-index #roadmap article header h3 a,
+.controller-versions.action-index #roadmap article header h3 a:link,
+.controller-versions.action-index #roadmap article header h3 a:visited { color: var(--gb-text); text-decoration: none; }
+.controller-versions.action-index #roadmap article header h3 a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+
+/* version state tag (進行中 / ロック中 / 終了) — both pages */
+.controller-versions #roadmap .badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--gb-radius-sm);
+  font-size: var(--gb-fs-xs);
+  font-weight: var(--gb-fw-bold);
+  line-height: 1;
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  vertical-align: middle;
+}
+.controller-versions #roadmap .badge-status-open { background: var(--gb-info-soft); color: var(--gb-info); }
+.controller-versions #roadmap .badge-status-closed { background: var(--gb-success-soft); color: var(--gb-success); }
+.controller-versions #roadmap .badge-status-locked { background: var(--gb-warning-soft); color: var(--gb-warning); }
+
+/* overview: due, progress, counts — both pages */
+.controller-versions .version-overview { margin: 0 0 16px; max-width: 640px; }
+.controller-versions .version-overview > p { margin: 0 0 8px; font-size: 13px; color: var(--gb-text-2); font-variant-numeric: tabular-nums; }
+.controller-versions .version-overview > p:empty { display: none; }
+.controller-versions .version-overview > p strong { color: var(--gb-text); font-weight: var(--gb-fw-bold); }
+.controller-versions .version-incompleted.version-overdue .version-overview > p:first-child strong,
+.controller-versions #roadmap .version-overdue .version-overview > p:first-child strong { color: var(--gb-danger); }
+.controller-versions .version-overview table.progress {
+  display: inline-table;
+  width: calc(100% - 56px);
+  max-width: 560px;
+  height: 10px;
+  margin: 4px 0;
+  border: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--gb-radius-pill);
+  overflow: hidden;
+  background: var(--gb-surface-3);
+  vertical-align: middle;
+  float: none;
+}
+.controller-versions .version-overview table.progress td { height: 10px; padding: 0; border: 0; }
+.controller-versions .version-overview table.progress td.closed { background: var(--gb-primary-strong); }
+.controller-versions .version-overview table.progress td.done { background: var(--gb-primary); }
+.controller-versions .version-overview table.progress td.todo { background: var(--gb-surface-3); }
+.controller-versions .version-overview p.percent {
+  display: inline-block;
+  width: 48px;
+  margin: 0 0 0 8px;
+  float: none;
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text-2);
+  font-variant-numeric: tabular-nums;
+  vertical-align: middle;
+}
+.controller-versions .version-overview p.progress-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 2px;
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--gb-text-2);
+}
+.controller-versions .version-overview p.progress-info a:first-child { font-weight: var(--gb-fw-bold); }
+.controller-versions .version-overview p.progress-info .gb-sep { color: var(--gb-muted); }
+
+/* related issues: compact rows */
+.controller-versions #roadmap table.related-issues {
+  width: 100%;
+  margin: 8px 0 0;
+  border: 0;
+  border-radius: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  box-shadow: none;
+}
+.controller-versions #roadmap table.related-issues caption {
+  caption-side: top;
+  padding: 0 0 6px;
+  border-bottom: 1px solid var(--gb-border);
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text-2);
+  text-align: left;
+}
+.controller-versions #roadmap table.related-issues tr { background: transparent; }
+.controller-versions #roadmap table.related-issues tr:hover { background: var(--gb-primary-softer); }
+.controller-versions #roadmap table.related-issues td {
+  height: 36px;
+  padding: 4px 8px;
+  border: 0;
+  border-bottom: 1px solid var(--gb-border);
+  font-size: var(--gb-fs-md);
+  text-align: left;
+  vertical-align: middle;
+}
+.controller-versions #roadmap table.related-issues td.checkbox { width: 28px; padding-left: 4px; }
+.controller-versions #roadmap table.related-issues td.assigned_to { width: 28px; padding: 0 4px; }
+/* the subject cell is the flexible column. Tracker badge and key sit on line 1 (floats), the subject is its own
+   block beside them once C-issue-row's 2-line clamp (§6.7, a block formatting context) applies to it; on phones the cell is display: contents
+   and the grid below places the same three children (floats are ignored there) */
+.controller-versions #roadmap table.related-issues td.subject {
+  width: 100%;
+  max-width: 0;
+  overflow: hidden;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+.controller-versions #roadmap table.related-issues td.subject > .gb-tracker { float: left; margin: 1px 6px 0 0; }
+.controller-versions #roadmap table.related-issues td.subject > a.gb-rel__key { float: left; margin-right: 6px; }
+.controller-versions #roadmap table.related-issues td.subject a.gb-rel__key {
+  flex: none;
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-primary-strong);
+  font-variant-numeric: tabular-nums;
+}
+.controller-versions #roadmap table.related-issues .gb-rel__subject { color: var(--gb-text); }
+.controller-versions #roadmap table.related-issues tr.closed .gb-rel__subject,
+.controller-versions #roadmap table.related-issues tr.closed a.gb-rel__key { color: var(--gb-muted); text-decoration: line-through; }
+.controller-versions #roadmap table.related-issues td.gb-rel__status { width: 1%; white-space: nowrap; text-align: right; }
+.controller-versions #roadmap table.related-issues td.buttons { width: 36px; padding-right: 0; text-align: right; }
+.controller-versions #roadmap table.related-issues.is-collapsed tr.gb-rel__extra { display: none; }
+.gb-rel__more {
+  display: inline-flex;
+  align-items: center;
+  height: var(--gb-control-h-sm);
+  margin: 8px 0 0;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--gb-radius-sm);
+  background: none;
+  color: var(--gb-primary-strong);
+  font: inherit;
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  cursor: pointer;
+}
+.gb-rel__more:hover { background: var(--gb-primary-soft); }
+.controller-versions #roadmap .wiki { margin: 12px 0; max-width: var(--gb-prose-max); }
+
+/* ==========================================================================
+   Version page (/versions/:id)
+   ========================================================================== */
+.controller-versions.action-show #roadmap {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) 300px;
+  column-gap: 12px;
+  align-items: start;
+}
+.controller-versions.action-show #roadmap > h2 {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0 0 12px;
+  font-size: var(--gb-fs-xl);
+  line-height: 32px;
+}
+.controller-versions.action-show #roadmap > .badge { grid-column: 2; grid-row: 1; justify-self: start; align-self: start; margin-top: 6px; }
+.controller-versions.action-show #roadmap > .version-overview,
+.controller-versions.action-show #roadmap > .wiki,
+.controller-versions.action-show #roadmap > form,
+.controller-versions.action-show #roadmap > .gb-rel__more { grid-column: 1 / 3; min-width: 0; margin-right: 12px; }
+.controller-versions.action-show #roadmap > .gb-rel__more { justify-self: start; }
+.controller-versions.action-show #roadmap > #version-summary { grid-column: 3; grid-row: 1 / span 6; }
+
+.controller-versions.action-show #version-summary {
+  float: none;
+  width: auto;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.controller-versions.action-show #version-summary fieldset {
+  margin: 0;
+  padding: 16px 20px;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface);
+  min-width: 0;
+}
+.controller-versions.action-show #version-summary legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 0;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+}
+.controller-versions.action-show #version-summary legend + * { clear: both; }
+.controller-versions.action-show #version-summary legend select {
+  height: var(--gb-control-h-sm);
+  font-size: 13px;
+  margin-right: 4px;
+  width: auto;
+  max-width: 160px;
+}
+.controller-versions.action-show #version-summary table { width: 100%; border-collapse: collapse; }
+.controller-versions.action-show #version-summary .time-tracking th {
+  padding: 6px 0;
+  text-align: left;
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-text-2);
+  border-bottom: 1px solid var(--gb-border);
+}
+.controller-versions.action-show #version-summary .time-tracking td {
+  padding: 6px 0;
+  text-align: right;
+  border-bottom: 1px solid var(--gb-border);
+  font-variant-numeric: tabular-nums;
+}
+.controller-versions.action-show #version-summary .time-tracking tr:last-child th,
+.controller-versions.action-show #version-summary .time-tracking tr:last-child td { border-bottom: 0; }
+.controller-versions.action-show #version-summary .time-tracking td a { color: var(--gb-text); font-weight: var(--gb-fw-bold); font-size: var(--gb-fs-md); }
+.controller-versions.action-show #version-summary .time-tracking td a:hover { color: var(--gb-primary-strong); }
+.controller-versions.action-show #version-summary .time-tracking .hours-dec,
+.controller-versions.action-show #version-summary .time-tracking .hours-int { font-size: inherit; }
+.controller-versions.action-show #version-summary .time-tracking td a .gb-unit {
+  margin-left: 2px;
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-normal);
+  color: var(--gb-text-2);
+}
+.controller-versions.action-show #version-summary .time-tracking td a { font-size: var(--gb-fs-lg); }
+.controller-versions.action-show #status_by table td {
+  width: auto !important;
+  padding: 4px 0;
+  text-align: left !important;
+  vertical-align: middle;
+  font-size: 13px;
+}
+.controller-versions.action-show #status_by table tr { display: grid; grid-template-columns: 88px minmax(0, 1fr); align-items: center; gap: 8px; }
+.controller-versions.action-show #status_by table td:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.controller-versions.action-show #status_by table td:first-child a { color: var(--gb-text); }
+.controller-versions.action-show #status_by table td:first-child a:hover { color: var(--gb-primary-strong); }
+.controller-versions.action-show #status_by table td:last-child { display: flex; align-items: center; gap: 8px; }
+.controller-versions.action-show #status_by table.progress {
+  flex: 1;
+  width: auto;
+  height: 8px;
+  margin: 0;
+  border: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--gb-radius-pill);
+  overflow: hidden;
+  background: var(--gb-surface-3);
+  float: none;
+}
+.controller-versions.action-show #status_by table.progress tr { display: table-row; }
+.controller-versions.action-show #status_by table.progress td { display: table-cell; height: 8px; padding: 0; border: 0; }
+.controller-versions.action-show #status_by table.progress td.closed { background: var(--gb-primary-strong); }
+.controller-versions.action-show #status_by table.progress td.done { background: var(--gb-primary); }
+.controller-versions.action-show #status_by table.progress td.todo { background: var(--gb-surface-3); }
+.controller-versions.action-show #status_by p.percent {
+  flex: none;
+  width: 36px;
+  margin: 0;
+  float: none;
+  text-align: right;
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text-2);
+  font-variant-numeric: tabular-nums;
+}
+/* the issue table lives directly under #roadmap on the version page */
+.controller-versions.action-show #roadmap table.related-issues { margin-top: 8px; }
+.controller-versions.action-show #content > p.other-formats { clear: both; }
+
+/* ==========================================================================
+   Calendar (/projects/:id/issues/calendar)
+   ========================================================================== */
+.controller-calendars .gb-cal-nav__src { display: none; }
+.gb-cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 20px 0 12px;
+}
+.gb-cal-nav__title {
+  min-width: 160px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: center;
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+  font-variant-numeric: tabular-nums;
+}
+.controller-calendars #content ul.cal,
+.mypage-box ul.cal {
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  overflow: hidden;
+  background: var(--gb-border);
+  gap: 1px;
+  border-spacing: 0;
+}
+.controller-calendars #content ul.cal > li,
+.mypage-box ul.cal > li {
+  margin: 0;
+  border: 0;
+  background: var(--gb-surface);
+  min-width: 0;
+  box-sizing: border-box;
+}
+.controller-calendars #content ul.cal > li.calhead,
+.mypage-box ul.cal > li.calhead {
+  height: 32px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gb-surface-2);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text-2);
+}
+.controller-calendars #content ul.cal > li.calhead:nth-child(2) { color: var(--gb-danger); }
+.controller-calendars #content ul.cal > li.calhead:nth-child(8) { color: var(--gb-info); }
+.controller-calendars #content ul.cal > li.week-number,
+.mypage-box ul.cal > li.week-number {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 8px 0 0;
+  background: var(--gb-surface-2);
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-muted);
+  font-variant-numeric: tabular-nums;
+}
+.controller-calendars #content ul.cal > li.week-number .label-week { display: none; }
+.controller-calendars #content ul.cal > li.calbody {
+  min-height: 112px;
+  padding: 6px;
+  vertical-align: top;
+}
+.controller-calendars #content ul.cal > li.calbody.nwday { background: #fbfcfc; }
+.controller-calendars #content ul.cal > li.calbody.odd,
+.controller-calendars #content ul.cal > li.calbody:not(.this-month) { background: var(--gb-surface-2); }
+.controller-calendars #content ul.cal p.day-num,
+.mypage-box ul.cal p.day-num {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: auto;
+  height: 22px;
+  margin: 0 0 4px;
+  padding: 0;
+  float: none;
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-text-2);
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+.controller-calendars #content ul.cal p.day-num .abbr-day { display: none; }
+.controller-calendars #content ul.cal > li.calbody:not(.this-month) p.day-num { color: var(--gb-disabled); }
+.controller-calendars #content ul.cal > li.today { background: var(--gb-primary-softer); }
+.controller-calendars #content ul.cal > li.today p.day-num {
+  justify-content: center;
+  width: 22px;
+  border-radius: 50%;
+  background: var(--gb-primary-strong);
+  color: #fff;
+  font-weight: var(--gb-fw-bold);
+}
+/* issue chips */
+.controller-calendars #content ul.cal div.issue,
+.controller-calendars #content ul.cal div.version {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 4px;
+  padding: 3px 6px 3px 8px;
+  border: 0;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface-2);
+  box-shadow: inset 3px 0 0 var(--gb-st-6);
+  font-size: var(--gb-fs-sm);
+  line-height: 1.4;
+  color: var(--gb-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  cursor: default;
+}
+.controller-calendars #content ul.cal div.issue:hover { background: var(--gb-primary-soft); }
+.controller-calendars #content ul.cal div.issue.status-1 { box-shadow: inset 3px 0 0 var(--gb-st-1); }
+.controller-calendars #content ul.cal div.issue.status-2 { box-shadow: inset 3px 0 0 var(--gb-st-2); }
+.controller-calendars #content ul.cal div.issue.status-3 { box-shadow: inset 3px 0 0 var(--gb-st-3); }
+.controller-calendars #content ul.cal div.issue.status-4 { box-shadow: inset 3px 0 0 var(--gb-st-4); }
+.controller-calendars #content ul.cal div.issue.status-5 { box-shadow: inset 3px 0 0 var(--gb-st-5); }
+.controller-calendars #content ul.cal div.issue.context-menu-selection { background: var(--gb-primary-soft); color: var(--gb-text); }
+.controller-calendars #content ul.cal div.issue > svg,
+.controller-calendars #content ul.cal div.version > svg {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  color: var(--gb-text-2);
+  stroke: currentColor;
+}
+.controller-calendars #content ul.cal div.issue > a,
+.controller-calendars #content ul.cal div.version > a {
+  flex: none;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-primary-strong);
+}
+.controller-calendars #content ul.cal div.issue.closed > a { color: var(--gb-muted); text-decoration: line-through; }
+.controller-calendars #content ul.cal div.version {
+  background: var(--gb-surface);
+  box-shadow: inset 0 0 0 1px var(--gb-primary-border);
+  color: var(--gb-primary-strong);
+  font-weight: var(--gb-fw-medium);
+}
+/* §: the chip shows one line — icon, #id, subject with ellipsis (the tooltip has everything).
+   Only the subject clips, so the chip itself stays overflow:visible and the tooltip can escape it. */
+.controller-calendars #content ul.cal div.issue { display: flex; flex-wrap: nowrap; overflow: visible; white-space: nowrap; }
+.controller-calendars #content ul.cal div.issue .gb-cal-chip__subject {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* hover tooltip card */
+.controller-calendars #content ul.cal div.issue .tip,
+.controller-calendars #content ul.cal .tooltip span.tip {
+  font-size: var(--gb-fs-sm);
+  line-height: 1.6;
+  white-space: normal;
+}
+.controller-calendars #content ul.cal .tooltip:hover span.tip {
+  z-index: var(--gb-z-dropdown);
+  width: 280px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--gb-radius);
+  background: var(--gb-tooltip-bg);
+  color: #fff;
+  box-shadow: var(--gb-shadow-md);
+}
+.controller-calendars #content ul.cal .tooltip:hover span.tip a { color: #fff !important; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, .5); text-underline-offset: 2px; } /* core sets #169 !important */
+.controller-calendars #content ul.cal .tooltip:hover span.tip strong { color: #fff; font-weight: var(--gb-fw-bold); }
+.controller-calendars #content ul.cal .tooltip:hover span.tip .avatar { display: none; }
+/* legend */
+.controller-calendars #content p.legend.cal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 12px 0 0;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+}
+.controller-calendars #content p.legend.cal > span { display: inline-flex; align-items: center; gap: 4px; padding: 0; }
+.controller-calendars #content p.legend.cal svg { width: 14px; height: 14px; color: var(--gb-text-2); stroke: currentColor; }
+.controller-calendars #content p.legend.cal .icon-label { font-size: var(--gb-fs-sm); }
+
+/* ==========================================================================
+   Gantt (/projects/:id/issues/gantt) — colours, fonts, borders only
+   ========================================================================== */
+.controller-gantts #content table.gantt-table {
+  width: 100%;
+  margin: 16px 0 0;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  background: var(--gb-surface);
+}
+.controller-gantts #content table.gantt-table > tbody > tr > td { padding: 0; border: 0; vertical-align: top; }
+.controller-gantts #content table.gantt-table td.gantt_subjects_column { border-right: 1px solid var(--gb-border); }
+.controller-gantts #content table.gantt-table td.gantt_selected_column { border-right: 1px solid var(--gb-border); }
+/* header cells: core writes background:#eee inline */
+.controller-gantts #content .gantt_hdr {
+  border-color: var(--gb-border) !important;
+  background: transparent;
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+}
+.controller-gantts #content .gantt_hdr[style*="background"] { background: var(--gb-surface-2) !important; }
+.controller-gantts #content #gantt_area .gantt_hdr a,
+.controller-gantts #content #gantt_area .gantt_hdr a:link,
+.controller-gantts #content #gantt_area .gantt_hdr a:visited { color: var(--gb-text-2); font-weight: var(--gb-fw-bold); text-decoration: none; }
+.controller-gantts #content #gantt_area .gantt_hdr a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+.controller-gantts #content #gantt_area .gantt_hdr small { font-size: 11px; color: var(--gb-muted); font-variant-numeric: tabular-nums; }
+.controller-gantts #content #gantt_area .gantt_hdr.nwday { background: var(--gb-surface-2); }
+.controller-gantts #content .gantt_hdr_selected_column_name { font-size: var(--gb-fs-sm); color: var(--gb-text-2); }
+/* subject column */
+.controller-gantts #content .gantt_subjects { font-size: 13px; }
+.controller-gantts #content .gantt_subjects div {
+  line-height: 20px;
+  height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--gb-text);
+}
+.controller-gantts #content .gantt_subjects .icon svg { width: 14px; height: 14px; color: var(--gb-muted); stroke: currentColor; vertical-align: -2px; }
+.controller-gantts #content .gantt_subjects .project-name a,
+.controller-gantts #content .gantt_subjects .version-name a { color: var(--gb-text); font-weight: var(--gb-fw-bold); }
+.controller-gantts #content .gantt_subjects .issue-subject a.issue { color: var(--gb-primary-strong); font-weight: var(--gb-fw-medium); }
+.controller-gantts #content .gantt_subjects .issue-closed a.issue { color: var(--gb-muted); text-decoration: line-through; }
+.controller-gantts #content .gantt_subjects .issue-overdue a.issue { color: var(--gb-danger); }
+.controller-gantts #content .gantt_subjects div.issue-subject:hover,
+.controller-gantts #content .gantt_subjects div.version-name:hover,
+.controller-gantts #content .gantt_subjects div.project-name:hover { background: var(--gb-primary-softer); }
+.controller-gantts #content .gantt_subjects .context-menu-selection { background: var(--gb-primary-soft) !important; }
+.controller-gantts #content .gantt_subjects .context-menu-selection a { color: var(--gb-primary-strong) !important; }
+.controller-gantts #content .gantt_subjects .expander svg { color: var(--gb-text-2); }
+/* the row's own ellipsis only works on inline content: core's inline-flex .icon wrapper would be cut hard */
+.controller-gantts #content .gantt_subjects div > span.icon { display: inline; }
+.controller-gantts #content .gantt_subjects div > span.icon > svg { display: inline-block; margin-right: 4px; }
+/* small, spaced avatars so stacked rows do not read as a solid strip */
+.controller-gantts #content .gantt_subjects .avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  margin: 3px 4px 3px 0;
+  font-size: 8px;
+  line-height: 14px;
+  vertical-align: top;
+}
+.controller-gantts #content .gantt_selected_column_content > div { color: var(--gb-text-2); font-size: var(--gb-fs-sm) !important; line-height: 20px; }
+/* bars */
+.controller-gantts #content .task { font-size: var(--gb-fs-sm); }
+.controller-gantts #content .task_todo {
+  height: 12px;
+  margin-top: 3px;
+  border: 0;
+  border-radius: 3px;
+  background: rgba(68, 136, 197, .30);
+}
+.controller-gantts #content .task_late {
+  height: 12px;
+  margin-top: 3px;
+  border: 0;
+  border-radius: 3px;
+  background: var(--gb-danger);
+  opacity: .85;
+}
+.controller-gantts #content .task_done {
+  height: 12px;
+  margin-top: 3px;
+  border: 0;
+  border-radius: 3px;
+  background: var(--gb-primary);
+}
+.controller-gantts #content .task.parent { opacity: 1; }
+.controller-gantts #content .task.parent.task_todo,
+.controller-gantts #content .task.parent.task_late,
+.controller-gantts #content .task.parent.task_done { height: 6px; margin-top: 6px; }
+.controller-gantts #content .task.version.task_todo,
+.controller-gantts #content .task.project.task_todo { background: var(--gb-surface-3); height: 6px; margin-top: 6px; }
+.controller-gantts #content .task.version.task_late,
+.controller-gantts #content .task.project.task_late { height: 6px; margin-top: 6px; }
+.controller-gantts #content .task.version.task_done,
+.controller-gantts #content .task.project.task_done { background: var(--gb-text-2); height: 6px; margin-top: 6px; }
+.controller-gantts #content .task.label {
+  margin-top: 0;
+  line-height: 18px;
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-sm);
+  white-space: nowrap;
+}
+.controller-gantts #content .task.label.project,
+.controller-gantts #content .task.label.version { font-weight: var(--gb-fw-bold); color: var(--gb-text-2); }
+.controller-gantts #content .task.marker svg,
+.controller-gantts #content .task.marker { color: var(--gb-text-2); }
+.controller-gantts #content .task.version.marker,
+.controller-gantts #content .task.project.marker { filter: grayscale(1); opacity: .7; }
+/* today line + version effective date line */
+.controller-gantts #content #gantt_area .today {
+  border-left: 2px dashed var(--gb-danger);
+  width: 0;
+  background: none;
+}
+.controller-gantts #content #gantt_area .version-behind-schedule,
+.controller-gantts #content #gantt_area .version-delay { border-color: var(--gb-danger); }
+/* tooltip */
+.controller-gantts #content .tooltip span.tip {
+  font-size: var(--gb-fs-sm);
+  line-height: 1.6;
+}
+.controller-gantts #content .tooltip:hover span.tip {
+  z-index: var(--gb-z-dropdown);
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--gb-radius);
+  background: var(--gb-tooltip-bg);
+  color: #fff;
+  box-shadow: var(--gb-shadow-md);
+}
+.controller-gantts #content .tooltip:hover span.tip a { color: #fff !important; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, .5); text-underline-offset: 2px; } /* core sets #169 !important */
+.controller-gantts #content .tooltip:hover span.tip strong { color: #fff; }
+.controller-gantts #content .tooltip:hover span.tip .avatar { display: none; }
+/* relation arrows keep core geometry; only tone them down */
+.controller-gantts #content #gantt_draw_area path { stroke-opacity: .7; }
+.controller-gantts #content .ui-resizable-e { border-right: 0; background: transparent; }
+.controller-gantts #content .ui-resizable-e:hover { background: var(--gb-primary-border); }
+.controller-gantts #content > p.other-formats { margin-top: 12px; }
+
+/* ==========================================================================
+   Time entries (/projects/:id/time_entries, /new, /report)
+   ========================================================================== */
+.controller-timelog #content p.query-totals {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 8px;
+  margin: 0 0 12px;
+  float: none;
+  text-align: left;
+}
+.controller-timelog .gb-total-chip,
+.controller-timelog #content p.query-totals > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--gb-radius);
+  background: var(--gb-primary-softer);
+  border: 1px solid var(--gb-primary-border);
+  font-size: 13px;
+  color: var(--gb-text-2);
+}
+.controller-timelog #content p.query-totals .value {
+  font-size: var(--gb-fs-lg);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+  font-variant-numeric: tabular-nums;
+}
+.controller-timelog table.time-entries td.hours,
+.controller-timelog table.time-entries th.hours { text-align: right; white-space: nowrap; }
+.controller-timelog table.time-entries td.hours { font-weight: var(--gb-fw-bold); font-variant-numeric: tabular-nums; }
+.controller-timelog table.time-entries td.spent_on { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.controller-timelog table.time-entries td.activity { white-space: nowrap; }
+/* compact §2.5 rows: every cell on one line; 課題 is the flexible column, コメント is capped */
+.controller-timelog #content table.time-entries td.user { white-space: nowrap; }
+.controller-timelog #content table.time-entries td.user .avatar,
+.controller-timelog #content table.time-entries td.user .gb-avatar { margin-right: 6px; vertical-align: middle; }
+/* 課題 is the key column: it takes the free width and wraps to two lines (clamped) instead of one */
+.controller-timelog #content table.time-entries td.issue { width: 100%; min-width: 0; padding-top: 6px; padding-bottom: 6px; }
+.controller-timelog #content table.time-entries .gb-te-issue { min-width: 260px; }
+.controller-timelog #content table.time-entries .gb-te-issue > .gb-tracker { margin-right: 2px; vertical-align: 1px; }
+.controller-timelog #content table.time-entries .gb-te-issue > a.issue { font-variant-numeric: tabular-nums; }
+/* コメント is the column that gives way: as wide as its text, never more than 220px */
+.controller-timelog #content table.time-entries td.comments { width: auto; }
+.controller-timelog #content table.time-entries .gb-te-comment {
+  display: block;
+  max-width: 220px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.controller-timelog #content table.time-entries td.project {
+  max-width: 160px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.controller-timelog #content table.time-entries td.user a { white-space: nowrap; }
+.controller-timelog #content table.time-entries td.hours,
+.controller-timelog #content table.time-entries td.buttons { width: 1%; }
+/* one continuous grey header band (no notch before the action column) */
+.controller-timelog #content table.time-entries > thead > tr { background: var(--gb-surface-2); }
+.controller-timelog #content table.time-entries > thead > tr > th { background: var(--gb-surface-2); border-left: 0; border-right: 0; }
+/* the comment repeated under 課題: hidden while the コメント column is visible */
+.controller-timelog #content table.time-entries .gb-te-note {
+  display: none;
+  width: 0; /* never widens the cell: it follows the 課題 column width */
+  min-width: 100%;
+  margin-top: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--gb-fs-sm);
+  line-height: 1.5;
+  color: var(--gb-text-2);
+}
+.controller-timelog #content table.time-entries td.user .gb-te-user__name {
+  display: inline-block;
+  max-width: 120px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+/* narrow content area (sidebars open / small screens): コメント moves under 課題, then 作業分類 goes,
+   before 時間 scrolls away */
+.controller-timelog #content .autoscroll:has(> table.time-entries) { container-type: inline-size; }
+@container (max-width: 860px) {
+  .controller-timelog #content table.time-entries th.comments,
+  .controller-timelog #content table.time-entries td.comments { display: none; }
+  .controller-timelog #content table.time-entries .gb-te-note { display: block; }
+  .controller-timelog #content table.time-entries .gb-te-issue { min-width: 180px; }
+  .controller-timelog #content table.time-entries td.user .gb-te-user__name { max-width: 88px; }
+}
+/* very narrow: the avatar alone identifies the row; the name stays in the link title + for screen readers */
+@container (max-width: 640px) {
+  .controller-timelog #content table.time-entries td.user .gb-te-user__name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .controller-timelog #content table.time-entries td.user .gb-avatar,
+  .controller-timelog #content table.time-entries td.user .avatar { margin-right: 0; }
+}
+@container (max-width: 760px) {
+  .controller-timelog #content table.time-entries .gb-te-issue { min-width: 180px; }
+}
+@container (max-width: 680px) {
+  .controller-timelog #content table.time-entries th.activity,
+  .controller-timelog #content table.time-entries td.activity { display: none; }
+}
+/* phones / both sidebars: date, issue and hours always fit — edit / delete live in the … menu */
+@container (max-width: 560px) {
+  .controller-timelog #content table.time-entries td.buttons a.icon-only.icon-edit,
+  .controller-timelog #content table.time-entries td.buttons a.icon-only.icon-del { display: none; }
+  .controller-timelog #content table.time-entries .gb-te-year { display: none; }
+  .controller-timelog #content table.time-entries th.checkbox,
+  .controller-timelog #content table.time-entries td.checkbox { display: none; }
+  .controller-timelog #content table.time-entries .gb-te-issue { min-width: 0; }
+  .controller-timelog #content table.time-entries > thead > tr > th,
+  .controller-timelog #content table.time-entries > tbody > tr > td { padding-left: 6px; padding-right: 6px; }
+}
+.controller-timelog #content table.time-entries > thead > tr > th {
+  height: 40px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+/* total chip: 合計 12:15 時間 */
+.controller-timelog #content p.query-totals .gb-unit { margin-left: -4px; font-size: var(--gb-fs-sm); color: var(--gb-text-2); }
+.controller-timelog #content table.time-entries > thead > tr > th,
+.controller-timelog #content table.time-entries > tbody > tr > td { padding-left: 8px; padding-right: 8px; }
+.controller-timelog #content table.time-entries td.buttons { padding-right: 4px; }
+.controller-timelog #content table.time-entries td.buttons a.icon-only {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-text-2);
+  vertical-align: middle;
+}
+.controller-timelog #content table.time-entries td.buttons a.icon-only:hover { background: var(--gb-surface-3); color: var(--gb-text); }
+.controller-timelog #content table.time-entries td.buttons a.icon-del:hover { background: var(--gb-danger-soft); color: var(--gb-danger); }
+.controller-timelog #content table.time-entries td.buttons svg { width: 16px; height: 16px; stroke: currentColor; }
+.controller-timelog table.time-entries td.issue a.issue { font-weight: var(--gb-fw-medium); }
+.controller-timelog table.time-entries td.comments { color: var(--gb-text-2); }
+.controller-timelog table.time-entries td.buttons { white-space: nowrap; text-align: right; }
+.controller-timelog table.time-entries tr.group td { font-weight: var(--gb-fw-bold); }
+
+/* new / edit time entry: Pattern S, max 640px. DOM order is re-arranged by 75-project-pages.js
+   so tab order = visual order: 課題 → 日付 | 時間 → ユーザー → 作業分類 → コメント */
+.controller-timelog form.new_time_entry,
+.controller-timelog form.edit_time_entry { display: block; max-width: 640px; }
+.controller-timelog form.new_time_entry > .box.tabular,
+.controller-timelog form.edit_time_entry > .box.tabular {
+  display: grid;
+  grid-template-columns: 180px 120px minmax(0, 1fr);
+  column-gap: 16px;
+  max-width: 640px;
+  margin: 0 0 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.controller-timelog form.new_time_entry > .box.tabular > *,
+.controller-timelog form.edit_time_entry > .box.tabular > * { grid-column: 1 / -1; min-width: 0; }
+.controller-timelog form.new_time_entry > .box.tabular > input[type="hidden"],
+.controller-timelog form.edit_time_entry > .box.tabular > input[type="hidden"] { display: none; }
+.controller-timelog .box.tabular > p:has(> #time_entry_spent_on) { grid-column: 1; }
+.controller-timelog .box.tabular > p:has(> #time_entry_hours) { grid-column: 2; }
+.controller-timelog .box.tabular #time_entry_spent_on { width: 100%; max-width: 180px; }
+.controller-timelog .box.tabular #time_entry_hours { width: 100%; max-width: 120px; font-variant-numeric: tabular-nums; }
+.controller-timelog .box.tabular #time_entry_user_id,
+.controller-timelog .box.tabular #time_entry_activity_id,
+.controller-timelog .box.tabular #time_entry_project_id { width: 100%; max-width: 240px; }
+.controller-timelog .box.tabular #time_entry_comments { width: 100%; max-width: 100%; }
+.controller-timelog .box.tabular p:has(> #time_entry_issue_id) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 0;
+}
+.controller-timelog .box.tabular p:has(> #time_entry_issue_id) > label { flex: 0 0 100%; }
+.controller-timelog .box.tabular #time_entry_issue_id { flex: 1 1 100%; width: 100%; max-width: 100%; }
+.controller-timelog .box.tabular #time_entry_issue {
+  flex: 1 1 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--gb-text-2);
+}
+.controller-timelog .box.tabular #time_entry_issue:not(:empty) { margin-top: 6px; }
+.controller-timelog .box.tabular #time_entry_issue a { font-weight: var(--gb-fw-medium); }
+.controller-timelog .box.tabular > p > label { white-space: nowrap; }
+.controller-timelog form.new_time_entry > input[type="submit"],
+.controller-timelog form.edit_time_entry > input[type="submit"] { margin-right: 8px; }
+@media screen and (max-width: 640px) {
+  .controller-timelog form.new_time_entry > .box.tabular,
+  .controller-timelog form.edit_time_entry > .box.tabular { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 12px; }
+  .controller-timelog .box.tabular #time_entry_spent_on,
+  .controller-timelog .box.tabular #time_entry_hours,
+  .controller-timelog .box.tabular #time_entry_user_id,
+  .controller-timelog .box.tabular #time_entry_activity_id,
+  .controller-timelog .box.tabular #time_entry_project_id { max-width: 100%; }
+}
+@media screen and (max-width: 400px) {
+  .controller-timelog form.new_time_entry > .box.tabular,
+  .controller-timelog form.edit_time_entry > .box.tabular { grid-template-columns: minmax(0, 1fr); }
+  .controller-timelog .box.tabular > p:has(> #time_entry_spent_on),
+  .controller-timelog .box.tabular > p:has(> #time_entry_hours) { grid-column: 1 / -1; }
+}
+
+/* report */
+.controller-timelog.action-report #query_form > p:has(#columns) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--gb-text-2);
+}
+.controller-timelog.action-report #query_form > p:has(#columns) select {
+  height: var(--gb-control-h-sm);
+  font-size: 13px;
+  width: auto !important;
+  min-width: 120px;
+}
+.controller-timelog.action-report #query_form > p:has(#columns) label { font-weight: var(--gb-fw-medium); color: var(--gb-text-2); }
+.controller-timelog #time-report {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.controller-timelog #time-report th {
+  white-space: nowrap;
+  text-align: left;
+}
+.controller-timelog #time-report th.period,
+.controller-timelog #time-report th.total { text-align: right; width: auto !important; min-width: 96px; }
+.controller-timelog #time-report td { white-space: nowrap; }
+.controller-timelog #time-report td.hours {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.controller-timelog #time-report td.hours .hours-dec { font-size: inherit; }
+.controller-timelog #time-report td:first-child,
+.controller-timelog #time-report th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: inherit;
+}
+.controller-timelog #time-report thead th:first-child { background: var(--gb-surface-2); }
+.controller-timelog #time-report tbody tr { background: var(--gb-surface); }
+.controller-timelog #time-report tr.subtotal td { font-weight: var(--gb-fw-bold); background: var(--gb-surface); }
+.controller-timelog #time-report tr.last-level td { color: var(--gb-text-2); }
+.controller-timelog #time-report tr.last-level td.hours { color: var(--gb-text); }
+.controller-timelog #time-report tr.total td {
+  background: var(--gb-surface-2);
+  font-weight: var(--gb-fw-bold);
+  border-top: 1px solid var(--gb-border-strong);
+  color: var(--gb-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gb-cal-nav__btn,
+  .controller-activities #content > .pagination li.page a,
+  .controller-gantts #content > .pagination li.page a { transition: none; }
+}
+
+/* version page: action bar pinned top-right so the grid below is not narrowed by the float */
+.controller-versions.action-show #content { position: relative; }
+.controller-versions.action-show #content > .contextual {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  float: none;
+  margin: 0;
+}
+.controller-versions.action-show #roadmap > #version-summary { margin-top: 48px; }
+.controller-versions.action-show #roadmap > .badge { margin-right: 300px; }
+body.controller-versions.action-show div#roadmap table.related-issues { width: 100%; }
+.controller-calendars #content ul.cal div.issue .gb-cal-chip__subject { margin-left: 4px; color: var(--gb-text); }
+.controller-calendars #content ul.cal div.issue.closed .gb-cal-chip__subject { color: var(--gb-muted); }
+/* calendar: let issue tooltips escape the grid; round the corner cells instead of clipping */
+.controller-calendars #content ul.cal { overflow: visible; }
+.controller-calendars #content ul.cal > li:first-child { border-top-left-radius: 7px; }
+.controller-calendars #content ul.cal > li:nth-child(8) { border-top-right-radius: 7px; }
+.controller-calendars #content ul.cal > li:last-child { border-bottom-right-radius: 7px; }
+.controller-calendars #content ul.cal > li:nth-last-child(8) { border-bottom-left-radius: 7px; }
+.controller-calendars #content ul.cal div.tooltip:hover span.tip { top: calc(100% + 4px); left: 0; }
+.controller-timelog #content #time-report tr.subtotal td,
+.controller-timelog #content #time-report tr.subtotal td.hours,
+.controller-timelog #content #time-report tr.subtotal td a { font-style: normal; color: var(--gb-text); font-weight: var(--gb-fw-bold); }
+.controller-timelog #content #time-report tr.last-level td.name { padding-left: 12px; }
+
+/* roadmap / version: rows filtered by the sidebar's tracker checkboxes */
+.controller-versions .gb-filter-note {
+  margin: 8px 0 0;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+}
+.controller-versions .gb-filter-note__link { margin-left: 4px; font-weight: var(--gb-fw-medium); color: var(--gb-primary-strong); }
+
+/* calendar: the chip layout follows the calendar's own width (sidebars change it, not only the viewport).
+   Days narrower than ~140px get a two-line chip: #id on top, the subject below (2-line clamp). */
+.controller-calendars .gb-cal-scroll { container: gb-cal / inline-size; }
+.controller-calendars #content ul.cal .gb-cal-date { display: none; }
+@container gb-cal (max-width: 1000px) {
+  /* narrow days: still one line — the icon goes, #id and the subject (ellipsis) stay inline */
+  .controller-calendars #content ul.cal div.issue > svg { display: none; }
+  .controller-calendars #content ul.cal div.issue { padding-left: 7px; padding-right: 4px; }
+}
+/* milestone chips: one line as well */
+.controller-calendars #content ul.cal div.version > a {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* busy days: 3 chips + 「+n件」 toggle (75-project-pages.js) */
+.controller-calendars #content ul.cal div.gb-cal-chip--extra { display: none; }
+.controller-calendars #content ul.cal li.gb-cal-day--expanded div.gb-cal-chip--extra { display: flex; }
+.controller-calendars #content ul.cal .gb-cal-more {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 2px 6px;
+  border: 0;
+  border-radius: var(--gb-radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-medium);
+  line-height: 1.5;
+  color: var(--gb-primary-strong);
+  text-align: left;
+  cursor: pointer;
+}
+.controller-calendars #content ul.cal .gb-cal-more:hover { background: var(--gb-primary-soft); }
+.controller-calendars #content ul.cal .gb-cal-more:focus-visible { outline: none; box-shadow: var(--gb-focus); }
+/* tablet widths: keep each day >= ~96px wide and scroll sideways instead of squeezing */
+@media screen and (min-width: 900px) and (max-width: 1199px) {
+  .controller-calendars .gb-cal-scroll { overflow-x: auto; padding-bottom: 4px; }
+  .controller-calendars .gb-cal-scroll > ul.cal { min-width: 720px; }
+}
+/* phones (core stacks the days as a list below 900px): an agenda — one row per day, 「11/22（日）」 label
+   on the left, full-width chips on the right; days without issues collapse to a slim 32px row */
+@media screen and (max-width: 899px) {
+  .controller-calendars .gb-cal-scroll > ul.cal { min-width: 0; }
+  .controller-calendars #content ul.cal { display: block; overflow: hidden; border-top: 0; background: var(--gb-surface); }
+  .controller-calendars #content ul.cal > li.calhead,
+  .controller-calendars #content ul.cal > li.week-number { display: none; }
+  .controller-calendars #content ul.cal > li.calbody {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    column-gap: 8px;
+    align-items: start;
+    min-height: 0;
+    padding: 8px 10px;
+    border-top: 1px solid var(--gb-border);
+    border-radius: 0;
+  }
+  .controller-calendars #content ul.cal > li.calbody > * { grid-column: 2; }
+  .controller-calendars #content ul.cal > li.calbody > p.day-num {
+    grid-column: 1;
+    grid-row: 1 / span 20;
+    width: auto;
+    height: 22px;
+    margin: 0;
+    font-size: 0;
+  }
+  .controller-calendars #content ul.cal > li.calbody > p.day-num .gb-cal-date {
+    display: inline;
+    font-size: var(--gb-fs-sm);
+    font-weight: var(--gb-fw-bold);
+    color: var(--gb-text-2);
+  }
+  .controller-calendars #content ul.cal > li.calbody.nwday > p.day-num .gb-cal-date { color: var(--gb-muted); }
+  .controller-calendars #content ul.cal > li.calbody.today > p.day-num {
+    justify-content: flex-start;
+    width: auto;
+    border-radius: 0;
+    background: none;
+  }
+  .controller-calendars #content ul.cal > li.calbody.today > p.day-num .gb-cal-date { color: var(--gb-primary-strong); }
+  .controller-calendars #content ul.cal > li.calbody.gb-cal-empty { padding-top: 5px; padding-bottom: 5px; min-height: 32px; }
+  .controller-calendars #content ul.cal > li.calbody.gb-cal-empty > p.day-num .gb-cal-date { font-weight: var(--gb-fw-medium); color: var(--gb-disabled); }
+  .controller-calendars #content ul.cal > li.calbody.gb-cal-empty.today > p.day-num .gb-cal-date { color: var(--gb-primary-strong); }
+  .controller-calendars #content ul.cal > li.calbody:not(.this-month).gb-cal-empty { display: none; }
+  .controller-calendars #content ul.cal > li.calbody div.issue,
+  .controller-calendars #content ul.cal > li.calbody div.version { margin: 0 0 4px; }
+  .controller-calendars #content ul.cal > li.calbody div.issue:last-child,
+  .controller-calendars #content ul.cal > li.calbody div.version:last-child { margin-bottom: 0; }
+  .controller-calendars #content ul.cal > li:nth-child(n) { border-radius: 0; }
+  .controller-calendars #content ul.cal div.tooltip:hover span.tip { display: none; }
+}
+/* a generic ".buttons { display:flex }" turns the empty action header into a flex box, which breaks the
+   header row (70px tall + a notch): keep both action cells real table cells */
+.controller-timelog #content table.time-entries th.buttons,
+.controller-timelog #content table.time-entries td.buttons { display: table-cell; }
+
+/* gantt toolbar: period + 適用 / クリア / 保存 on one row, zoom + month navigation at the right of it.
+   When the row is too narrow the right-hand group wraps as a whole (never splitting 保存 off). */
+.controller-gantts #query_form_with_buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 16px;
+  container-type: inline-size;
+}
+.controller-gantts #query_form_with_buttons > #query_form_content { flex: 0 0 100%; }
+.controller-gantts #query_form_with_buttons > p.buttons { order: 1; flex: 0 1 auto; flex-wrap: nowrap; white-space: nowrap; }
+.controller-gantts #query_form_with_buttons > p.contextual {
+  order: 2;
+  float: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 0 auto;
+  padding: 0;
+  white-space: nowrap;
+}
+.controller-gantts #query_form_with_buttons > p.contextual > span { display: inline-flex; align-items: center; gap: 4px; }
+@container (max-width: 1000px) {
+  .controller-gantts #query_form_with_buttons > p.contextual a.icon .icon-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+@container (max-width: 640px) {
+  .controller-gantts #query_form_with_buttons > p.buttons { flex-wrap: wrap; white-space: normal; }
+}
+
+/* roadmap / version: the filter note sits in the 関連する課題 heading row, next to the count it explains */
+.controller-versions #roadmap table.related-issues caption .gb-filter-note--caption {
+  float: right;
+  margin: 0 0 0 12px;
+  font-weight: var(--gb-fw-normal);
+}
+
+/* new / edit time entry: the card hugs the 640px form (Pattern S) */
+.controller-timelog:is(.action-new, .action-edit, .action-create, .action-update) #content { max-width: 720px; margin-right: auto; }
+
+/* version page on a narrow content area (sidebars open, tablet, phone): one column —
+   title + state, actions, progress, 関連する課題, then 時間管理 / トラッカー別 side by side or stacked */
+.controller-versions.action-show #content {
+  container: gb-version / inline-size;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  column-gap: 8px;
+}
+.controller-versions.action-show #content > * { flex: 0 0 100%; min-width: 0; }
+@container gb-version (max-width: 899px) {
+  .controller-versions.action-show #content > #roadmap { display: contents; }
+  .controller-versions.action-show #roadmap > * { flex: 0 0 100%; min-width: 0; }
+  .controller-versions.action-show #roadmap > h2 { order: 0; flex: 0 1 auto; margin: 0 0 8px; }
+  .controller-versions.action-show #roadmap > .badge { order: 0; flex: none; align-self: center; margin: 0 0 8px; }
+  .controller-versions.action-show #content > .contextual {
+    position: static;
+    order: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+    margin: 0 0 16px;
+  }
+  .controller-versions.action-show #roadmap > .version-overview,
+  .controller-versions.action-show #roadmap > .wiki { order: 2; margin-right: 0; }
+  .controller-versions.action-show #roadmap > form,
+  .controller-versions.action-show #roadmap > .gb-rel__more,
+  .controller-versions.action-show #roadmap > .gb-filter-note { order: 3; margin-right: 0; }
+  .controller-versions.action-show #roadmap > .gb-rel__more { flex: none; }
+  .controller-versions.action-show #roadmap > #version-summary {
+    order: 4;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .controller-versions.action-show #content > p.other-formats { order: 5; }
+}
+@container gb-version (max-width: 480px) {
+  .controller-versions.action-show #roadmap table.related-issues td.subject > .gb-tracker { display: none; }
+  .controller-versions.action-show #roadmap table.related-issues .gb-status { min-width: 0; padding: 0 8px; }
+}
+
+/* ---------- round 4 ---------- */
+/* roadmap / version sidebar: 「表示するトラッカー」 group, no dead gap before 「バージョン」 */
+.controller-versions #sidebar form.gb-tracker-filter { margin: 0 0 16px; }
+.controller-versions #sidebar form.gb-tracker-filter > p:last-child { margin: 8px 0 0; }
+.controller-versions #sidebar form.gb-tracker-filter + h3 { margin-top: 0; }
+/* related issues: the avatar cell keeps its width when the issue is unassigned */
+.controller-versions #roadmap table.related-issues td.assigned_to {
+  box-sizing: content-box;
+  width: 24px;
+  min-width: 24px;
+  max-width: 24px;
+  padding: 0 4px;
+  text-align: center;
+}
+.controller-versions #roadmap table.related-issues td.assigned_to > * { vertical-align: middle; }
+
+/* time entry form: message repeated under the invalid field */
+.controller-timelog .gb-field-error {
+  display: block;
+  margin: 4px 0 0;
+  font-size: var(--gb-fs-xs, 12px);
+  line-height: 16px;
+  color: var(--gb-danger);
+  white-space: nowrap; /* the 時間 column is narrow; the message may run into the free space beside it */
+}
+
+/* time report: 合計 pinned on the right, the 2nd criteria column (課題) pinned next to the 1st */
+/* table.list clips with overflow:hidden, which makes the table its own scroll box and kills sticky:
+   clip keeps the rounded corners without creating a scroll container */
+.controller-timelog #content #time-report { overflow: clip; }
+.controller-timelog #time-report th.total,
+.controller-timelog #time-report td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: var(--gb-surface);
+  box-shadow: inset 1px 0 0 var(--gb-border);
+}
+.controller-timelog #time-report thead th.total { background: var(--gb-surface-2); }
+.controller-timelog #time-report tr.total td:last-child { background: var(--gb-surface-2); }
+/* no inline padding on the scroller: sticky cells then sit flush with its clip edge, so no sliver of
+   the scrolled columns shows through beside them */
+.controller-timelog .gb-report-scroll { padding-left: 0; padding-right: 0; }
+.controller-timelog .gb-report-scroll.gb-scroll-more #time-report th.total,
+.controller-timelog .gb-report-scroll.gb-scroll-more #time-report td:last-child {
+  box-shadow: inset 1px 0 0 var(--gb-border), -10px 0 10px -6px rgba(15, 23, 42, .22);
+}
+.controller-timelog #time-report.gb-report--c2 th:first-child,
+.controller-timelog #time-report.gb-report--c2 td:first-child {
+  box-sizing: border-box;
+  width: 160px;
+  min-width: 160px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.controller-timelog #time-report.gb-report--c2 th:nth-child(2),
+.controller-timelog #time-report.gb-report--c2 td:nth-child(2) {
+  position: sticky;
+  left: 160px;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 240px;
+  min-width: 240px;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: inherit;
+}
+.controller-timelog #time-report.gb-report--c2 thead th:nth-child(2) { background: var(--gb-surface-2); }
+.controller-timelog .gb-report-scroll.gb-scrolled #time-report.gb-report--c2 th:nth-child(2),
+.controller-timelog .gb-report-scroll.gb-scrolled #time-report.gb-report--c2 td:nth-child(2) {
+  box-shadow: inset -1px 0 0 var(--gb-border), 10px 0 10px -6px rgba(15, 23, 42, .22);
+}
+
+.controller-timelog .gb-report-scroll.gb-scrolled #time-report:not(.gb-report--c2) th:first-child,
+.controller-timelog .gb-report-scroll.gb-scrolled #time-report:not(.gb-report--c2) td:first-child {
+  box-shadow: inset -1px 0 0 var(--gb-border), 10px 0 10px -6px rgba(15, 23, 42, .22);
+}
+
+/* gantt: label of an issue without a bar (no dates) reads as secondary */
+.controller-gantts #content .task.label.gb-task-label--nobar { color: var(--gb-muted); }
+@media screen and (max-width: 599px) {
+  .controller-timelog #time-report.gb-report--c2 th:nth-child(2),
+  .controller-timelog #time-report.gb-report--c2 td:nth-child(2) { position: static; width: 160px; min-width: 160px; max-width: 160px; box-shadow: none; }
+  .controller-timelog #time-report.gb-report--c2 th:first-child,
+  .controller-timelog #time-report.gb-report--c2 td:first-child { width: 112px; min-width: 112px; max-width: 112px; }
+}
+.controller-timelog #time-report.gb-report--c2 tr.total td:nth-child(2) { background: var(--gb-surface-2); }
+
+/* ==========================================================================
+   Milestone (version) form — Pattern S: fields sized to their content, キャンセル beside 作成
+   ========================================================================== */
+body.controller-versions:is(.action-new, .action-create, .action-edit, .action-update) #content #version_effective_date {
+  width: 160px;
+  max-width: 100%;
+}
+body.controller-versions:is(.action-new, .action-create, .action-edit, .action-update) #content #version_sharing {
+  width: 240px;
+  max-width: 100%;
+}
+body.controller-versions:is(.action-new, .action-create, .action-edit, .action-update) #content #version_wiki_page_title {
+  max-width: 480px;
+}
+body.controller-versions #content a.gb-form-cancel {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  margin-left: 8px;
+  padding: 0 10px;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-primary-strong);
+  font-weight: var(--gb-fw-medium);
+  vertical-align: middle;
+  text-decoration: none;
+}
+body.controller-versions #content a.gb-form-cancel:hover { background: var(--gb-primary-soft); text-decoration: none; }
+
+/* ==========================================================================
+   Round 5 — polish
+   ========================================================================== */
+/* activity sidebar: every control spans the card (the empty ユーザー select was a stub next to a
+   150px date field) */
+.controller-activities #activity_scope_form input[type="date"],
+.controller-activities #activity_scope_form select { flex: 1 1 100%; width: 100%; max-width: 100%; height: var(--gb-control-h-sm); }
+
+/* roadmap / version related issues: identical rows on both pages at every width — the tracker badge
+   always stays; narrow rows give the subject two lines instead of cutting it after a few characters */
+@container gb-version (max-width: 480px) {
+  .controller-versions.action-show #roadmap table.related-issues td.subject > .gb-tracker { display: inline-block; }
+}
+@media screen and (max-width: 599px) {
+  /* two ids: beats 95-responsive's one-line ellipsis for related-issue subjects */
+  body.controller-versions #content #roadmap table.list.related-issues td.subject {
+    white-space: normal;
+    text-overflow: clip;
+    line-height: 22px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+  .controller-versions #roadmap table.related-issues td.subject a.gb-rel__key { white-space: nowrap; }
+  body.controller-versions #content #roadmap table.list.related-issues td.subject > .gb-tracker { vertical-align: -3px; }
+  /* the filter note: one muted line under the heading, aligned with it (no stray indent) */
+  .controller-versions #roadmap table.related-issues caption .gb-filter-note--caption {
+    float: none;
+    display: block;
+    margin: 2px 0 0;
+    padding: 0;
+    text-indent: 0;
+  }
+}
+
+/* version page: 編集 is a real (secondary) button like 編集 on issues / wiki; 削除 stays a quiet
+   danger text button; 新しい課題 remains the one primary action */
+.controller-versions.action-show #content > .contextual { display: flex; align-items: center; gap: 8px; }
+.controller-versions.action-show #content > .contextual > a.icon-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--gb-control-h-sm);
+  padding: 0 12px;
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  color: var(--gb-text);
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+  text-decoration: none;
+}
+.controller-versions.action-show #content > .contextual > a.icon-edit:hover {
+  border-color: var(--gb-primary);
+  background: var(--gb-surface-2);
+  color: var(--gb-primary-strong);
+}
+.controller-versions.action-show #content > .contextual > a.icon-edit svg { width: 16px; height: 16px; color: currentColor; stroke: currentColor; }
+
+/* calendar: chips are two lines when the days are narrow — key (DEMO-14) on top, subject below —
+   so a chip never shows only 「#14 [UI…」 */
+@container gb-cal (max-width: 1000px) {
+  .controller-calendars #content ul.cal div.issue {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0;
+    padding: 3px 6px 3px 8px;
+    line-height: 16px;
+  }
+  .controller-calendars #content ul.cal div.issue > a.issue { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; line-height: 16px; }
+  .controller-calendars #content ul.cal div.issue .gb-cal-chip__subject { margin-left: 0; }
+  .controller-calendars #content ul.cal div.issue > .tip { grid-row: 1; }
+  /* busy days keep 3 chips + 「+n件」 (the grid display above must not reveal the hidden ones) */
+  .controller-calendars #content ul.cal li:not(.gb-cal-day--expanded) div.issue.gb-cal-chip--extra { display: none; }
+}
+/* milestone chips: icon + name on one line (the name wrapped to 「v1.0 リリ / ース」) */
+.controller-calendars #content ul.cal div.version { display: flex; flex-wrap: nowrap; white-space: nowrap; }
+.controller-calendars #content ul.cal div.version > a { display: block; }
+/* phones (agenda): a month of empty rows before the first issue was a wall of grey dates —
+   only days with issues (and today) are listed */
+@media screen and (max-width: 899px) {
+  .controller-calendars #content ul.cal > li.calbody.gb-cal-empty:not(.today) { display: none; }
+}
+
+/* gantt: assignee avatars readable (initial visible) and aligned with the issue icons */
+.controller-gantts #content .gantt_subjects .avatar {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  margin: 1px 4px 1px 0;
+  font-size: 11px;
+  font-weight: var(--gb-fw-bold);
+  line-height: 18px;
+}
+/* 10-global hides the initial on gantt avatars (blank dots): show it, white on the avatar colour */
+.controller-gantts #content .gantt_subjects span[role="img"].avatar.s13.icon-avatar { font-size: 11px; color: #fff; }
+
+/* time entries: the user's full name stays readable (R10) — 課題 wraps instead */
+@container (max-width: 860px) {
+  .controller-timelog #content table.time-entries td.user .gb-te-user__name { max-width: 160px; }
+}
+.controller-timelog #content table.time-entries td.user { min-width: 0; }
+
+/* new time entry: the search icon inside 課題 gets the same inset as the text */
+.controller-timelog .box.tabular #time_entry_issue_id { padding-left: 32px !important; background-position: 10px center; } /* beats core `input.autocomplete` !important padding */
+.controller-timelog #content table.time-entries .gb-te-day-avatar { display: none; }
+@container (max-width: 560px) {
+  .controller-timelog #content table.time-entries th.user,
+  .controller-timelog #content table.time-entries td.user { display: none; }
+  .controller-timelog #content table.time-entries td.spent_on .gb-te-day-avatar { display: inline-grid; margin-right: 6px; vertical-align: middle; }
+}
+/* milestone markers (Redmine 6: span.icon-package straight in the day cell): one-line outline chip
+   like the issue chips, name with ellipsis instead of 「v1.0 リリ / ース」 */
+.controller-calendars #content ul.cal > li.calbody > span.icon-package {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin: 0 0 4px;
+  padding: 3px 6px;
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  box-shadow: inset 0 0 0 1px var(--gb-primary-border);
+  font-size: var(--gb-fs-sm);
+  line-height: 16px;
+  white-space: nowrap;
+}
+.controller-calendars #content ul.cal > li.calbody > span.icon-package > svg { flex: none; width: 12px; height: 12px; color: var(--gb-primary-strong); stroke: currentColor; }
+.controller-calendars #content ul.cal > li.calbody > span.icon-package > a {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--gb-fw-medium);
+  color: var(--gb-primary-strong);
+}
+
+/* ==========================================================================
+   Round 6 — strict review fixes
+   ========================================================================== */
+/* calendar: the two-line chip keeps the start / end icon (the legend below explains it) —
+   line 1: icon + key, line 2: the subject aligned with the key */
+@container gb-cal (max-width: 1000px) {
+  .controller-calendars #content ul.cal div.issue:has(> svg) {
+    grid-template-columns: 12px minmax(0, 1fr);
+    column-gap: 4px;
+  }
+  .controller-calendars #content ul.cal div.issue > svg {
+    display: block;
+    grid-row: 1;
+    grid-column: 1;
+    align-self: center;
+  }
+  .controller-calendars #content ul.cal div.issue:has(> svg) > a.issue { grid-row: 1; grid-column: 2; }
+  .controller-calendars #content ul.cal div.issue:has(> svg) > .gb-cal-chip__subject { grid-row: 2; grid-column: 2; }
+}
+
+/* time entries: 課題 is three fixed lines — [バグ] DEMO-1 / subject (1 line) / comment (1 line) —
+   so every row has the same height; 編集 / 削除 live in the … menu (one 28px icon column) */
+.controller-timelog #content table.time-entries td.buttons a.icon-only.icon-edit,
+.controller-timelog #content table.time-entries td.buttons a.icon-only.icon-del { display: none; }
+.controller-timelog #content table.time-entries th.buttons,
+.controller-timelog #content table.time-entries td.buttons { width: 28px; min-width: 28px; padding-left: 4px; padding-right: 4px; }
+.controller-timelog #content table.time-entries .gb-te-issue {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 20px;
+}
+.controller-timelog #content table.time-entries .gb-te-issue > .gb-tracker { margin-right: 4px; vertical-align: 1px; }
+.controller-timelog #content table.time-entries .gb-te-issue > .gb-te-subj {
+  width: 0; /* never widens the column: it follows the 課題 column width */
+  min-width: 100%;
+  margin-top: 2px;
+}
+.controller-timelog #content table.time-entries .gb-te-note { margin-top: 2px; line-height: 18px; }
+/* the comment line is shown under 課題: rows without a comment keep the same height */
+@container (max-width: 860px) {
+  .controller-timelog #content table.time-entries > tbody > tr.time-entry { height: 76px; }
+}
+.controller-timelog #content table.time-entries td.issue { padding-top: 6px; padding-bottom: 6px; }
+
+/* 時間を記録 is the page's main action: the same primary button as 新しいマイルストーン / 新しい課題 */
+#content > .contextual > a.icon-time-add,
+#content > .contextual > a.icon-time-add:link,
+#content > .contextual > a.icon-time-add:visited {
+  height: 32px;
+  padding: 0 14px 0 10px;
+  background: var(--gb-primary-strong);
+  color: #fff;
+  font-weight: var(--gb-fw-bold);
+  margin-left: 4px;
+}
+#content > .contextual > a.icon-time-add:hover { background: var(--gb-primary-hover); color: #fff; }
+#content > .contextual > a.icon-time-add .icon-svg { stroke: #fff; }
+
+/* time report toolbar: 「詳細 [月]」 and 「追加 [項目を追加]」 are pairs (75-project-pages.js), クリア follows */
+/* one gap rule for the whole toolbar (pairs, クリア): 8px between rows, 12px between items */
+.controller-timelog.action-report #query_form > p:has(#columns) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.controller-timelog.action-report #query_form > p .gb-report-pair {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.controller-timelog.action-report #query_form > p .gb-report-pair > label[for] { margin: 0; }
+.controller-timelog.action-report #query_form > p:has(#columns) > a.icon-reload { margin: 0; flex: none; }
+/* phones: no pinned 合計 column (it covered the month columns); the table scrolls as a whole and only
+   the first (user) column stays pinned */
+@media screen and (max-width: 480px) {
+  .controller-timelog #time-report th.total,
+  .controller-timelog #time-report td:last-child,
+  .controller-timelog .gb-report-scroll.gb-scroll-more #time-report th.total,
+  .controller-timelog .gb-report-scroll.gb-scroll-more #time-report td:last-child {
+    position: static;
+    box-shadow: none;
+  }
+  .controller-timelog #time-report th.period,
+  .controller-timelog #time-report th.total,
+  .controller-timelog #time-report td.hours { min-width: 72px; }
+  .controller-timelog #time-report { width: max-content; min-width: 100%; }
+}
+
+/* roadmap / version related issues on phones: row 1 = avatar, tracker, key … status, …;
+   row 2 = the subject (up to 2 lines) — the same two-tier row as the dashboard.
+   Three ids: this replaces the generic phone layout of 95-responsive for these rows. */
+@media screen and (max-width: 599px) {
+  html body.controller-versions #wrapper #main #content table.list.related-issues tr {
+    grid-template-columns: 24px auto auto minmax(0, 1fr) auto 28px;
+    column-gap: 8px;
+    row-gap: 4px;
+    align-items: center;
+    padding: 10px 0;
+  }
+  html body.controller-versions #wrapper #main #content table.list.related-issues tr > td.assigned_to {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    padding: 0;
+    line-height: 0;
+  }
+  html body.controller-versions #wrapper #main #content table.list.related-issues tr > td.subject { display: contents; }
+  html body.controller-versions #wrapper #main #content table.list.related-issues tr > td.subject > .gb-tracker {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex; /* label centred in the 20px pill on both pages (version page had it top-aligned) */
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    vertical-align: baseline;
+  }
+  html body.controller-versions #wrapper #main #content table.list.related-issues tr > td.subject > a.gb-rel__key {
+    grid-column: 3;
+    grid-row: 1;
+    margin: 0;
+    line-height: 20px;
+    white-space: nowrap;
+  }
+  html body.controller-versions #wrapper #main #content table.list.related-issues tr > td.subject > .gb-rel__subject {
+    grid-column: 2 / -1;
+    grid-row: 2;
+    font-size: var(--gb-fs-md);
+    line-height: 22px;
+  }
+  html body.controller-versions #wrapper #main #content table.list.related-issues tr > td.gb-rel__status {
+    grid-column: 5;
+    grid-row: 1;
+    line-height: 0;
+    text-align: right;
+  }
+  html body.controller-versions #wrapper #main #content table.list.related-issues tr > td.buttons {
+    grid-column: 6;
+    grid-row: 1;
+    width: 28px;
+    margin: 0; /* core .buttons margins (1em / 1.4em) apply once the cell is a grid item */
+    padding: 0;
+    line-height: 0;
+  }
+  html body.controller-versions #wrapper #main #content table.list.related-issues tr > td.buttons a.icon-only { margin: 0; }
+  /* the filter note: sentence and link start at the same left edge */
+  html body.controller-versions #wrapper #main #content #roadmap table.related-issues caption .gb-filter-note--caption {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    margin: 2px 0 0;
+    padding: 0;
+  }
+  html body.controller-versions #wrapper #main #content #roadmap table.related-issues caption .gb-filter-note__link { margin: 0; padding: 0; }
+}
+
+/* gantt: one month navigation — 「« 10月」「12月 »」 as secondary sm buttons (same as the calendar);
+   core's second pager (« 前 / 次 », which jumps by the whole period) is dropped */
+.controller-gantts #content > .pagination { display: none; }
+.controller-gantts #query_form_with_buttons > p.contextual > span:last-child { gap: 8px; }
+.controller-gantts #query_form_with_buttons > p.contextual > span:last-child > a {
+  display: inline-flex;
+  align-items: center;
+  height: var(--gb-control-h-sm);
+  padding: 0 12px;
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius-sm);
+  background: var(--gb-surface);
+  color: var(--gb-text);
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--gb-dur-1) var(--gb-ease), border-color var(--gb-dur-1) var(--gb-ease);
+}
+.controller-gantts #query_form_with_buttons > p.contextual > span:last-child > a:hover {
+  background: var(--gb-surface-2);
+  border-color: var(--gb-primary);
+  color: var(--gb-primary-strong);
+  text-decoration: none;
+}
+@container (max-width: 640px) {
+  .controller-gantts #query_form_with_buttons > p.contextual {
+    flex: 0 0 100%;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-left: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .controller-gantts #query_form_with_buttons > p.contextual > span:last-child > a { transition: none; }
+}
+
+/* ==========================================================================
+   Round 7 — strict review verification fixes
+   ========================================================================== */
+/* calendar chip: icon + key fit without clipping the last digit (「DEMO-14」 was cut by 1px) */
+@container gb-cal (max-width: 1000px) {
+  .controller-calendars #content ul.cal div.issue:has(> svg) { padding-right: 4px; column-gap: 3px; }
+}
+/* time entries: the 課題 lines start at the same height in every row (with or without the comment
+   line), so the date / hours (centred) always sit on the subject line */
+@container (max-width: 860px) {
+  .controller-timelog #content table.time-entries > tbody > tr.time-entry > td.issue { vertical-align: top; padding-top: 6px; }
+}
+/* ==========================================================================
+   Round 8 — strict review (round 2) fixes
+   ========================================================================== */
+/* time report: issue cell = [バグ] DEMO-1 件名 (75-project-pages.js), like the list tab */
+/* one badge width (= 「サポート」) so the keys start on one line in every row */
+.controller-timelog #time-report .gb-report-issue > .gb-tracker { min-width: 64px; margin-right: 2px; vertical-align: 1px; }
+@media screen and (min-width: 600px) {
+  .controller-timelog #time-report.gb-report--c2 th:nth-child(2),
+  .controller-timelog #time-report.gb-report--c2 td:nth-child(2) { width: 300px; min-width: 300px; max-width: 300px; }
+}
+.controller-timelog #time-report .gb-report-issue > a.issue { font-variant-numeric: tabular-nums; }
+.controller-timelog #time-report .gb-report-subj { color: var(--gb-text); }
+/* the pinned 合計 column: a 2px strip in the row colour beyond its right edge covers the sliver of the
+   scrolled columns that the compositor could leave visible at the scroller's clip edge */
+.controller-timelog #time-report th.total,
+.controller-timelog #time-report td:last-child { box-shadow: inset 1px 0 0 var(--gb-border), 2px 0 0 var(--gb-surface); }
+.controller-timelog #time-report thead th.total,
+.controller-timelog #time-report tr.total td:last-child { box-shadow: inset 1px 0 0 var(--gb-border), 2px 0 0 var(--gb-surface-2); }
+.controller-timelog .gb-report-scroll.gb-scroll-more #time-report th.total,
+.controller-timelog .gb-report-scroll.gb-scroll-more #time-report td:last-child {
+  box-shadow: inset 1px 0 0 var(--gb-border), 2px 0 0 var(--gb-surface), -10px 0 10px -6px rgba(15, 23, 42, .22);
+}
+.controller-timelog .gb-report-scroll.gb-scroll-more #time-report thead th.total,
+.controller-timelog .gb-report-scroll.gb-scroll-more #time-report tr.total td:last-child {
+  box-shadow: inset 1px 0 0 var(--gb-border), 2px 0 0 var(--gb-surface-2), -10px 0 10px -6px rgba(15, 23, 42, .22);
+}
+/* phones: the pinned user column is wide enough for a full name (「プレビュー 確認用」 was cut) */
+@media screen and (max-width: 599px) {
+  .controller-timelog #content #time-report.gb-report--c2 th:first-child,
+  .controller-timelog #content #time-report.gb-report--c2 td:first-child { width: 136px; min-width: 136px; max-width: 136px; padding-left: 8px; padding-right: 8px; }
+}
+@media screen and (max-width: 480px) {
+  .controller-timelog #time-report th.total,
+  .controller-timelog #time-report td:last-child,
+  .controller-timelog #time-report thead th.total,
+  .controller-timelog #time-report tr.total td:last-child,
+  .controller-timelog .gb-report-scroll.gb-scroll-more #time-report th.total,
+  .controller-timelog .gb-report-scroll.gb-scroll-more #time-report td:last-child,
+  .controller-timelog .gb-report-scroll.gb-scroll-more #time-report thead th.total,
+  .controller-timelog .gb-report-scroll.gb-scroll-more #time-report tr.total td:last-child { box-shadow: none; }
+}
+/* phones: toolbar = two full rows, 「詳細 [日]」 and 「追加 [項目を追加] クリア」 (no lone クリア row); the
+   selects fill the row and start on one edge (both labels are two characters) */
+@media screen and (max-width: 480px) {
+  .controller-timelog.action-report #query_form > p:has(#columns) > .gb-report-pair { flex: 1 1 0; min-width: 0; }
+  .controller-timelog.action-report #query_form > p:has(#columns) > .gb-report-pair:first-child { flex-basis: 100%; }
+  .controller-timelog.action-report #query_form > p:has(#columns) > .gb-report-pair > select { flex: 1 1 auto; min-width: 0; }
+}
+/* phones: issue cell = DEMO-1 件名 in up to 2 lines; the tracker badge gives way (it stays in the title) */
+@media screen and (max-width: 599px) {
+  .controller-timelog #content #time-report.gb-report--c2 th:nth-child(2),
+  .controller-timelog #content #time-report.gb-report--c2 td:nth-child(2) { width: 160px; min-width: 160px; max-width: 160px; padding-left: 8px; padding-right: 8px; }
+  .controller-timelog #time-report td.name:has(> .gb-report-issue) { white-space: normal; }
+  .controller-timelog #time-report .gb-report-issue > .gb-tracker { display: none; }
+  .controller-timelog #time-report .gb-report-issue > a.issue { white-space: nowrap; }
+}
+/* roadmap / version related issues: one tracker badge width (= 「サポート」), so the keys and
+   subjects start on one line in every row */
+.controller-versions table.related-issues td.subject > .gb-tracker { box-sizing: border-box; min-width: 64px; justify-content: center; }
+/* phones: roadmap cards use the same 12px inner gutter as every other card, so their text starts on
+   the page heading's left edge (21px) */
+@media screen and (max-width: 480px) {
+  .controller-versions.action-index #roadmap article.version-article { padding: 16px 12px; }
+  .controller-versions.action-index #roadmap article.version-article > .contextual { top: 12px; right: 8px; }
+}
+/* time entries: one tracker badge width, so the keys line up; phones: the subject fills each line
+   (phrase-aware breaking left 「[UIテスト]」 alone on line 1 and cut the rest) */
+.controller-timelog #content table.time-entries .gb-te-issue > .gb-tracker { box-sizing: border-box; min-width: 64px; justify-content: center; }
+/* gantt subjects: the issue icon (14px) takes the same 18px + 4px slot as an assignee avatar, and the
+   tracker name has one width (= 「サポート」), so the keys of one level start on one line */
+.controller-gantts #content .gantt_subjects .issue-subject span.icon > svg.icon-svg { box-sizing: content-box; flex: none; margin: 0 6px 0 2px; }
+/* calendar / gantt period controls (75-project-pages.js): 年 / 月 labels for screen readers only — the
+   options already read 「2026年」「11月」 */
+.controller-calendars #query_form p.buttons > label.gb-period-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.controller-gantts #query_form p.buttons > .gb-period-group { display: inline-flex; flex: none; align-items: center; gap: 8px; }
+.controller-gantts #query_form p.buttons .gb-period-text { color: var(--gb-text-2); font-size: 13px; white-space: nowrap; }
+/* …and one key width per table (--gb-rel-key-w, 75-project-pages.js), so the subjects line up as well */
+.controller-versions table.related-issues td.subject a.gb-rel__key { display: inline-block; min-width: var(--gb-rel-key-w, 0); }
+
+/* ==========================================================================
+   Round 9 — strict review (round 3) fixes
+   ========================================================================== */
+/* time report, two criteria: on phones the first column (ユーザー) folds into the second as a group
+   heading row (75-project-pages.js); 課題 is pinned on the left, 合計 on the right */
+.controller-timelog #time-report .gb-report-grp { display: none; }
+@media screen and (max-width: 480px) {
+  .controller-timelog .gb-report-scroll:has(> #time-report.gb-report--grp) {
+    scroll-snap-type: x proximity;
+    scroll-padding-left: 128px;
+    scroll-padding-right: 56px;
+  }
+  .controller-timelog #content #time-report.gb-report--grp :is(th, td):first-child { display: none; }
+  .controller-timelog #content #time-report.gb-report--grp :is(th, td):nth-child(2) {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    box-sizing: border-box;
+    width: 128px;
+    min-width: 128px;
+    max-width: 128px;
+    padding-left: 12px;
+    padding-right: 8px;
+    background: inherit;
+    box-shadow: inset -1px 0 0 var(--gb-border);
+  }
+  .controller-timelog #content #time-report.gb-report--grp thead th:nth-child(2),
+  .controller-timelog #content #time-report.gb-report--grp tr.total td:nth-child(2) { background: var(--gb-surface-2); }
+  .controller-timelog #content #time-report.gb-report--grp tr.subtotal td:nth-child(2) { background: var(--gb-surface); }
+  .controller-timelog .gb-report-scroll.gb-scrolled #time-report.gb-report--grp :is(th, td):nth-child(2) {
+    box-shadow: inset -1px 0 0 var(--gb-border), 10px 0 10px -6px rgba(15, 23, 42, .22);
+  }
+  .controller-timelog #time-report.gb-report--grp .gb-report-grp { display: inline; }
+  .controller-timelog #time-report.gb-report--grp td.gb-report-grp-cell { white-space: normal; }
+  .controller-timelog #time-report.gb-report--grp tr.last-level td.name { padding-left: 12px; }
+  .controller-timelog #content #time-report.gb-report--grp th.period,
+  .controller-timelog #content #time-report.gb-report--grp td.hours {
+    min-width: 0;
+    padding-left: 4px;
+    padding-right: 7px;
+    scroll-snap-align: start;
+  }
+  /* day columns: 「11/19」 over 「(木)」, so three days fit beside the issue column */
+  .controller-timelog #content #time-report.gb-report--grp th.period { min-width: 47px; line-height: 16px; vertical-align: bottom; }
+  .controller-timelog #content #time-report.gb-report--grp th.period > .gb-report-wd { display: block; font-size: 11px; color: var(--gb-muted); }
+  .controller-timelog #content #time-report.gb-report--grp td.hours { min-width: 47px; }
+  /* 合計 pinned on the right again (56px, row colour) — only the issue column scrolls away from it */
+  .controller-timelog #content #time-report.gb-report--grp th.total,
+  .controller-timelog #content #time-report.gb-report--grp td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    box-sizing: border-box;
+    width: 56px !important;
+    min-width: 56px;
+    max-width: 56px;
+    padding-left: 4px;
+    padding-right: 8px;
+    scroll-snap-align: none;
+    box-shadow: inset 1px 0 0 var(--gb-border), 2px 0 0 var(--gb-surface);
+  }
+  .controller-timelog #content #time-report.gb-report--grp thead th.total,
+  .controller-timelog #content #time-report.gb-report--grp tr.total td:last-child { box-shadow: inset 1px 0 0 var(--gb-border), 2px 0 0 var(--gb-surface-2); }
+  .controller-timelog .gb-report-scroll.gb-scroll-more #time-report.gb-report--grp th.total,
+  .controller-timelog .gb-report-scroll.gb-scroll-more #time-report.gb-report--grp td:last-child {
+    box-shadow: inset 1px 0 0 var(--gb-border), 2px 0 0 var(--gb-surface), -10px 0 10px -6px rgba(15, 23, 42, .22);
+  }
+  .controller-timelog .gb-report-scroll.gb-scroll-more #time-report.gb-report--grp thead th.total,
+  .controller-timelog .gb-report-scroll.gb-scroll-more #time-report.gb-report--grp tr.total td:last-child {
+    box-shadow: inset 1px 0 0 var(--gb-border), 2px 0 0 var(--gb-surface-2), -10px 0 10px -6px rgba(15, 23, 42, .22);
+  }
+}
+
+/* gantt on phones: the subject column (160px, 75-project-pages.js) shows avatar + key only — the subject
+   is in the row / link title — so the chart gets the rest of the width */
+@media screen and (max-width: 480px) {
+  /* core's responsive.css forces 60% with !important; one step above it */
+  html body.controller-gantts #content table.gantt-table td.gantt_subjects_column { width: 160px !important; min-width: 160px; }
+  .controller-gantts #content .gantt_subjects .issue-subject > span { font-size: 0; }
+  .controller-gantts #content .gantt_subjects .issue-subject > span > a.issue { font-size: 13px; }
+  .controller-gantts #content .gantt_subjects :is(.project-name, .version-name) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* query bar: 「[2026年] [11月] から [6] ヶ月分」 on one row (narrower selects), then 適用 / クリア;
+     zoom and 「« 10月」「12月 »」 share one row, right-aligned */
+  html body.controller-gantts #wrapper #content #query_form p.buttons { column-gap: 8px; }
+  html body.controller-gantts #wrapper #content #query_form p.buttons > .gb-period-group { gap: 6px; }
+  html body.controller-gantts #wrapper #content #query_form p.buttons select#year { width: 92px; min-width: 0; padding-left: 8px; padding-right: 22px; background-position: right 6px center; }
+  html body.controller-gantts #wrapper #content #query_form p.buttons select#month { width: 70px; min-width: 0; padding-left: 8px; padding-right: 22px; background-position: right 6px center; }
+  html body.controller-gantts #wrapper #content #query_form p.buttons input#months { width: 40px; min-width: 0; padding-left: 6px; padding-right: 6px; text-align: center; }
+  html body.controller-gantts #query_form_with_buttons > p.contextual { justify-content: flex-end; flex-wrap: nowrap; }
+}
+/* gantt: the chart cell takes all the room the subject column leaves (auto table layout otherwise shared
+   the spare width between both, so the subject column grew past its set width) */
+.controller-gantts #content table.gantt-table > tbody > tr > td:last-child { width: 100%; }
+/* the relation canvas is an inline <svg>: its line box added a 6px descender gap under the drawing layer,
+   which overflowed the trimmed chart area (an inner vertical scroll) */
+.controller-gantts #content #gantt_draw_area > svg { display: block; }
+/* related issues: one status pill width (= 「処理済み」, the longest), centred, so every pill starts on one
+   line (「処理済み」 was 4px wider than the others) — the dashboard uses the same 72px */
+html body.controller-versions #content table.related-issues td.gb-rel__status .gb-status { box-sizing: border-box; min-width: 72px; justify-content: center; }
+/* calendar, narrow days: the subject line under the key (2-line clamp: C-issue-row) */
+@container gb-cal (max-width: 1000px) {
+  /* …and uses the chip's full inner width (under the start / end icon too): 2 × ~7 characters */
+  .controller-calendars #content ul.cal div.issue:has(> svg) > .gb-cal-chip__subject { grid-column: 1 / -1; }
+}

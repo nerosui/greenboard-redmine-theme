@@ -1,0 +1,84 @@
+<%
+  gb_scope = Issue.visible.where(project_id: (Setting.display_subprojects_issues? ? project.self_and_descendants.ids : project.id))
+  gb_by_status = gb_scope.group(:status_id).count
+  gb_statuses = IssueStatus.sorted.select { |s| gb_by_status[s.id].to_i > 0 || project.rolled_up_statuses.include?(s) }
+  gb_total = gb_by_status.values.sum
+  gb_versions = project.rolled_up_versions.visible.open.to_a.sort_by { |v| [v.effective_date || Date.new(9999), v.name] }
+  gb_open_by_cat = gb_scope.open.group(:category_id).count
+  gb_all_by_cat = gb_scope.group(:category_id).count
+  gb_issues_ok = project.module_enabled?(:issue_tracking) && User.current.allowed_to?(:view_issues, project)
+%>
+<% if gb_issues_ok %>
+<section class="gb-summary box gb-status-box">
+  <h3><%= l(:gb_status) %><span class="gb-count"><%= gb_total %></span>
+    <%= link_to l(:gb_see_all), project_issues_path(project, set_filter: 1, status_id: '*'), class: 'gb-box-link' %></h3>
+  <% if gb_total.zero? %>
+    <p class="nodata"><%= l(:label_no_data) %></p>
+  <% else %>
+    <div class="gb-stackbar" role="img" aria-label="<%= gb_statuses.map { |s| "#{s.name} #{gb_by_status[s.id].to_i}" }.join(', ') %>">
+      <% gb_statuses.each do |s| %>
+        <% n = gb_by_status[s.id].to_i; next if n.zero? %>
+        <span class="gb-stackbar__seg gb-st-bg-<%= s.id %>" style="flex: <%= n %>" title="<%= s.name %>: <%= n %>"></span>
+      <% end %>
+    </div>
+    <ul class="gb-legend">
+      <% gb_statuses.each do |s| %>
+        <% n = gb_by_status[s.id].to_i %>
+        <li>
+          <%= link_to project_issues_path(project, set_filter: 1, status_id: s.id), class: 'gb-legend__row' do %>
+            <span class="gb-dot gb-st-bg-<%= s.id %>" aria-hidden="true"></span>
+            <span class="gb-legend__name"><%= s.name %></span>
+            <span class="gb-legend__count"><%= n %></span>
+            <span class="gb-legend__pct"><%= gb_total.zero? ? 0 : (n * 100.0 / gb_total).round %>%</span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>
+
+<section class="gb-summary box gb-milestone-box">
+  <h3><%= l(:gb_milestones) %><% if gb_versions.any? %><span class="gb-count"><%= gb_versions.size %></span><% end %>
+    <%= link_to l(:gb_see_all), project_roadmap_path(project), class: 'gb-box-link' %></h3>
+  <% if gb_versions.empty? %>
+    <p class="nodata"><%= l(:label_no_data) %></p>
+  <% else %>
+    <ul class="gb-milestones">
+      <% gb_versions.each do |v| %>
+        <% fi = v.visible_fixed_issues; pct = fi.completed_percent.to_f.floor; late = v.effective_date && v.effective_date < User.current.today; behind = !late && v.behind_schedule? %>
+        <li>
+          <div class="gb-milestones__head">
+            <%= link_to v.name, version_path(v), class: 'gb-milestones__name' %>
+            <% if v.effective_date %>
+              <span class="gb-milestones__due<%= ' is-late' if late %><%= ' is-behind' if behind %>" title="<%= l(:field_effective_date) %>"><%= format_date(v.effective_date) %></span>
+            <% end %>
+          </div>
+          <div class="gb-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<%= pct %>" aria-label="<%= v.name %>"><span style="width: <%= pct %>%"></span></div>
+          <div class="gb-milestones__meta">
+            <span class="gb-milestones__pct"><%= pct %>%</span>
+            <span class="gb-milestones__sep" aria-hidden="true">・</span>
+            <span><%= l(:gb_open_issues) %> <%= fi.open_count %> / <%= l(:gb_closed_issues) %> <%= fi.closed_count %></span>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>
+
+<% cats = project.issue_categories.to_a %>
+<% if cats.any? %>
+<section class="gb-summary box gb-category-box">
+  <h3><%= l(:gb_categories) %><span class="gb-count"><%= cats.size %></span></h3>
+  <ul class="gb-categories">
+    <% cats.each do |c| %>
+      <% open = gb_open_by_cat[c.id].to_i; all = gb_all_by_cat[c.id].to_i; done = all - open %>
+      <li>
+        <%= link_to c.name, project_issues_path(project, set_filter: 1, category_id: c.id, status_id: '*'), class: 'gb-categories__name' %>
+        <span class="gb-categories__bar" aria-hidden="true"><span style="width: <%= all.zero? ? 0 : (done * 100 / all) %>%"></span></span>
+        <span class="gb-categories__count" title="<%= l(:gb_closed_issues) %> / <%= l(:label_total) %>"><%= done %> / <%= all %></span>
+      </li>
+    <% end %>
+  </ul>
+</section>
+<% end %>
+<% end %>

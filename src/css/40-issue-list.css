@@ -1,0 +1,626 @@
+/* ==========================================================================
+   40 issue-list — owner: issue-list-detail
+   1. issue atoms (key, priority, mini status pill, user chip) — pills/avatars are global
+   2. (filter bar moved to 15-c-filter.css)
+   3. issue list table, group rows, totals   4. selected rows
+   (pagination, export links, context menu + selected rows: generic, 10-global.css)
+   5. issues report (/projects/:id/issues/report)
+   ========================================================================== */
+
+/* ---------- 1. shared atoms ---------- */
+
+/* status pill, tracker badge, avatar, count badge: generic components in 10-global.css.
+   mini status pill inside journal details */
+.gb-status.gb-status--mini { height: 20px; min-width: 0; padding: 0 8px; }
+
+/* issue key (DEMO-3) */
+.gb-issue-key {
+  font-size: 13px;
+  font-weight: var(--gb-fw-medium);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+a.gb-issue-key, a.gb-issue-key:link, a.gb-issue-key:visited { color: var(--gb-primary-strong); text-decoration: none; }
+a.gb-issue-key:hover { color: var(--gb-primary-hover); text-decoration: underline; }
+
+/* priority: text + arrow, never a row colour */
+.gb-prio { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; color: var(--gb-text); }
+/* one 14px box for every direction: the sprite arrow (→) is rotated, so ↑ → ↓ sit at the same optical gap */
+.gb-prio__arrow {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+.gb-prio__arrow svg.gb-prio__icon { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.75; fill: none; }
+.gb-prio--high .gb-prio__arrow svg.gb-prio__icon { transform: rotate(-90deg); }
+.gb-prio--low .gb-prio__arrow svg.gb-prio__icon { transform: rotate(90deg); }
+.gb-prio--high .gb-prio__arrow { color: var(--gb-prio-high); }
+.gb-prio--normal .gb-prio__arrow { color: var(--gb-prio-normal); }
+.gb-prio--low .gb-prio__arrow { color: var(--gb-prio-low); }
+.gb-prio--high { font-weight: var(--gb-fw-bold); }
+
+/* avatar + user link (generic .gb-user-chip already gaps; avatar margin comes from global) */
+.gb-user-chip { max-width: 100%; gap: 0; }
+.gb-user-chip > a { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- 2. filter bar: css/15-c-filter.css (C-filter) ---------- */
+
+/* ---------- 3. issue list table (DESIGN §2.5 + §3.3) ---------- */
+body.controller-issues.action-index #content > h2 { margin-bottom: 16px; }
+/* the scroller (not the table) carries the card border + radius, so the frame stays complete
+   while the table scrolls horizontally and sticky cells sit flush against its inner edge */
+body.controller-issues.action-index .autoscroll:has(> table.list.issues) {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface);
+}
+body.controller-issues.action-index .autoscroll > table.list.issues { border: 0; border-radius: 0; overflow: visible; }
+
+table.list.issues {
+  width: 100%;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: clip; /* rounded corners without making the table a scroll container (keeps sticky cells working) */
+  margin: 0;
+  background: var(--gb-surface);
+  font-size: var(--gb-fs-md);
+}
+table.list.issues > thead > tr > th {
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 8px;
+  background: var(--gb-surface-2);
+  border: 0;
+  border-bottom: 1px solid var(--gb-border);
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  text-align: left;
+  white-space: nowrap;
+}
+table.list.issues > thead > tr > th a,
+table.list.issues > thead > tr > th a:link,
+table.list.issues > thead > tr > th a:visited { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 2px; }
+table.list.issues > thead > tr > th a:hover { color: var(--gb-text); }
+table.list.issues > thead > tr > th a.sort { color: var(--gb-text); }
+table.list.issues > thead > tr > th a.sort svg { width: 14px; height: 14px; stroke: var(--gb-text); order: 2; }
+table.list.issues > thead > tr > th.checkbox,
+table.list.issues > tbody > tr > td.checkbox { width: 28px; padding: 0 0 0 10px; text-align: left; }
+table.list.issues input[type=checkbox] { vertical-align: middle; }
+
+table.list.issues > tbody > tr > td {
+  height: 44px;
+  box-sizing: border-box;
+  padding: 10px 8px;
+  border: 0;
+  border-bottom: 1px solid var(--gb-border);
+  text-align: left;
+  vertical-align: middle;
+  color: var(--gb-text);
+  /* one 20px line box in every cell (14px text, 13px dates, pills): text baselines of a row sit on one line */
+  line-height: 20px;
+}
+table.list.issues > tbody > tr:last-child > td { border-bottom: 0; }
+/* tracker badge = status pill geometry: both 22px high, centred on the row like the 20px text lines,
+   same 64px min-width as the issue header / dashboard / roadmap badges */
+table.list.issues > tbody > tr > td.tracker .gb-tracker { height: 22px; min-width: 64px; padding: 0 10px; justify-content: center; vertical-align: middle; }
+table.list.issues > tbody > tr > td.status .gb-status { vertical-align: middle; }
+/* priority / user chips are exactly one 20px line box and sit at its top, so their text baseline is the
+   plain-text baseline of the row (vertical-align: middle would centre the arrow / avatar instead) */
+table.list.issues > tbody > tr > td .gb-prio { height: 20px; line-height: 20px; vertical-align: top; }
+table.list.issues > tbody > tr > td:is(.assigned_to, .author, .last_updated_by) .gb-user-chip { height: 20px; vertical-align: top; }
+table.list.issues > tbody > tr > td .gb-user-chip > a.user { line-height: 20px; }
+/* the key is 13px: give its cell the same font size so no 14px strut shifts the line box */
+table.list.issues > tbody > tr > td.id { font-size: 13px; }
+/* 13px text in a 20px line box sits 1px higher than the 14px text next to it: the 13px cells (key, dates) are
+   centred 1px lower so every text baseline of the row is on the same pixel row */
+table.list.issues > tbody > tr > td:is(.id, .updated_on, .created_on, .closed_on, .start_date, .due_date) { padding-top: 11px; padding-bottom: 9px; }
+table.list.issues > tbody > tr.issue,
+table.list.issues > tbody > tr.issue.odd,
+table.list.issues > tbody > tr.issue.even { background: var(--gb-surface); }
+table.list.issues > tbody > tr.issue:hover { background: var(--gb-primary-softer); }
+
+/* neutralise core priority row colours and our old stripes */
+table.list.issues tr.issue[class*="priority-"] { background: var(--gb-surface); }
+table.list.issues tr.issue[class*="priority-"]:hover { background: var(--gb-primary-softer); }
+table.list.issues tr.issue td { box-shadow: none; }
+
+/* columns */
+table.list.issues td.tracker,
+table.list.issues td.status,
+table.list.issues td.priority { width: 1%; white-space: nowrap; }
+/* compact cells for the short columns so the default column set fits 1273px without scrolling */
+table.list.issues > thead > tr > th.id, table.list.issues > tbody > tr > td.id,
+table.list.issues > thead > tr > th.tracker, table.list.issues > tbody > tr > td.tracker,
+table.list.issues > thead > tr > th.status, table.list.issues > tbody > tr > td.status,
+table.list.issues > thead > tr > th.priority, table.list.issues > tbody > tr > td.priority { padding-left: 4px; padding-right: 6px; }
+table.list.issues > thead > tr > th.id, table.list.issues > tbody > tr > td.id { padding-right: 4px; }
+table.list.issues > thead > tr > th:is(.updated_on, .created_on, .closed_on, .start_date, .due_date, .done_ratio, .estimated_hours, .spent_hours, .total_spent_hours, .total_estimated_hours, .estimated_remaining_hours),
+table.list.issues > tbody > tr > td:is(.updated_on, .created_on, .closed_on, .start_date, .due_date, .done_ratio, .estimated_hours, .spent_hours, .total_spent_hours, .total_estimated_hours, .estimated_remaining_hours) { padding-left: 6px; padding-right: 6px; }
+/* 題名 column width and subject clamp: C-issue-row (15-c-issue-row.css) */
+table.list.issues > thead > tr > th.subject { padding-left: 12px; }
+table.list.issues td.assigned_to,
+table.list.issues td.author,
+table.list.issues td.last_updated_by { white-space: nowrap; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+/* user cells shrink to avatar + ellipsis (full name in the link title) */
+table.list.issues td:is(.assigned_to, .author, .last_updated_by) { width: 1%; }
+table.list.issues > thead > tr > th:is(.assigned_to, .author, .last_updated_by), table.list.issues > tbody > tr > td:is(.assigned_to, .author, .last_updated_by) { padding-left: 6px; padding-right: 6px; }
+/* inline-flex: the chip sizes the column to the name instead of filling a fixed 150px cell */
+table.list.issues td:is(.assigned_to, .author, .last_updated_by) .gb-user-chip { display: inline-flex; align-items: center; max-width: 200px; min-width: 0; }
+/* desktop: full names (題名 absorbs the rest); ellipsis only when the window gets narrow */
+@media screen and (min-width: 1100px) {
+  table.list.issues td.assigned_to { max-width: none; overflow: visible; }
+}
+@media screen and (max-width: 1099px) {
+  table.list.issues td:is(.assigned_to, .author, .last_updated_by) .gb-user-chip { max-width: 106px; }
+}
+table.list.issues td:is(.assigned_to, .author, .last_updated_by) .gb-user-chip > a { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+table.list.issues td:is(.assigned_to, .author, .last_updated_by) .gb-user-chip > .gb-avatar { flex: none; }
+table.list.issues td.project { width: 1%; white-space: nowrap; max-width: 84px; overflow: hidden; text-overflow: ellipsis; }
+/* table cells ignore max-width: the cap lives on the link so long project names ellipsize (full name in title) */
+table.list.issues td.project > a { display: block; max-width: 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+table.list.issues > thead > tr > th.project, table.list.issues > tbody > tr > td.project { padding-left: 6px; padding-right: 6px; }
+table.list.issues td.assigned_to:empty,
+table.list.issues td.author:empty,
+table.list.issues td.last_updated_by:empty { padding-left: 0; padding-right: 0; }
+table.list.issues tr.issue td.assigned_to { font-weight: var(--gb-fw-normal); }
+table.list.issues td.assigned_to a.user,
+table.list.issues td.author a.user,
+table.list.issues td.last_updated_by a.user { color: var(--gb-text); }
+table.list.issues td.assigned_to a.user:hover,
+table.list.issues td.author a.user:hover,
+table.list.issues td.last_updated_by a.user:hover { color: var(--gb-primary-strong); }
+table.list.issues td.updated_on,
+table.list.issues td.created_on,
+table.list.issues td.closed_on,
+table.list.issues td.start_date,
+table.list.issues td.due_date {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--gb-text-2);
+  font-size: 13px;
+}
+table.list.issues td.estimated_hours,
+table.list.issues td.spent_hours,
+table.list.issues td.total_spent_hours,
+table.list.issues td.total_estimated_hours,
+table.list.issues td.estimated_remaining_hours { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+/* 進捗率 = 44px bar + 「40%」 (percent text filled by 40-issue-list.js); fixed width so rows line up */
+table.list.issues td.done_ratio { width: 1%; min-width: 0; white-space: nowrap; }
+table.list.issues td.done_ratio table.progress {
+  display: inline-table;
+  width: 44px;
+  height: 6px;
+  margin: 0;
+  border: 0;
+  border-collapse: collapse;
+  border-radius: var(--gb-radius-pill);
+  overflow: hidden;
+  float: none;
+  vertical-align: middle;
+  background: var(--gb-surface-3);
+}
+table.list.issues td.done_ratio table.progress td { height: 6px; padding: 0; border: 0; }
+table.list.issues td.done_ratio table.progress td.todo { background: var(--gb-surface-3); }
+table.list.issues td.done_ratio table.progress td.done { background: var(--gb-primary); }
+table.list.issues td.done_ratio table.progress td.closed { background: var(--gb-primary-strong); }
+table.list.issues td.done_ratio p.percent {
+  display: inline-block;
+  min-width: 30px;
+  margin: 0 0 0 6px;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+  text-align: right;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+/* the track stays visible on hovered / selected rows (soft green would swallow a grey-on-grey track) */
+table.list.issues tr.issue.context-menu-selection td.done_ratio table.progress,
+table.list.issues tr.issue.context-menu-selection td.done_ratio table.progress td.todo { background: var(--gb-surface); }
+table.list.issues tr.overdue:not(.context-menu-selection) td.due_date { color: var(--gb-danger); font-weight: var(--gb-fw-bold); }
+
+/* closed issues: muted subject, struck key */
+
+/* row "…" button: header cell back to a table cell (global .buttons is flex), and the column
+   sticks to the right edge so the menu stays reachable when the table scrolls horizontally */
+table.list.issues > thead > tr > th.buttons { display: table-cell; width: 36px; padding: 0; }
+table.list.issues > thead > tr > th.buttons,
+table.list.issues > tbody > tr > td.buttons { position: sticky; right: 0; z-index: 1; }
+table.list.issues > thead > tr > th.buttons { background: var(--gb-surface-2); }
+table.list.issues > tbody > tr > td.buttons { background: var(--gb-surface); }
+table.list.issues > tbody > tr.issue:hover > td.buttons { background: var(--gb-primary-softer); }
+table.list.issues > tbody > tr.group > td.buttons { background: var(--gb-surface-2); }
+/* while the scroller actually overflows (class set by 40-issue-list.js): an edge + soft shadow
+   marks the pinned column as floating above the hidden columns */
+.autoscroll.gb-hscroll > table.list.issues > thead > tr > th.buttons,
+.autoscroll.gb-hscroll > table.list.issues > tbody > tr > td.buttons {
+  border-left: 1px solid var(--gb-border);
+  box-shadow: -8px 0 8px -8px rgba(0, 0, 0, .12);
+}
+.autoscroll.gb-hscroll.gb-hscroll-end > table.list.issues > thead > tr > th.buttons,
+.autoscroll.gb-hscroll.gb-hscroll-end > table.list.issues > tbody > tr > td.buttons { box-shadow: none; }
+table.list.issues td.buttons { display: table-cell; width: 36px; padding: 0 8px 0 0; text-align: right; white-space: nowrap; }
+table.list.issues td.buttons a.icon-only,
+table.list.issues td.buttons span.icon-only {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-text-2);
+}
+table.list.issues td.buttons a.icon-only:hover { background: var(--gb-surface-3); color: var(--gb-text); }
+table.list.issues td.buttons a.icon-only svg { width: 16px; height: 16px; }
+
+/* description / last notes rows (オプション → 表示) */
+table.list.issues tr.issue + tr:not(.issue):not(.group) > td { padding: 0 12px 12px 60px; text-align: left; color: var(--gb-text-2); font-size: 13px; }
+table.list.issues td.description .wiki,
+table.list.issues td.last_notes .wiki { font-size: 13px; }
+
+/* group rows */
+table.list.issues > tbody > tr.group > td {
+  height: 40px;
+  padding: 8px 12px;
+  background: var(--gb-surface-2);
+  border-bottom: 1px solid var(--gb-border);
+  text-align: left;
+  font-size: 13px;
+  font-weight: var(--gb-fw-bold);
+}
+table.list.issues > tbody > tr.group:hover { background: inherit; }
+table.list.issues tr.group span.expander {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+  border-radius: var(--gb-radius-sm);
+  vertical-align: middle;
+  cursor: pointer;
+}
+table.list.issues tr.group span.expander:hover { background: var(--gb-surface-3); }
+table.list.issues tr.group span.expander svg { width: 14px; height: 14px; stroke: var(--gb-text-2); }
+table.list.issues tr.group span.name { font-weight: var(--gb-fw-bold); color: var(--gb-text); vertical-align: middle; }
+table.list.issues tr.group span.name .gb-user-chip a { color: var(--gb-text); }
+table.list.issues tr.group span.name.gb-group-blank { color: var(--gb-text-2); }
+table.list.issues tr.group span.badge-count,
+table.list.issues tr.group span.count {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  height: 18px;
+  min-width: 18px;
+  padding: 0 6px;
+  margin-left: 6px;
+  border: 0;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-3);
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-xs);
+  font-weight: var(--gb-fw-bold);
+  vertical-align: middle;
+  position: static;
+}
+table.list.issues tr.group span.totals { margin-left: 12px; color: var(--gb-text-2); font-size: var(--gb-fs-sm); font-weight: var(--gb-fw-normal); }
+table.list.issues tr.group span.totals .value { color: var(--gb-text); font-weight: var(--gb-fw-bold); }
+table.list.issues tr.group a.toggle-all { font-size: var(--gb-fs-sm); font-weight: var(--gb-fw-normal); color: var(--gb-primary-strong); margin-right: 4px; }
+
+/* totals (right-aligned chips above the table) */
+body.controller-issues p.query-totals {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: var(--gb-fs-sm);
+  color: var(--gb-text-2);
+  text-align: right;
+}
+body.controller-issues p.query-totals > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  margin: 0;
+  padding: 0 10px;
+  border-radius: var(--gb-radius-pill);
+  background: var(--gb-surface-2);
+  border: 1px solid var(--gb-border);
+}
+body.controller-issues p.query-totals .value { color: var(--gb-text); font-weight: var(--gb-fw-bold); font-variant-numeric: tabular-nums; }
+
+/* ---------- 4. selected rows: core's context_menu.css loads after the theme and forces
+   white-on-blue with !important at the same specificity as the generic rule, so the issue
+   table needs a more specific override (DESIGN §2.5). ---------- */
+table.list.issues tr.issue.context-menu-selection,
+table.list.issues tr.issue.context-menu-selection:hover { background-color: var(--gb-primary-soft) !important; color: var(--gb-text) !important; }
+table.list.issues tr.issue.context-menu-selection td a,
+table.list.issues tr.issue.context-menu-selection td a:hover { color: var(--gb-text) !important; }
+table.list.issues tr.issue.context-menu-selection td a.gb-issue-key { color: var(--gb-primary-strong) !important; }
+table.list.issues tr.issue.context-menu-selection td.id a.gb-issue-key { color: var(--gb-primary-strong) !important; }
+table.list.issues tr.issue.closed.context-menu-selection td.id a { color: var(--gb-muted) !important; }
+table.list.issues tr.issue.context-menu-selection svg.icon-svg { stroke: var(--gb-text-2) !important; }
+table.list.issues tr.issue.context-menu-selection > td { border-bottom-color: var(--gb-primary-border); }
+table.list.issues > tbody > tr.issue.context-menu-selection > td.buttons { background: var(--gb-primary-soft); }
+
+/* ---------- 5. issues report ---------- */
+/* one grid for both core columns: cards pair up row by row (トラッカー | バージョン, 優先度 | カテゴリ, 担当者 | 作成者)
+   instead of two independent stacks that leave a tall empty area under the shorter one */
+body.controller-reports .splitcontent { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+body.controller-reports .splitcontentleft,
+body.controller-reports .splitcontentright { float: none; width: auto; margin: 0; padding: 0; display: contents; }
+body.controller-reports .splitcontentleft > .gb-report-card:nth-of-type(1) { order: 1; }
+body.controller-reports .splitcontentright > .gb-report-card:nth-of-type(1) { order: 2; }
+body.controller-reports .splitcontentleft > .gb-report-card:nth-of-type(2) { order: 3; }
+body.controller-reports .splitcontentright > .gb-report-card:nth-of-type(2) { order: 4; }
+body.controller-reports .splitcontentleft > .gb-report-card:nth-of-type(3) { order: 5; }
+body.controller-reports .splitcontentright > .gb-report-card:nth-of-type(3) { order: 6; }
+body.controller-reports .splitcontentleft > .gb-report-card:nth-of-type(4) { order: 7; }
+body.controller-reports .splitcontentright > .gb-report-card:nth-of-type(4) { order: 8; }
+body.controller-reports .splitcontentleft > .gb-report-card:nth-of-type(n+5),
+body.controller-reports .splitcontentright > .gb-report-card:nth-of-type(n+5) { order: 9; }
+body.controller-reports .splitcontent br { display: none; }
+body.controller-reports .gb-report-card {
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface);
+  overflow: hidden;
+  /* cards of one grid row share a height: the table fills the card and the spare height goes to an empty filler
+     row (added in JS) just above 「合計」, so the totals row sits on the card's bottom edge on both sides */
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+body.controller-reports .gb-report-card > table.list { flex: 1 1 auto; max-width: 100%; box-sizing: border-box; }
+body.controller-reports .gb-report-card > table.list > tbody > tr.gb-report-fill,
+body.controller-reports .gb-report-card > table.list > tbody > tr.gb-report-fill:hover { height: 100%; background: transparent; }
+/* the filler must not read as an empty table row: the row above it drops its divider and the filler carries the
+   one line above 「合計」 instead, so the spare height is plain card space, not a bordered blank row */
+body.controller-reports .gb-report-card > table.list > tbody > tr.gb-report-fill > td { height: auto; padding: 0; border: 0; border-bottom: 1px solid var(--gb-border); background: transparent; }
+body.controller-reports .gb-report-card > table.list > tbody > tr:has(+ tr.gb-report-fill) > td { border-bottom: 0; }
+body.controller-reports #content h3 {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 12px 16px;
+  font-size: var(--gb-fs-md);
+  font-weight: var(--gb-fw-bold);
+  color: var(--gb-text);
+}
+body.controller-reports #content h3 a.icon-only {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--gb-radius-sm);
+  color: var(--gb-text-2);
+}
+body.controller-reports #content h3 a.icon-only:hover { background: var(--gb-surface-3); }
+body.controller-reports #content h3 a.icon-only svg { width: 16px; height: 16px; }
+body.controller-reports table.list {
+  table-layout: auto; /* core: table.issue-report { table-layout: fixed } squeezes the number columns */
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+body.controller-reports table.list > thead > tr > th {
+  height: 36px;
+  padding: 0 12px;
+  background: var(--gb-surface-2);
+  border: 0;
+  border-top: 1px solid var(--gb-border);
+  border-bottom: 1px solid var(--gb-border);
+  border-radius: 0;
+  color: var(--gb-text-2);
+  font-size: var(--gb-fs-sm);
+  font-weight: var(--gb-fw-bold);
+  text-align: right;
+  white-space: nowrap;
+}
+body.controller-reports table.list > thead > tr > th:first-child { text-align: left; }
+body.controller-reports table.list td {
+  height: 40px;
+  padding: 8px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--gb-border);
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+body.controller-reports table.list td.name { width: 100%; text-align: left; white-space: normal; font-weight: var(--gb-fw-medium); }
+body.controller-reports table.list tbody tr:hover { background: var(--gb-primary-softer); }
+body.controller-reports table.list tfoot td { border-bottom: 0; background: var(--gb-surface-2); font-weight: var(--gb-fw-bold); height: 40px; }
+body.controller-reports table.list tfoot td:first-child { text-align: left; color: var(--gb-text-2); font-size: 13px; padding-left: 16px; }
+body.controller-reports table.list td a { color: var(--gb-primary-strong); text-decoration: none; }
+body.controller-reports table.list td a:hover { text-decoration: underline; }
+body.controller-reports table.list td.name a { color: var(--gb-text); }
+body.controller-reports table.list td.name a:hover { color: var(--gb-primary-strong); }
+body.controller-reports table.list td.gb-zero { color: var(--gb-muted); }
+body.controller-reports table.list > thead > tr > th:not(:first-child),
+body.controller-reports table.list td:not(.name):not(:first-child) { width: 1%; min-width: 56px; padding: 0 12px; text-align: right; white-space: nowrap; }
+body.controller-reports table.list > thead > tr > th:last-child,
+body.controller-reports table.list td:last-child,
+body.controller-reports table.list > :is(tbody, tfoot) > tr > td:not(.name):not(:first-child):last-child { padding-right: 16px; }
+body.controller-reports table.list td.name { padding-left: 16px; }
+body.controller-reports table.list > thead > tr > th:first-child { padding-left: 16px; }
+/* detailed report (/issues/report/:detail) — single wide table in a bordered box (JS wrapper) that scrolls
+   sideways when the table is wider than the box: the border and corners stay visible, the name column is pinned,
+   and a fade on the right edge shows that more columns follow (it goes away at the scroll end) */
+body.controller-reports #content > table.list { border: 1px solid var(--gb-border); border-radius: var(--gb-radius); overflow: hidden; }
+body.controller-reports #content > table.list > thead > tr > th { border-top: 0; }
+body.controller-reports .gb-report-scrollbox {
+  position: relative;
+  border: 1px solid var(--gb-border);
+  border-radius: var(--gb-radius);
+  background: var(--gb-surface);
+  overflow: hidden;
+}
+body.controller-reports .gb-report-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gb-border-strong) transparent;
+}
+body.controller-reports .gb-report-scrollbox::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 24px;
+  pointer-events: none;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0), var(--gb-surface));
+  opacity: 0;
+  transition: opacity .15s var(--gb-ease);
+}
+body.controller-reports .gb-report-scrollbox.gb-has-more::after { opacity: 1; }
+body.controller-reports .gb-report-scroll > table.list { border: 0; border-radius: 0; overflow: visible; }
+body.controller-reports .gb-report-scroll > table.list > thead > tr > th { border-top: 0; }
+body.controller-reports .gb-report-scroll > table.list > :is(thead, tbody, tfoot) > tr > :first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--gb-surface);
+}
+body.controller-reports .gb-report-scroll > table.list > thead > tr > th:first-child,
+body.controller-reports .gb-report-scroll > table.list > tfoot > tr > td:first-child { background: var(--gb-surface-2); }
+body.controller-reports .gb-report-scroll > table.list > tbody > tr:hover > td:first-child { background: var(--gb-primary-softer); }
+/* charts: the full content width (core: 75%), one fixed height, legend below (JS) */
+body.controller-reports #content .issue-report-graph { position: relative; width: 100%; max-width: none; height: 320px; margin: 24px 0 0; }
+body.controller-reports #content .issue-report-graph canvas { max-width: 100%; }
+body.controller-reports #content .gb-report-br { display: none; }
+@media (max-width: 1000px) {
+  body.controller-reports .splitcontent { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* context menu on the issue list: icon rows and folder rows share one label edge
+   (10px padding + 16px icon + 8px gap = 34px) */
+body.controller-issues #context-menu > ul > li > a:not(:has(> .icon-svg)),
+body.controller-issues #context-menu > ul > li > a.submenu { padding-left: 34px; }
+
+/* list footer: 「(1-17/17)」 + pages on the left, export links on the right — one row, not two */
+@media screen and (min-width: 600px) {
+  body.controller-issues.action-index #content > span.pagination {
+    float: left;
+    min-height: 28px;
+    margin: 0 16px 0 0; /* the list form's 16px bottom margin already spaces the row (the export line collapses into it) */
+  }
+  body.controller-issues.action-index #content > span.pagination .items { display: inline-flex; align-items: center; min-height: 28px; }
+  body.controller-issues.action-index #content > p.other-formats { min-height: 28px; margin-top: 16px; }
+  body.controller-issues.action-index #content > p.other-formats + * { clear: both; }
+}
+
+/* ---------- cross-project lists (/issues): project as a small line above the subject ----------
+   At 1273px the default columns + a project column leave 題名 ~256px; the key prefix (WEBSITE-11) and this
+   line already name the project, so the separate column is hidden on desktop and 題名 gets >= 320px. */
+table.list.issues .gb-subj-proj { display: none; }
+@media screen and (min-width: 768px) {
+  table.list.issues:has(> thead th.project) > thead > tr > th.project,
+  table.list.issues:has(> thead th.project) > tbody > tr > td.project { display: none; }
+  table.list.issues:has(> thead th.project) td.subject { min-width: 320px; }
+  /* whole-pixel lines: 16 + 2 + 20 + 20 padding = every row exactly 58px */
+  table.list.issues:has(> thead th.project) td.subject a { line-height: 20px; }
+  table.list.issues:has(> thead th.project) .gb-subj-proj {
+    display: block;
+    max-width: 100%;
+    margin: 0 0 2px;
+    overflow: hidden;
+    color: var(--gb-text-2);
+    font-size: var(--gb-fs-sm);
+    font-weight: var(--gb-fw-normal);
+    line-height: 16px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+/* phones (cards from 95-responsive.css): project chip at the start of the meta line, before the assignee */
+@media screen and (max-width: 767px) {
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.project:not(:empty) {
+    display: block;
+    order: 6;
+    max-width: 50%;
+    height: 20px;
+    padding: 0 8px;
+    overflow: hidden;
+    border-radius: var(--gb-radius-sm);
+    background: var(--gb-surface-3);
+    color: var(--gb-text-2);
+    font-size: var(--gb-fs-sm);
+    line-height: 20px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  html body.controller-issues.action-index #content table.list.issues > tbody > tr.issue > td.project > a {
+    display: inline;
+    max-width: none;
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+/* issues report: 「[なし]」 rows relabelled 担当者なし / 未設定 (muted, like the list's blank group headers) */
+body.controller-reports table.issue-report td.name .gb-group-blank,
+body.controller-reports table.issue-report td.name.gb-group-blank,
+body.controller-reports table.issue-report td.name a.gb-group-blank,
+body.controller-reports table.issue-report-detailed td.name a.gb-group-blank { color: var(--gb-text-2); }
+
+/* report details: 「レポート › マイルストーン」 as one breadcrumb heading (built by 40-issue-list.js) */
+body.controller-reports #content > h2.gb-crumb { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+body.controller-reports #content > h2.gb-crumb > a { color: var(--gb-text-2); text-decoration: none; }
+body.controller-reports #content > h2.gb-crumb > a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
+body.controller-reports #content > h2.gb-crumb .gb-crumb__sep { display: inline-grid; place-items: center; width: 16px; height: 16px; color: var(--gb-muted); }
+body.controller-reports #content > h2.gb-crumb .gb-crumb__sep svg { width: 16px; height: 16px; stroke: currentColor; }
+body.controller-reports #content > h2.gb-crumb .gb-crumb__current { color: var(--gb-text); }
+body.controller-reports #content .gb-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+/* phones: shorter charts; the detailed table's number columns are narrower so 未対応・処理中・処理済み fit beside the
+   pinned name column (the rest scrolls); summary cards never scroll — their tables fit the card */
+@media screen and (max-width: 767px) {
+  body.controller-reports #content .issue-report-graph { height: 300px; }
+  body.controller-reports .gb-report-scroll > table.list > thead > tr > th:not(:first-child),
+  body.controller-reports .gb-report-scroll > table.list > :is(tbody, tfoot) > tr > td:not(:first-child) { min-width: 56px; padding-left: 8px; padding-right: 8px; }
+  body.controller-reports .gb-report-scroll > table.list > :is(thead, tbody, tfoot) > tr > :last-child { padding-right: 12px; }
+  body.controller-reports .gb-report-scroll > table.list td.name { width: auto; min-width: 0; white-space: nowrap; padding-left: 12px; }
+  body.controller-reports .gb-report-card > table.list td.name { min-width: 0; }
+  body.controller-reports .gb-report-scroll > table.list > thead > tr > th:first-child,
+  body.controller-reports .gb-report-scroll > table.list > tfoot > tr > td:first-child { padding-left: 12px; }
+  body.controller-reports .gb-report-card { overflow: hidden; }
+  body.controller-reports .gb-report-card > table.list > thead > tr > th:not(:first-child),
+  body.controller-reports .gb-report-card > table.list > :is(tbody, tfoot) > tr > td:not(.name):not(:first-child) { min-width: 0; padding-left: 8px; padding-right: 8px; }
+  body.controller-reports .gb-report-card > table.list > :is(thead, tbody, tfoot) > tr > :last-child { padding-right: 16px; }
+}
+
+/* issue list (desktop/tablet table): one rhythm between columns — every cell 8px left/right, so the text of
+   neighbouring columns is always >= 16px apart (キー→種別 was 8px, 担当者→更新日 12px); 題名 gives up ~30px */
+@media screen and (min-width: 768px) {
+  body.controller-issues.action-index table.list.issues > thead > tr > th:is(.id, .tracker, .status, .priority, .subject, .assigned_to, .author, .last_updated_by, .project, .category, .fixed_version, .updated_on, .created_on, .closed_on, .start_date, .due_date, .done_ratio, .estimated_hours, .spent_hours, .total_spent_hours, .total_estimated_hours, .estimated_remaining_hours),
+  body.controller-issues.action-index table.list.issues > tbody > tr > td:is(.id, .tracker, .status, .priority, .subject, .assigned_to, .author, .last_updated_by, .project, .category, .fixed_version, .updated_on, .created_on, .closed_on, .start_date, .due_date, .done_ratio, .estimated_hours, .spent_hours, .total_spent_hours, .total_estimated_hours, .estimated_remaining_hours) { padding-left: 8px; padding-right: 8px; }
+  body.controller-issues.action-index table.list.issues > tbody > tr > td:is(.assigned_to, .author, .last_updated_by):empty { padding-left: 8px; padding-right: 8px; }
+}
+
+/* context menu open (40-issue-list.js sets body.gb-cm-open): hide the trigger's 「操作」 tooltip so it does not sit on the menu */
+body.controller-issues.gb-cm-open .ui-tooltip { display: none; }

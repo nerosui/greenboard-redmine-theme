@@ -1,0 +1,327 @@
+/* ==========================================================================
+   15-c-editor — the editor unit: jsToolbar + textarea (DESIGN §3.2.3, §6.11; ACCEPTANCE E1 / E2).
+   The ONE implementation for every .jstBlock (issue, wiki, documents, news, forums, settings).
+
+   Public API for page files (the only things a page may set around the unit):
+     --gb-editor-min   min height of the textarea and the preview   (default 240px)
+     --gb-editor-max   height at which the textarea stops growing  (default min(70vh, 720px); < 768px: 60vh)
+     width / margin / grid placement of .jstBlock
+   Custom properties inherit, so a page may set them on any ancestor (form, fieldset, #content).
+
+   Classes set by js/15-c-editor.js:
+     .gb-jst-narrow   on .jstBlock when the unit is < 600px wide: toolbar = one sideways-scrolling row
+     .gb-jst-stacked  on .jstBlock (≥ 600px) when the toolbar does not fit beside the tabs: own line, wraps
+     .gb-more-right   on .jstElements while buttons remain past the right edge (shows the 「›」 cover)
+     --gb-jst-cover   width of that cover: from the end of the last whole button to the row's edge
+     --gb-jstb-icon   copy of each button's core icon (a generic `button:hover { background }` drops it)
+   Modifier: an ancestor .gb-compact (issue compact panel) keeps one calm toolbar line (no headings,
+   quotes, tables, pre).
+   ========================================================================== */
+
+:root {
+  --gb-editor-min: 240px;
+  --gb-editor-max: min(70vh, 720px);
+}
+@media screen and (max-width: 767px) {
+  :root { --gb-editor-max: 60vh; }
+}
+
+/* ---------- the unit ---------- */
+.jstBlock {
+  box-sizing: border-box;
+  width: 100%;
+  line-height: 1.6;
+  background: var(--gb-surface);
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius);
+  overflow: hidden;
+  transition: border-color var(--gb-dur-1), box-shadow var(--gb-dur-1);
+}
+.jstBlock:hover { border-color: var(--gb-border-hover); }
+.jstBlock:focus-within { border-color: var(--gb-primary); box-shadow: var(--gb-focus); }
+/* invalid (client check sets aria-invalid; server errors put label.error before the field) */
+.jstBlock:has(textarea.wiki-edit[aria-invalid=true]),
+.jstBlock:has(textarea.wiki-edit[aria-invalid=true]):focus-within,
+label.error + * .jstBlock,
+label.error + * .jstBlock:focus-within { border-color: var(--gb-danger); }
+.jstBlock:has(textarea.wiki-edit[aria-invalid=true]):focus-within,
+label.error + * .jstBlock:focus-within { box-shadow: var(--gb-focus-danger); }
+.tabular .jstTabs,
+.tabular .wiki-preview { width: 100%; }
+
+/* ---------- top strip: 編集 / プレビュー tabs + toolbar ---------- */
+#content .jstBlock .jstTabs.tabs,
+.jstBlock .jstTabs.tabs {
+  position: relative; /* 「?」 is placed against the strip (narrow) or the toolbar cell (wide) */
+  box-sizing: border-box;
+  width: auto;
+  height: auto;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 8px;
+  overflow: visible;
+  background: var(--gb-surface-2);
+  border-bottom: 1px solid var(--gb-border);
+}
+#content .jstBlock .jstTabs.tabs ul,
+.jstBlock .jstTabs.tabs ul {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+#content .jstBlock .jstTabs.tabs li,
+.jstBlock .jstTabs.tabs li {
+  display: flex;
+  align-items: stretch;
+  float: none;
+  height: auto;
+  margin: 0;
+  list-style: none;
+}
+#content .jstBlock .jstTabs.tabs li::before { content: none; }
+#content .jstBlock .jstTabs.tabs li a,
+.jstBlock .jstTabs.tabs li a {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 2px 12px 0;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--gb-text-2);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
+  text-decoration: none;
+}
+#content .jstBlock .jstTabs.tabs li a:hover { color: var(--gb-text); border-bottom-color: var(--gb-border-strong); background: transparent; }
+#content .jstBlock .jstTabs.tabs li a.selected,
+#content .jstBlock .jstTabs.tabs li a.selected:hover {
+  color: var(--gb-primary-strong);
+  font-weight: 600;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid var(--gb-primary);
+  box-shadow: none;
+}
+#content .jstBlock .jstTabs.tabs li.hidden { display: none; }
+
+/* toolbar cell: a 1px separator after the tabs, then the buttons */
+#content .jstBlock .jstTabs.tabs li.tab-elements,
+.jstBlock .jstTabs.tabs li.tab-elements {
+  position: relative;
+  flex: 1 1 280px;
+  align-items: center;
+  min-width: 0;
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid var(--gb-border);
+}
+/* プレビュー tab: the toolbar is hidden, so the separator has nothing to separate */
+#content .jstBlock .jstTabs.tabs li.tab-elements:has(> .jstElements.hidden),
+.jstBlock .jstTabs.tabs li.tab-elements:has(> .jstElements.hidden) { border-left-color: transparent; }
+
+/* ---------- toolbar buttons ---------- */
+.jstBlock .jstElements {
+  display: flex;
+  flex-wrap: wrap;   /* unit ≥ 600px: wrap into left-aligned rows */
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  padding: 6px 32px 6px 0; /* right: room for 「?」 at the end of the first row */
+  vertical-align: middle;
+}
+.jstBlock .jstElements button {
+  flex: none;
+  width: 28px;
+  min-width: 0;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--gb-radius-sm);
+  background-color: transparent;
+  background-size: 16px 16px;
+  box-shadow: none;
+  opacity: .72;
+  transition: background-color var(--gb-dur-1), opacity var(--gb-dur-1);
+}
+.jstBlock .jstElements button:hover,
+.jstBlock .jstElements button:focus-visible {
+  background-color: var(--gb-surface-3);
+  border: 0;
+  opacity: 1;
+}
+.jstBlock .jstElements button:focus-visible { outline: none; box-shadow: var(--gb-focus); }
+.jstBlock .jstElements button:is(:hover, :focus-visible, :active) {
+  background-image: var(--gb-jstb-icon, none);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 16px;
+}
+.jstBlock .jstElements .jstb_pre::before { color: var(--gb-text-2); }
+.jstBlock .jstElements .jstSpacer {
+  display: inline-block;
+  flex: none;
+  width: 1px;
+  height: 16px;
+  margin: 0 6px;
+  font-size: 0;
+  background: var(--gb-border);
+}
+/* no orphan divider before 「?」 or at the end */
+.jstBlock .jstElements .jstSpacer:has(+ .jstb_help),
+.jstBlock .jstElements .jstSpacer:last-child { display: none; }
+/* 「?」 sits at the right end of the first row (wide) / of the tab row (narrow), never in the button flow */
+.jstBlock .jstElements .jstb_help {
+  position: absolute;
+  top: 6px;
+  right: 0;
+  margin: 0;
+}
+
+/* ---------- unit ≥ 600px whose toolbar does not fit beside the tabs (.gb-jst-stacked) ----------
+   the toolbar takes its own line under 編集 / プレビュー and wraps there (left-aligned rows).
+   ---------- unit < 600px (.gb-jst-narrow): one row that scrolls sideways (E1) ----------
+   row 1 = 編集 / プレビュー + 「?」, row 2 = every button on one line. A 「›」 cover is pinned to the
+   right edge while buttons remain; it starts right after the last WHOLE button (width from
+   js/15-c-editor.js), so no half icon or lone separator shows next to it. */
+#content .jstBlock:is(.gb-jst-narrow, .gb-jst-stacked) .jstTabs.tabs li.tab-elements,
+.jstBlock:is(.gb-jst-narrow, .gb-jst-stacked) .jstTabs.tabs li.tab-elements {
+  position: static; /* 「?」 places against the strip → top-right of the tab row */
+  order: 1;         /* below every tab-line item (e.g. the wiki split toggle) */
+  flex: 1 0 100%;
+  min-width: 0;
+  margin: 0 -8px;
+  padding: 0 8px;
+  border-left: 0;
+  border-top: 1px solid var(--gb-border);
+}
+.jstBlock:is(.gb-jst-narrow, .gb-jst-stacked) .jstElements .jstb_help { top: 6px; right: 8px; }
+.jstBlock.gb-jst-stacked .jstElements { padding-right: 0; row-gap: 0; }
+.jstBlock.gb-jst-narrow .jstElements {
+  flex-wrap: nowrap;
+  gap: 0;
+  padding-right: var(--gb-jst-tail, 0px); /* JS: makes the scroll end a button start (L2) */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory; /* every resting position starts with a whole button */
+}
+.jstBlock.gb-jst-narrow .jstElements::-webkit-scrollbar { display: none; }
+.jstBlock.gb-jst-narrow .jstElements > button { scroll-snap-align: start; }
+.jstBlock.gb-jst-narrow .jstElements .jstSpacer { margin: 0 4px; }
+.jstBlock.gb-jst-narrow .jstElements.gb-more-right::after {
+  content: "";
+  position: sticky;
+  right: calc(-1 * var(--gb-jst-tail, 0px)); /* sticky inset is measured inside padding-right; undo the tail */
+  flex: none;
+  align-self: stretch;
+  width: var(--gb-jst-cover, 28px);
+  min-width: 28px;
+  margin: -6px 0 -6px calc(-1 * var(--gb-jst-cover, 28px));
+  background:
+    var(--gb-chevron-right, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2355625e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E")) right 8px center / 12px 12px no-repeat,
+    linear-gradient(to right, rgba(247, 249, 248, 0), var(--gb-surface-2) 3px); /* fade ends before the 4px spacer margin */
+  pointer-events: none;
+}
+/* buttons scrolled out on the left: a soft edge shadow over the first button's empty inset (the icon
+   starts 6px in), so no button is cut and no mirrored 「‹」 is needed (§6.11) */
+.jstBlock.gb-jst-narrow .jstElements.gb-more-left::before {
+  content: "";
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  flex: none;
+  align-self: stretch;
+  width: 6px;
+  margin: -6px -6px -6px 0;
+  background: linear-gradient(to right, rgba(16, 24, 20, .12), rgba(16, 24, 20, 0));
+  pointer-events: none;
+}
+
+/* ---------- compact panel modifier: one calm line (Markdown typed by hand still works) ---------- */
+.gb-compact .jstBlock .jstElements { column-gap: 0; }
+.gb-compact .jstBlock .jstElements .jstSpacer { margin: 0 4px; }
+.gb-compact .jstBlock .jstElements > :is(.jstb_h1, .jstb_h2, .jstb_h3, .jstb_bq, .jstb_unbq,
+  .jstb_table, .jstb_pre, .space2, .space4) { display: none; }
+
+/* ---------- textarea + preview (E2: grows with its content between min and max) ---------- */
+.jstBlock .jstEditor { padding: 0; }
+.jstBlock .jstEditor textarea.wiki-edit,
+body.textarea-monospace .jstBlock .jstEditor textarea.wiki-edit {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  min-height: var(--gb-editor-min);
+  max-height: var(--gb-editor-max);
+  field-sizing: content;
+  margin: 0;
+  padding: 12px 14px;
+  font-family: var(--gb-font);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--gb-text);
+  background: var(--gb-surface);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+  overflow-y: auto;
+  resize: vertical;
+}
+/* a manual resize (js/15-c-editor.js) wins until reload */
+.jstBlock .jstEditor textarea.wiki-edit.gb-editor-resized { max-height: none; }
+.jstBlock .jstEditor textarea.wiki-edit:focus,
+.jstBlock .jstEditor textarea.wiki-edit:focus-visible { border: 0; box-shadow: none; outline: none; }
+.jstBlock .jstEditor textarea.wiki-edit::placeholder { color: var(--gb-muted); }
+.jstBlock .wiki-preview,
+.jstBlock .jstEditor .wiki-preview {
+  box-sizing: border-box;
+  width: auto;
+  min-height: var(--gb-editor-min);
+  margin: 0;
+  padding: 12px 14px;
+  font-size: var(--gb-fs-md);
+  background: var(--gb-surface);
+  border: 0;
+}
+/* core toggles .hidden between textarea and preview */
+.jstBlock .jstEditor textarea.wiki-edit.hidden,
+.jstBlock .jstEditor .wiki-preview.hidden,
+.jstBlock .wiki-preview.hidden { display: none; }
+.jstBlock .wiki-preview p.empty-preview { margin: 8px 0; color: var(--gb-muted); font-style: normal; text-align: left; }
+
+/* ---------- wiki split view (65-wiki.js adds .gb-wiki-split; wiki keeps the grid placement) ----------
+   L1: both columns share one height = max(textarea content, preview content), clamped to
+   [--gb-editor-min, --gb-editor-max]. Each column contributes its own content height to the grid row
+   (textarea via field-sizing, preview via its blocks), then both stretch to the row. A column scrolls
+   inside only when its own content exceeds --gb-editor-max. After a manual resize the textarea sets the
+   height alone (the preview takes the row height and scrolls). */
+#content .jstBlock.gb-wiki-split .jstTabs.tabs li.tab-elements { margin-left: 0; padding-left: 0; border-left: 0; }
+.jstBlock.gb-wiki-split .jstEditor { align-items: stretch; }
+.jstBlock.gb-wiki-split .jstEditor > textarea.wiki-edit { border-right: 1px solid var(--gb-border); }
+.jstBlock.gb-wiki-split .jstEditor > .wiki-preview {
+  min-height: var(--gb-editor-min);
+  max-height: var(--gb-editor-max);
+  overflow: auto;
+}
+.jstBlock.gb-wiki-split .jstEditor:has(> textarea.wiki-edit.gb-editor-resized) > .wiki-preview {
+  max-height: none;
+  contain: size;
+}

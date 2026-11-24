@@ -1,0 +1,54 @@
+/* ==========================================================================
+   C-comment — collapsed comment entry row (DESIGN §6.10, ACCEPTANCE K1)
+   One row for /issues/:id 「コメントを追加…」, /news/:id 「コメントを追加…」 and
+   /boards/:id/topics/:id 「返答を書く…」, built by GB.commentCta (js/15-c-comment.js):
+     div.gb-comment-cta > span.gb-avatar.gb-avatar--28 + button.gb-comment-cta__btn
+   This is the ONLY file that styles .gb-comment-cta*. Page files may only set the margin above the row
+   (and decide where it is inserted). The expanded panel stays with the page.
+   ========================================================================== */
+.gb-comment-cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 16px 0 0;
+}
+.gb-comment-cta[hidden] { display: none; }
+.gb-comment-cta > .gb-avatar { flex: none; }
+
+.gb-comment-cta > .gb-comment-cta__btn {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+  height: var(--gb-control-h-lg);
+  min-height: 0;
+  margin: 0;
+  padding: 0 14px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  color: var(--gb-muted);
+  background: var(--gb-surface, #fff);
+  border: 1px solid var(--gb-border-strong);
+  border-radius: var(--gb-radius);
+  box-shadow: none;
+  cursor: text;
+  transition: border-color var(--gb-dur-1), box-shadow var(--gb-dur-1);
+}
+.gb-comment-cta > .gb-comment-cta__btn:hover {
+  color: var(--gb-text-2);
+  background: var(--gb-surface, #fff);
+  border-color: var(--gb-primary);
+}
+.gb-comment-cta > .gb-comment-cta__btn:focus-visible {
+  outline: none;
+  border-color: var(--gb-primary);
+  box-shadow: var(--gb-focus);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gb-comment-cta > .gb-comment-cta__btn { transition: none; }
+}
