@@ -1,0 +1,298 @@
+// ページ本体のテンプレート。build.js から呼ばれる。
+const { I, TR, ST, WHO, PR, UPD, NAV, LIST, COLS, STAT } = require('./data.js');
+const { by, av, tr, st, pr, row, card, orow, OHEAD, rep, ic, chars, filterBox, spoken } = require('./parts.js');
+
+// 冒頭の 2 枚の壁。スクリプトが動くときは 1 枚の画像に描くので、行そのものは noscript の中だけに置く。
+const oldCol = k => `<div class="wcol" data-k="${k}"><noscript>${rep(3, () => OHEAD + I.map((i, n) => orow(I[(n + k) % 20], (n + k) % 20)).join(''))}</noscript></div>`;
+const newCol = k => `<div class="wcol" data-k="${k}"><noscript>${rep(2, () => I.map((i, n) => row(I[(n + k) % 20])).join(''))}</noscript></div>`;
+const born = `<div class="card"><div class="h">${tr(2)}<span class="key">SHOP-21</span></div><div class="s">初売りの送料無料バナーを作る</div><div class="f">${av('h')}${pr('n')}<span>通常</span><span class="due"><i class="clk"></i>12/28</span></div></div>`;
+const DOCKER = `cp docker/.env.example docker/.env   # DB_PASSWORD と SECRET_KEY_BASE を設定する
+docker compose -f docker/compose.example.yaml up -d --build`;
+
+const ws = s => `<span class="ws">${s}</span>`; // この単位より短くは改行しない
+
+module.exports = ({ TITLE, DESC, BASE, REPO, CSS, JS, FONT, HEADJS }) => `<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>${TITLE}</title>
+<meta name="description" content="${DESC}">
+<meta name="theme-color" content="#0b1412">
+<meta name="color-scheme" content="light">
+<link rel="canonical" href="${BASE}">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:site_name" content="Greenboard">
+<meta property="og:title" content="${TITLE}">
+<meta property="og:description" content="${DESC}">
+<meta property="og:url" content="${BASE}">
+<meta property="og:image" content="${BASE}assets/img/ogp.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="夜の画面に並ぶ課題の一覧を、まるい光が照らしている。「おはよう、Redmine。」">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="${FONT}" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="${CSS}">
+<script>${HEADJS}</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M5 6h.01M5 12h.01M5 18h.01"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3.5l7.5 4.2v8.6L12 20.5l-7.5-4.2V7.7zM4.5 7.7l7.5 4.3 7.5-4.3M12 12v8.5"/></symbol>
+<symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4.5h14v10l-5 5H5zM14 19.5v-5h5"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><path d="M16.75 14v6M13.75 17h6"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19.5h16M6.5 19.5v-7H10v7M10 19.5V5.5h4v14M14 19.5v-10h3.5v10"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><rect x="4.5" y="5.5" width="15" height="14" rx="2"/><path d="M4.5 10h15M8.5 3.5v4M15.5 3.5v4"/></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24"><path d="M6.5 3.5h8L18 7v13.5H6.5zM14 3.5v4h4M9.5 12h5M9.5 16h5"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M6 4h12v16H6zM9 4v16M12 8.5h3M12 12h3"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 7a2 2 0 012-2h4l2 2.5h7a2 2 0 012 2V17a2 2 0 01-2 2h-13a2 2 0 01-2-2z"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3.5l1.6 2.3 2.7-.6.6 2.7 2.3 1.6-1.4 2.5 1.4 2.5-2.3 1.6-.6 2.7-2.7-.6L12 20.5l-1.6-2.3-2.7.6-.6-2.7-2.3-1.6L6.2 12 4.8 9.5l2.3-1.6.6-2.7 2.7.6z"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+</defs></svg>
+
+<a class="skip" href="#install">導入方法へ移動</a>
+<canvas id="sky" class="fx" aria-hidden="true"></canvas>
+<header class="hdr" data-tone="dark">
+  <a class="hdr__brand" href="#top"><i class="mark" aria-hidden="true"></i><span>Greenboard</span></a>
+  <a class="hdr__cta" href="${REPO}">GitHub で入手</a>
+</header>
+<div class="tools">
+  <span class="clock" aria-hidden="true"><i></i><b>05:12</b></span>
+  <button class="still" type="button" aria-pressed="false" title="動きを止める" hidden><span class="vh">動きを止める</span><i aria-hidden="true"></i></button>
+</div>
+
+<main id="top" tabindex="-1">
+
+<!-- ============ 1. 夜 → 朝：一覧がボードになる ============ -->
+<section class="scene open" id="open" data-tone="dark" style="--len:9.5">
+ <div class="stage">
+  <div class="night">
+    <div class="wall wall--old" aria-hidden="true"><div class="wall__in old">${oldCol(0)}${oldCol(7)}</div></div>
+    <canvas class="veil" aria-hidden="true"></canvas>
+    <div class="lens" aria-hidden="true"><div class="lens__in"><div class="wall wall--new"><div class="wall__in ui">${newCol(0)}${newCol(7)}</div></div></div></div>
+    <div class="hero">
+      <h1 class="mincho hero__h">${spoken('おはよう、Redmine。', chars('おはよう、\nRedmine。'))}</h1>
+      <p class="hero__p">毎朝ひらく画面だから、<br class="sp">やさしいほうがいい。</p>
+      <p class="hero__s">${['Redmine 6 を、', '落ち着いた', '緑のカード画面に', '変える'].map(ws).join('')}<br class="pc">${['無料の', 'テーマ', '「Greenboard」。'].map(ws).join('')}</p>
+    </div>
+    <div class="hint" aria-hidden="true"><i></i><span class="pc">光を動かすと、同じ一覧がこう見えます</span><span class="sp">スクロールで、夜が明けます</span></div>
+  </div>
+  <div class="bloom" aria-hidden="true"></div>
+  <p class="mincho line-a">${spoken('散らかっていたのは、仕事じゃなくて画面でした。', ['散らかっていたのは、', '仕事じゃなくて', '画面でした。'].map(l => `<span class="ln">${chars(l)}</span>`).join(''))}</p>
+
+  <p class="vh">画面の見本。Greenboard を適用した Redmine のボード画面。未対応・処理中・処理済みの列に課題のカードが並んでいる。</p>
+  <div class="winwrap" aria-hidden="true" inert><div class="win ui">
+    <aside class="side">
+      <div class="side__logo"><i class="rlogo"></i>Redmine</div>
+      <div class="side__proj"><b>通</b>通販リニューアル</div>
+      <div class="side__add">${ic('plus')}追加</div>
+      <nav>${NAV.map(([i, l]) => `<span class="nv" data-n="${l}">${ic(i)}${l}</span>`).join('')}</nav>
+    </aside>
+    <div class="top">
+      <span class="top__menu">${ic('menu')}</span><i class="rlogo top__logo"></i>
+      <span class="top__l">ホーム</span><span class="top__l">ダッシュボード</span><span class="top__l">プロジェクト</span>
+      <span class="top__search">${ic('search')}検索</span><span class="top__sel">通販リニューアル<i class="chev d"></i></span><span class="btn pri top__add">${ic('plus')}<em>課題の追加</em></span><b class="av a-m lg">森</b><span class="top__name">森下 由佳</span>
+    </div>
+    <div class="pan">
+      <div class="view v-list">
+        <div class="pcard">
+          <div class="ptitle"><div class="u3">課題</div><span class="btn pri">${ic('plus')}新しい課題</span></div>
+          ${filterBox}
+          <div class="tbl"><div class="thead"><i class="cb"></i><span>キー</span><span>トラッカー</span><span>ステータス</span><span></span><span>題名</span><span></span><span></span></div>
+          ${LIST.map(id => `<div class="slot slot-row" data-id="${id}">${row(by(id))}</div>`).join('')}</div>
+        </div>
+        <div class="rcard"><div class="u4">カスタムクエリ</div><span>ウォッチしている課題</span><span>報告した課題</span><span>担当している課題</span><span>更新した課題</span></div>
+      </div>
+      <div class="view v-board">
+        <div class="pcard">
+          <div class="ptitle"><div class="u3">ボード</div><span class="btn pri newbtn">${ic('plus')}新しい課題</span></div>
+          ${filterBox}
+          <div class="cols">${COLS.map(([s, n, c, ids]) => `<div class="col col-${s}"><div class="col__h"><i class="dot s${s}"></i>${n}<b class="cnt">${c}</b></div><div class="col__b">${s === 3 ? '<div class="slot slot-card drop" data-id="14"></div>' : ''}${ids.map(id => `<div class="slot slot-card" data-id="${id}">${card(by(id))}</div>`).join('')}</div></div>`).join('')}</div>
+        </div>
+      </div>
+      <div class="actors" aria-hidden="true">${[...new Set([...LIST, ...COLS.flatMap(c => c[3])])].map(id => `<div class="act" data-id="${id}">${LIST.includes(id) ? `<div class="face fr">${row(by(id))}</div>` : ''}<div class="face fc">${card(by(id))}</div></div>`).join('')}</div>
+    </div>
+    <i class="cursor" aria-hidden="true"></i>
+  </div></div>
+
+  <div class="caps">
+    <div class="cap cap--b"><h2 class="mincho cap__h">だれが、なにを、<br>どこまで。</h2><p class="cap__p">聞かなくても、見えている。</p></div>
+    <i class="cap__wash" aria-hidden="true"></i>
+    <div class="cap cap--c"><h2 class="mincho cap__h">カチッと、<br>終わる。</h2><p class="cap__p">その一枚ぶん、肩が軽くなる。</p></div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ 2. 昼：書く、返す ============ -->
+<section class="scene desk" id="desk" data-tone="light" style="--len:8.15">
+ <div class="stage">
+  <i class="desk__mat" aria-hidden="true"><i></i></i>
+  <h2 class="mincho big desk__h">メモを書くくらいの<br>軽さで。</h2>
+  <p class="vh">画面の見本。新しい課題のフォーム。題名、説明、担当者、期限日を上から順に入力する。</p>
+  <div class="formwrap" aria-hidden="true" inert><div class="form ui">
+    <div class="u3">新しい課題</div>
+    <div class="fld f-tr"><span class="lb">トラッカー <u>*</u></span><span class="sel trk" data-t="1"><span class="trk__v">バグ</span><i class="chev d"></i></span></div>
+    <div class="fld f-title"><span class="lb">題名 <u>*</u></span><div class="inp title"><span class="ph" aria-hidden="true">メモを書くくらいの軽さで。</span><span class="typed" data-text="初売りの送料無料バナーを作る">初売りの送料無料バナーを作る</span><i class="caret"></i></div></div>
+    <div class="fld f-desc"><span class="lb">説明</span><div class="editor"><div class="editor__bar"><b>編集</b><span>プレビュー</span><i>B</i><i class="it">I</i><i class="ul">U</i><i>H1</i><i>H2</i><i>≡</i></div><div class="editor__ta"><span class="typed2" data-text="1月2日の朝に出します。サイズはトップページのバナーと同じです。">1月2日の朝に出します。サイズはトップページのバナーと同じです。</span></div></div></div>
+    <div class="attrs">
+      <div class="fld"><span class="lb">ステータス <u>*</u></span><span class="sel"><i class="dot s1"></i>未対応<i class="chev d"></i></span></div>
+      <div class="fld"><span class="lb">優先度 <u>*</u></span><span class="sel">通常<i class="chev d"></i></span></div>
+      <div class="fld f-who"><span class="lb">担当者 <span class="a">私が担当</span></span><span class="sel who"><span class="who__v"><b class="av a-h">樋</b>樋口 真央</span><span class="who__e">未設定</span><i class="chev d"></i></span></div>
+      <div class="fld f-due"><span class="lb">期限日</span><span class="sel due"><span class="due__v">2026/12/28</span><span class="due__e">年/月/日</span></span></div>
+    </div>
+    <div class="form__foot"><span class="btn pri go">作成</span><span class="btn">連続作成</span><span class="a">キャンセル</span><span class="kbd"><kbd>⌘</kbd>+<kbd>Enter</kbd> で作成</span></div>
+  </div></div>
+  <p class="desk__s">題名を書いて、担当を選ぶ。<br class="sp">頼みごとは、それだけ。</p>
+  <div class="born ui" aria-hidden="true" inert>${born}</div>
+
+  <h2 class="mincho vert desk__h2">ひとこと返すのに、<br>身構えない。</h2>
+  <p class="desk__s2">「ありがとう」が、<br>すぐ言える。</p>
+  <p class="vh">画面の見本。課題 SHOP-21 のコメント欄。その場で開く入力欄から返事を書き、ステータスを処理中に変えている。</p>
+  <div class="threadwrap" aria-hidden="true" inert><div class="thread ui">
+    <div class="thread__head">${tr(2)}<span class="key k2">SHOP-21</span><span class="thread__t">初売りの送料無料バナーを作る</span><span class="stswap"><b class="pill s1">未対応</b><b class="pill s2">処理中</b></span></div>
+    <div class="tmeta"><span>担当者</span>${av('h')}<b>樋口 真央</b><span>期限日</span><b>2026/12/28</b></div>
+    <div class="tdesc"><b>説明</b><p>1月2日の朝に出します。サイズはトップページのバナーと同じです。</p></div>
+    <div class="tabs"><b>履歴</b><span>コメント</span><span>プロパティ更新履歴</span></div>
+    <div class="tl">
+      <div class="cm cm--a"><b class="av a-h md">樋</b><div><p class="cm__m"><b>樋口 真央</b> さんが3分前に更新<i>#1</i></p><p>サイズ、了解です。30日に初稿を出します。</p></div></div>
+      <div class="cm cm--new"><b class="av a-m md">森</b><div><p class="cm__m"><b>森下 由佳</b> さんがたった今更新<i>#2</i></p><p class="cm__d"><b>ステータス:</b> <b class="pill s1 xs">未対応</b> → <b class="pill s2 xs">処理中</b></p><p>ありがとう。助かります。</p></div></div>
+    </div>
+    <div class="composer">
+      <div class="cta"><b class="av a-m md">森</b><span class="cta__i">コメントを追加…</span></div>
+      <div class="panel">
+        <div class="panel__l"><div class="editor"><div class="editor__bar"><b>編集</b><span>プレビュー</span><i>B</i><i class="it">I</i><i class="ul">U</i><i>≡</i></div><div class="editor__ta"><span class="typed3" data-text="ありがとう。助かります。">ありがとう。助かります。</span><i class="caret"></i></div></div></div>
+        <div class="panel__r">
+          <div class="fld"><span class="lb">ステータス <u>*</u></span><span class="sel stsel"><span class="st-a"><i class="dot s1"></i>未対応</span><span class="st-b"><i class="dot s2"></i>処理中</span><i class="chev d"></i></span></div>
+          <div class="fld"><span class="lb">担当者</span><span class="sel">樋口 真央<i class="chev d"></i></span></div>
+        </div>
+        <div class="panel__f"><span class="a">すべての項目を編集</span><span class="btn">閉じる</span><span class="btn pri send">登録</span></div>
+      </div>
+    </div>
+  </div></div>
+ </div>
+</section>
+
+<!-- ============ 3. 午後：いま ============ -->
+<section class="scene now" id="now" data-tone="light" style="--len:5.5">
+ <div class="stage">
+  <i class="flood" aria-hidden="true"></i>
+  <div class="bands" aria-hidden="true">
+    ${STAT.map(([s, n, c, pc]) => `<div class="band b${s}" style="--f:${c}"><i class="band__d"></i><span class="band__n mincho" data-n="${c}">${c}</span><span class="band__l">${n}<em>${pc}%</em></span></div>`).join('')}
+  </div>
+  <h2 class="mincho now__h">順調かどうかは、<br>ひらけばわかる。</h2>
+  <p class="vh">画面の見本。プロジェクトの概要画面。状態の内訳、マイルストーンの進み具合、最近の更新が並ぶ。</p>
+  <div class="homewrap" aria-hidden="true" inert><div class="home ui">
+    <div class="hcard h-act"><div class="u4">最近の更新<span class="a">すべて見る</span></div><p class="day">今日</p>
+      <div class="ev"><b class="av a-h md">樋</b><div><p class="ev__m"><b>樋口 真央</b> さんが課題を更新しました<i>10:05</i></p><p>${tr(2)}<span class="key">SHOP-15</span> 会員登録フォームの入力項目を減らす</p><p class="ev__d"><b class="pill s2 xs">処理中</b> → <b class="pill s3 xs">処理済み</b></p></div></div>
+      <div class="ev"><b class="av a-m md">森</b><div><p class="ev__m"><b>森下 由佳</b> さんが課題を追加しました<i>09:41</i></p><p>${tr(3)}<span class="key">SHOP-16</span> 公開前の確認手順を Wiki にまとめる</p></div></div>
+      <div class="ev"><b class="av a-o md">小</b><div><p class="ev__m"><b>小野寺 剛</b> さんがコメントしました<i>09:18</i></p><p>${tr(2)}<span class="key">SHOP-5</span> 年末年始の休業と発送日のお知らせを掲載する</p></div></div>
+    </div>
+    <div class="hcard h-st"><div class="u4">状態<b class="cnt">20</b><span class="a">すべて見る</span></div><div class="sbar"><i class="s1" style="flex:8"></i><i class="s2" style="flex:7"></i><i class="s3" style="flex:3"></i><i class="s5" style="flex:2"></i></div>
+      ${STAT.map(([s, n, c, pc]) => `<p class="srow"><i class="dot s${s}"></i>${n}<b>${c}</b><em>${pc}%</em></p>`).join('')}</div>
+    <div class="hcard h-ms"><div class="u4">マイルストーン<b class="cnt">2</b><span class="a">すべて見る</span></div>
+      <p class="ms"><b>リニューアル公開</b><span>2026/12/16</span></p><div class="pbar"><i style="--w:.53"></i></div><p class="ms__m"><b>53%</b> ・ 未完了 13 / 完了 2</p>
+      <p class="ms"><b>年明け改善</b><span>2027/01/22</span></p><div class="pbar"><i style="--w:0"></i></div><p class="ms__m"><b>0%</b> ・ 未完了 5 / 完了 0</p></div>
+  </div></div>
+  <p class="mincho now__after">聞いてまわる午後が、なくなる。</p>
+ </div>
+</section>
+
+<!-- ============ 4. 夕方：読む ============ -->
+<section class="scene wiki" id="wiki" data-tone="light" style="--len:4">
+ <div class="stage">
+  <h2 class="mincho vert wiki__h">せっかく書いた<br class="sp"><span class="lat">Wiki</span>が、<br>ちゃんと読まれる。</h2>
+  <p class="wiki__s">見出しも行間も、読みものの組み方で。</p>
+  <p class="vh">画面の見本。Wiki のページ「公開前チェックリスト」に、見出しと表と箇条書きが並んでいる。</p>
+  <div class="sheetwrap" aria-hidden="true" inert><div class="sheet ui">
+    <p class="sheet__c">Wiki</p><div class="u3">公開前チェックリスト</div>
+    <p>12月16日（水）の切り替えまでに確認することをまとめます。担当と期限は下の表のとおりです。</p>
+    <div class="u4">公開までの流れ</div>
+    <table><thead><tr><th>項目</th><th>担当</th><th>期限</th></tr></thead><tbody><tr><td>デザインの最終確認</td><td>樋口</td><td>12/10</td></tr><tr><td>購入までの通し確認</td><td>小野寺</td><td>12/14</td></tr><tr><td>お知らせの文面</td><td>早川</td><td>12/11</td></tr><tr><td>切り替えの判断</td><td>森下</td><td>12/15</td></tr></tbody></table>
+    <div class="u4">当日に見るところ</div>
+    <ul><li>トップページから購入完了まで進める</li><li>注文確認メールが届く</li><li>スマホで購入ボタンが押せる</li></ul>
+    <blockquote>問題が見つかったら、課題を追加して森下に知らせてください。</blockquote>
+  </div></div>
+ </div>
+</section>
+
+<!-- ============ 5. 夜：電車 ============ -->
+<section class="scene train" id="train" data-tone="dark" style="--len:5">
+ <div class="stage">
+  <i class="glass" aria-hidden="true"></i>
+  <h2 class="mincho train__h"><span class="train__a">帰りの電車で、</span><span class="train__b">ひとつ片づく。</span></h2>
+  <p class="train__s">スマホでも、できることは同じです。</p>
+  <p class="vh">画面の見本。スマートフォンで表示したボード。列を横に送っている。</p>
+  <div class="phonewrap" aria-hidden="true" inert><div class="phone ui"><div class="phone__scr">
+    <div class="mtop"><span>${ic('menu')}</span><i class="rlogo"></i><span class="mtop__s">${ic('search')}</span><span class="mtop__sel">通販リニューアル<i class="chev d"></i></span><span class="btn pri mtop__add">${ic('plus')}</span><b class="av a-m lg">森</b></div>
+    <div class="mbody"><div class="mtitle"><div class="u3">ボード</div><span class="btn pri sm">${ic('plus')}新しい課題</span></div>
+      <div class="mcols">${COLS.map(([s, n, c, ids]) => `<div class="col col-${s}"><div class="col__h"><i class="dot s${s}"></i>${n}<b class="cnt">${c}</b></div><div class="col__b">${ids.slice(0, 5).map(id => card(by(id))).join('')}</div></div>`).join('')}</div>
+    </div>
+    <i class="glare" aria-hidden="true"></i>
+  </div><i class="touch" aria-hidden="true"></i></div></div>
+ </div>
+</section>
+
+<!-- ============ 6. 深夜：そのまま ============ -->
+<section class="scene keep" id="keep" data-tone="dark" style="--len:3.6">
+ <div class="stage">
+  <h2 class="mincho keep__h">Redmineは、<br class="sp">そのまま。</h2>
+  <ul class="keep__f">
+    <li>本体のファイルも、データベースも、<br class="sp">書き換えない。</li>
+    <li>外のサーバーを、呼ばない。</li>
+    <li>やめるときは、フォルダを消して<br class="sp">再起動するだけ。</li>
+  </ul>
+  <p class="keep__s">ガントチャートも、カレンダーも、管理画面も。<br class="sp">同じ部品で整えてあります。</p>
+ </div>
+</section>
+
+<!-- ============ 7. あしたの朝 ============ -->
+<section class="scene end" id="install" data-tone="green">
+  <div class="sun" aria-hidden="true"><i></i></div>
+  <div class="end__in">
+    <h2 class="mincho end__h">あしたの朝、<br>ひらいてみてください。</h2>
+    <div class="kit">
+      <h3 class="mincho kit__h">入れるのは、フォルダふたつ。</h3>
+      <ul class="kit__l">
+        <li>${ic('folder')}<code>themes/greenboard</code><i>→</i><span>Redmine の <code>themes/</code></span></li>
+        <li>${ic('folder')}<code>plugins/redmine_greenboard</code><i>→</i><span><code>plugins/</code></span></li>
+      </ul>
+      <p class="kit__p">再起動して、テーマに「Greenboard」を選ぶ。<br class="sp">それで終わりです。</p>
+      <a class="cta-big" href="${REPO}"><span>GitHub で入手する</span><i aria-hidden="true">→</i></a>
+      <p class="kit__n">無料（GPL v2）・Redmine 6.0 以上<span class="pc">・</span><br class="sp">ボードには redmine_issues_panel が必要です</p>
+    </div>
+    <details class="more">
+      <summary>くわしい手順と、Docker で試す方法</summary>
+      <ol class="steps">
+        <li><span><code>themes/greenboard</code> を Redmine の <code>themes/</code> に、<code>plugins/redmine_greenboard</code> を <code>plugins/</code> にコピーします。</span></li>
+        <li><span>ボードを使う場合は、<code>redmine_issues_panel</code> を <code>plugins/</code> に入れます。</span></li>
+        <li><span>Redmine を再起動します（プラグインのマイグレーションは不要です）。</span></li>
+        <li><span>「管理」→「設定」→「表示」→「テーマ」で「Greenboard」を選びます。</span></li>
+      </ol>
+      <p class="more__h">Docker で試す</p>
+      <p class="more__p">入手したフォルダの中で実行します。</p>
+      <div class="term"><pre tabindex="0" role="region" aria-label="Docker で試すコマンド"><code>${DOCKER}</code></pre><button class="term__c" type="button" hidden>コピー</button></div>
+      <p class="more__p"><code>http://localhost:3000</code> を開き、管理者でログインしてテーマを選んでください。</p>
+      <dl class="req">
+        <div><dt>Redmine</dt><dd>6.0 以上（6.1 で確認）</dd></div>
+        <div><dt>ボード</dt><dd><code>redmine_issues_panel</code> が必要です（v1.2.2 で確認）</dd></div>
+        <div><dt>プラグイン</dt><dd>プロジェクトの概要の表示、ダッシュボードのブロック、ことばの言い換え（チケット→課題 など）には、同梱の <code>redmine_greenboard</code> が必要です</dd></div>
+      </dl>
+    </details>
+  </div>
+  <footer class="foot"><p>Greenboard は Redmine の公式テーマではありません。このページの画面は、テーマの配色と寸法で組んだ見本で、課題・人名・日付は架空です。冒頭の暗い一覧は、Redmine 標準の表示を模したものです。</p><p class="foot__l"><a href="${REPO}">GitHub</a><a href="${REPO}/blob/main/LICENSE">ライセンス</a><a class="foot__m" href="?static=1" hidden>動きのないページで見る</a><span>© 2026 nerosui</span></p></footer>
+</section>
+</main>
+<div class="leaves" aria-hidden="true"><i class="leaf leaf--far"></i><i class="leaf leaf--near"></i></div>
+<canvas id="lit" class="fx" aria-hidden="true"></canvas>
+<script src="${JS}" defer></script>
+</body>
+</html>
+`;

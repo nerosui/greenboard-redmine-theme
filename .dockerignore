@@ -4,4 +4,5 @@ docker/.env
 !docker/.env.example
 docs/
 site/
+site-src/
 .github/

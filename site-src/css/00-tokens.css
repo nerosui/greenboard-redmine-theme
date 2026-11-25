@@ -1,0 +1,13 @@
+/* ---------- 1. tokens ---------- */
+:root{
+  --night:#0b1412;--night-2:#12201c;--paper:#f3f0e6;--paper-2:#ebe7da;--ink:#16302a;--ink-2:#4a5d56;--leaf:#1a7f5e;--leaf-deep:#14644b;--mint:#3fae8a;--dawn:#ffe9b8;
+  /* product tokens (src/css/00-tokens.css) */
+  --gb-primary:#3fae8a;--gb-primary-strong:#1a7f5e;--gb-primary-soft:#e8f6f1;--gb-primary-border:#b9e0d2;--gb-bg:#f2f4f3;--gb-surface:#fff;--gb-surface-2:#f7f9f8;--gb-surface-3:#eef1f0;--gb-border:#e0e5e3;--gb-border-strong:#c9d1ce;--gb-text:#2f3a37;--gb-text-2:#55625e;--gb-muted:#74807c;--gb-nav-bg:#2f3e3b;--gb-nav-text:#cfe0da;--gb-nav-active:#3f524e;
+  --st1:#ed8077;--st2:#4488c5;--st3:#5eb5a6;--st5:#a1af2f;--tr1:#e0625b;--tr2:#7fa32b;--tr3:#e09a2f;
+  --gb-shadow:0 1px 2px rgba(20,40,34,.06),0 2px 8px rgba(20,40,34,.05);
+  --ui:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI",Meiryo,system-ui,sans-serif;
+  --min:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+  --pad:clamp(20px,6.4vw,104px);
+  --e-out:cubic-bezier(.16,1,.3,1);--e-io:cubic-bezier(.65,0,.35,1);
+}
+

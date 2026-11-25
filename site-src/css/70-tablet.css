@@ -1,0 +1,48 @@
+/* ---------- 7. tablet (761–1100) and low viewports ---------- */
+@media (min-width:761px) and (max-width:1100px){
+  .motion .cap,.motion .cap--c{left:var(--pad);right:var(--pad);top:80px;bottom:auto;width:auto;display:block;padding:0}
+  .motion .cap__h,.motion .cap--c .cap__h{writing-mode:horizontal-tb;height:auto;font-size:clamp(30px,4.6vw,44px);line-height:1.4;letter-spacing:.06em}
+  .motion .cap__h br{display:none}
+  .motion .cap__p,.motion .cap--c .cap__p{margin-top:4px;font-size:16px}
+  .motion .cap__wash{left:0;width:auto;bottom:auto;height:270px;background:linear-gradient(180deg,rgba(238,243,230,.98) 66%,rgba(238,243,230,0))}
+  .motion .desk__h2,.motion .wiki__h{right:4vw}
+  .motion .train__a{left:6vw}.motion .train__b{right:6vw}
+  .motion .train__s{left:auto;bottom:auto;right:calc(6vw + min(clamp(34px,5.6vw,92px),8.4svh) + 20px);top:calc(27svh + 6px);writing-mode:vertical-rl;font-size:15px;line-height:1.6;letter-spacing:.14em}
+}
+@media (min-width:761px) and (max-width:1100px) and (orientation:portrait){
+  .motion .hero{top:46%;transform:translateY(-100%)}
+  .night .wall--new{margin-left:-1050px}
+  .motion .cap,.motion .cap--c{top:110px}
+  .motion .cap__h,.motion .cap--c .cap__h{font-size:clamp(40px,6vw,60px)}
+  .motion .cap__p,.motion .cap--c .cap__p{font-size:18px}
+  .motion .cap__wash{height:340px}
+  .motion .desk__h2,.motion .wiki__h{writing-mode:horizontal-tb;left:var(--pad);right:auto;top:118px;font-size:clamp(40px,6vw,60px);line-height:1.45;letter-spacing:.06em}
+  .motion .desk__s2,.motion .wiki__s{display:block;position:absolute;left:var(--pad);top:calc(118px + clamp(40px,6vw,60px)*2.9 + 12px);margin:0;font-size:20px}
+  .motion .desk__s2 br{display:none}
+  .motion .wiki__s{color:#33260f;font-size:17px}
+  .motion .homewrap,.motion .home{width:760px}
+  .motion .home{grid-template-columns:minmax(0,1fr) 282px}
+  .motion .train__a{top:20svh}.motion .train__b{top:28svh}
+  .motion .train__s{top:calc(28svh + 6px)}
+}
+/* low: everything that is measured in height gives way a little */
+@media (min-width:761px) and (max-height:640px){
+  .motion .cap{top:76px;bottom:calc(100lvh - 100svh + 62px)}
+  .motion .cap--c{padding-top:80px;padding-bottom:40px}
+  .motion .desk__h2,.motion .wiki__h{top:76px}
+  .motion .desk__s2{top:calc(76px + min(clamp(36px,4.5vw,70px),6.6svh)*10.5 + 10px)}
+  .motion .now__after{bottom:calc(100lvh - 100svh + 26px);font-size:22px}
+  .motion .band__n{font-size:min(18.4vw,30svh)}
+  .motion .band{padding-bottom:calc(100lvh - 100svh + 66px)}
+  .motion .keep__f{margin-top:20px;gap:6px;font-size:18px}.motion .keep__s{margin-top:14px}
+  .motion .keep__h{font-size:min(clamp(44px,7.4vw,132px),16svh)}
+  .motion .train__a{top:14svh}.motion .train__b{top:20svh}
+  .hero__h{font-size:min(clamp(44px,8.6vw,128px),15svh)}
+  .hero__p{margin-top:14px}.hero__s{margin-top:8px;line-height:1.8}
+  .motion .hero{top:49%}
+  .hint{bottom:calc(100lvh - 100svh + 58px)}
+}
+/* no pointer to move the light with */
+@media (hover:none){
+  .hint .pc{display:none}.hint .sp{display:inline}
+}

@@ -1,412 +1,285 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Greenboard｜日本語で組み直した Redmine 6 用テーマ</title>
-  <meta name="description" content="Greenboard は Redmine 6 用の無料テーマです。「チケット」を「課題」と呼び替え、題名は文節の切れ目で折り返します。課題の追加、コメント、ボード、Wiki、スマホ表示まで整えています。GPL v2。">
-  <meta name="color-scheme" content="light">
-  <meta name="theme-color" content="#ffffff">
-  <link rel="canonical" href="https://nerosui.github.io/greenboard-redmine-theme/">
-
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="ja_JP">
-  <meta property="og:site_name" content="Greenboard">
-  <meta property="og:title" content="Greenboard｜日本語で組み直した Redmine">
-  <meta property="og:description" content="「チケット」を「課題」と呼び替え、題名を文節の切れ目で折り返す、Redmine 6 用の無料テーマです。">
-  <meta property="og:url" content="https://nerosui.github.io/greenboard-redmine-theme/">
-  <meta property="og:image" content="https://nerosui.github.io/greenboard-redmine-theme/assets/ogp.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="日本語で組み直した Redmine。「チケット」に二重線を引き、「課題」と書き直した対照表。">
-  <meta name="twitter:card" content="summary_large_image">
-
-  <link rel="icon" href="assets/favicon.ico" sizes="32x32">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap&amp;text=%21%22%23%24%25%26%27%28%29%2A%2B%2C-.%2F0123456789%3A%3B%3C%3D%3E%3F%40ABCDEFGHIJKLMNOPQRSTUVWXYZ%5B%5C%5D%5E_%60abcdefghijklmnopqrstuvwxyz%7B%7C%7D~%C2%A9%E2%80%9C%E2%80%9D%E2%80%A6%E2%86%92%E2%8C%98%E3%80%81%E3%80%82%E3%80%8C%E3%80%8D%E3%81%82%E3%81%84%E3%81%86%E3%81%88%E3%81%8A%E3%81%8B%E3%81%8C%E3%81%8D%E3%81%8E%E3%81%8F%E3%81%91%E3%81%93%E3%81%94%E3%81%95%E3%81%97%E3%81%98%E3%81%99%E3%81%9A%E3%81%9B%E3%81%9D%E3%81%9E%E3%81%9F%E3%81%A0%E3%81%A3%E3%81%A4%E3%81%A6%E3%81%A7%E3%81%A8%E3%81%A9%E3%81%AA%E3%81%AB%E3%81%AE%E3%81%AF%E3%81%B0%E3%81%B3%E3%81%B5%E3%81%B6%E3%81%B8%E3%81%B9%E3%81%BB%E3%81%BE%E3%81%BF%E3%82%80%E3%82%81%E3%82%82%E3%82%84%E3%82%88%E3%82%89%E3%82%8A%E3%82%8B%E3%82%8C%E3%82%8D%E3%82%8F%E3%82%92%E3%82%93%E3%82%A1%E3%82%A2%E3%82%A4%E3%82%A6%E3%82%A7%E3%82%A8%E3%82%A9%E3%82%AA%E3%82%AB%E3%82%AC%E3%82%AD%E3%82%AE%E3%82%AF%E3%82%B0%E3%82%B1%E3%82%B3%E3%82%B4%E3%82%B5%E3%82%B6%E3%82%B7%E3%82%B8%E3%82%B9%E3%82%BB%E3%82%BF%E3%83%80%E3%83%81%E3%83%83%E3%83%86%E3%83%87%E3%83%88%E3%83%89%E3%83%8B%E3%83%8E%E3%83%90%E3%83%92%E3%83%94%E3%83%95%E3%83%96%E3%83%97%E3%83%99%E3%83%9A%E3%83%9B%E3%83%9C%E3%83%9E%E3%83%A0%E3%83%A1%E3%83%A3%E3%83%A5%E3%83%A6%E3%83%A7%E3%83%A9%E3%83%AA%E3%83%AB%E3%83%AC%E3%83%AD%E3%83%B3%E3%83%BB%E3%83%BC%E4%B8%80%E4%B8%8A%E4%B8%8B%E4%B8%8D%E4%B8%A6%E4%B8%AD%E4%BA%86%E4%BA%A4%E4%BA%BA%E4%BB%8A%E4%BB%98%E4%BB%A5%E4%BB%B6%E4%BC%91%E4%BC%9D%E4%BD%8D%E4%BD%93%E4%BD%9C%E4%BD%BF%E5%81%B4%E5%83%8F%E5%84%AA%E5%85%88%E5%85%A5%E5%85%A8%E5%85%AC%E5%85%B7%E5%86%8D%E5%87%A6%E5%87%BA%E5%88%86%E5%88%87%E5%88%97%E5%88%9D%E5%88%A5%E5%88%BB%E5%89%87%E5%89%8D%E5%8A%9B%E5%8A%A0%E5%8A%B9%E5%8B%95%E5%8C%96%E5%8D%B0%E5%8E%B3%E5%8F%96%E5%8F%A5%E5%8F%B3%E5%8F%B7%E5%90%84%E5%90%88%E5%90%8C%E5%90%8D%E5%91%BC%E5%93%81%E5%95%8F%E5%9C%B0%E5%A0%B4%E5%A4%89%E5%A4%96%E5%A4%A7%E5%A7%8B%E5%A7%93%E5%AD%90%E5%AD%97%E5%AE%8C%E5%AE%9A%E5%AF%BE%E5%B1%9E%E5%B1%A5%E5%B7%A6%E5%B7%AE%E5%B9%85%E5%B9%B4%E5%BA%83%E5%BA%A6%E5%BC%8F%E5%BC%95%E5%BD%93%E5%BF%85%E5%BF%9C%E6%80%A7%E6%85%8B%E6%88%90%E6%89%80%E6%89%8B%E6%8A%98%E6%8A%BC%E6%8B%85%E6%8E%B2%E6%8F%90%E6%8F%9B%E6%93%8D%E6%94%B9%E6%95%B0%E6%95%B4%E6%96%87%E6%96%99%E6%96%9C%E6%96%B0%E6%96%B9%E6%97%A5%E6%98%A8%E6%99%82%E6%9B%B4%E6%9B%B8%E6%9B%BF%E6%9C%80%E6%9C%89%E6%9C%9B%E6%9C%9F%E6%9C%AA%E6%9C%AB%E6%9C%AC%E6%9D%A1%E6%9D%A5%E6%9E%9C%E6%9E%A0%E6%9E%B6%E6%A1%81%E6%A2%B1%E6%A5%AD%E6%A6%82%E6%A8%99%E6%AC%84%E6%AC%A1%E6%AD%A2%E6%AD%B4%E6%AE%8B%E6%AF%8E%E6%AF%94%E6%B1%BA%E6%B8%88%E6%B8%9B%E6%BA%96%E7%82%B9%E7%84%A1%E7%85%A7%E7%89%A9%E7%8A%B6%E7%8F%BE%E7%90%86%E7%94%A8%E7%94%BB%E7%95%AA%E7%99%BA%E7%99%BD%E7%9B%AE%E7%9B%B4%E7%9F%A2%E7%9F%A5%E7%A2%BA%E7%A4%BA%E7%A6%81%E7%A7%BB%E7%A9%BA%E7%AB%8B%E7%AB%AF%E7%AE%A1%E7%AF%80%E7%B4%A0%E7%B4%B0%E7%B5%82%E7%B5%84%E7%B5%9E%E7%B7%91%E7%B7%A0%E7%B7%A8%E7%B8%A6%E7%BD%AE%E7%BF%BB%E8%80%85%E8%81%B7%E8%87%AA%E8%89%B2%E8%A1%8C%E8%A1%A8%E8%A3%81%E8%A3%9C%E8%A6%81%E8%A6%8B%E8%A6%8F%E8%A6%96%E8%A6%A7%E8%A7%92%E8%A8%80%E8%A8%AD%E8%A8%B3%E8%A9%A6%E8%A9%B3%E8%AA%8D%E8%AA%9E%E8%AA%AD%E8%AA%B2%E8%AD%98%E8%B1%A1%E8%B3%AA%E8%B3%BC%E8%B5%A4%E8%B5%B7%E8%B6%B3%E8%BC%89%E8%BE%BC%E8%BF%91%E8%BF%94%E8%BF%BD%E9%80%81%E9%80%94%E9%80%A3%E9%80%B2%E9%81%8E%E9%81%95%E9%81%B8%E9%83%A8%E9%87%91%E9%95%B7%E9%96%8B%E9%96%93%E9%96%A2%E9%99%90%E9%9B%86%E9%9D%A2%E9%A0%85%E9%A0%86%E9%A0%88%E9%A0%AD%E9%A1%8C%EF%BC%88%EF%BC%89">
-  <link rel="stylesheet" href="styles.css">
-  <script src="script.js" defer></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>おはよう、Redmine。｜Greenboard</title>
+<meta name="description" content="散らかっていたのは、仕事じゃなくて画面でした。夜明け前から次の朝まで、一日の光の中で見る Redmine のテーマ「Greenboard」。無料、GPL v2。">
+<meta name="theme-color" content="#0b1412">
+<meta name="color-scheme" content="light">
+<link rel="canonical" href="https://nerosui.github.io/greenboard-redmine-theme/">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:site_name" content="Greenboard">
+<meta property="og:title" content="おはよう、Redmine。｜Greenboard">
+<meta property="og:description" content="散らかっていたのは、仕事じゃなくて画面でした。夜明け前から次の朝まで、一日の光の中で見る Redmine のテーマ「Greenboard」。無料、GPL v2。">
+<meta property="og:url" content="https://nerosui.github.io/greenboard-redmine-theme/">
+<meta property="og:image" content="https://nerosui.github.io/greenboard-redmine-theme/assets/img/ogp.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="夜の画面に並ぶ課題の一覧を、まるい光が照らしている。「おはよう、Redmine。」">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="assets/fonts/shippori-mincho-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/site.css?d5b34634">
+<script>(d=>{d.classList.add('js');var m=q=>matchMedia(q).matches;if(!m('(prefers-reduced-motion: reduce)')&&m('(min-width: 18.75em) and (min-height: 30em)')&&!/[?&]static=1/.test(location.search)){d.classList.add('motion');try{if(sessionStorage.getItem('gb-motion')==='off')d.classList.add('stopped')}catch(e){}}})(document.documentElement)</script>
 </head>
-<body id="top">
-<a class="skip" href="#main">本文へ移動</a>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M5 6h.01M5 12h.01M5 18h.01"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3.5l7.5 4.2v8.6L12 20.5l-7.5-4.2V7.7zM4.5 7.7l7.5 4.3 7.5-4.3M12 12v8.5"/></symbol>
+<symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4.5h14v10l-5 5H5zM14 19.5v-5h5"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><path d="M16.75 14v6M13.75 17h6"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19.5h16M6.5 19.5v-7H10v7M10 19.5V5.5h4v14M14 19.5v-10h3.5v10"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><rect x="4.5" y="5.5" width="15" height="14" rx="2"/><path d="M4.5 10h15M8.5 3.5v4M15.5 3.5v4"/></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24"><path d="M6.5 3.5h8L18 7v13.5H6.5zM14 3.5v4h4M9.5 12h5M9.5 16h5"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M6 4h12v16H6zM9 4v16M12 8.5h3M12 12h3"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 7a2 2 0 012-2h4l2 2.5h7a2 2 0 012 2V17a2 2 0 01-2 2h-13a2 2 0 01-2-2z"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3.5l1.6 2.3 2.7-.6.6 2.7 2.3 1.6-1.4 2.5 1.4 2.5-2.3 1.6-.6 2.7-2.7-.6L12 20.5l-1.6-2.3-2.7.6-.6-2.7-2.3-1.6L6.2 12 4.8 9.5l2.3-1.6.6-2.7 2.7.6z"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+</defs></svg>
 
-<header class="site-header wrap">
-  <a class="wordmark" href="#top" aria-label="Greenboard トップへ"><img src="assets/favicon.svg" width="22" height="22" alt="">Greenboard</a>
-  <nav>
-    <ul class="nav">
-      <li class="nav-anchor"><a href="#words">ことば</a></li>
-      <li class="nav-anchor"><a href="#type">文字組み</a></li>
-      <li class="nav-anchor"><a href="#screens">画面</a></li>
-      <li class="nav-anchor"><a href="#phone">スマホ</a></li>
-      <li class="nav-anchor"><a href="#install">入れ方</a></li>
-      <li><a href="https://github.com/nerosui/greenboard-redmine-theme" rel="noopener">GitHub<svg class="arrow" viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><path d="M1.5 8.5 8.5 1.5M3 1.5h5.5V7" fill="none" stroke="currentColor" stroke-width="1.25"/></svg></a></li>
-    </ul>
-  </nav>
+<a class="skip" href="#install">導入方法へ移動</a>
+<canvas id="sky" class="fx" aria-hidden="true"></canvas>
+<header class="hdr" data-tone="dark">
+  <a class="hdr__brand" href="#top"><i class="mark" aria-hidden="true"></i><span>Greenboard</span></a>
+  <a class="hdr__cta" href="https://github.com/nerosui/greenboard-redmine-theme">GitHub で入手</a>
 </header>
+<div class="tools">
+  <span class="clock" aria-hidden="true"><i></i><b>05:12</b></span>
+  <button class="still" type="button" aria-pressed="false" title="動きを止める" hidden><span class="vh">動きを止める</span><i aria-hidden="true"></i></button>
+</div>
 
-<main id="main" tabindex="-1">
+<main id="top" tabindex="-1">
 
-  <section class="hero wrap">
-    <div class="hero-head grid">
-      <h1><span class="nb">日本語で</span><span class="nb">組み直した</span><br><span class="nb">Redmine</span></h1>
-      <div class="hero-side">
-        <p class="lead">Greenboard は Redmine 6 用の無料<span class="nb">テーマです。</span><span class="nb">「チケット」を</span><span class="nb">「課題」と</span>呼び替え、題名は文節の切れ目で折り返します。エンジニアでない人も毎日開く画面として作りました。</p>
-        <p class="actions">
-          <a class="btn" href="https://github.com/nerosui/greenboard-redmine-theme" rel="noopener">GitHub で入手する</a>
-          <a class="link" href="#install">入れ方を見る</a>
-        </p>
-        <ul class="facts">
-          <li>Redmine 6.0以上</li>
-          <li>GPL v2</li>
-          <li>無料</li>
-        </ul>
-      </div>
+<!-- ============ 1. 夜 → 朝：一覧がボードになる ============ -->
+<section class="scene open" id="open" data-tone="dark" style="--len:9.5">
+ <div class="stage">
+  <div class="night">
+    <div class="wall wall--old" aria-hidden="true"><div class="wall__in old"><div class="wcol" data-k="0"><noscript><div class="orow oh"><i class="ocb"></i><span>#</span><span>トラッカー</span><span>ステータス</span><span>優先度</span><span>題名</span><span>担当者</span><span>更新日</span></div><div class="orow"><i class="ocb"></i><b>20</b><span>サポート</span><span>未対応</span><span>通常</span><b>初売りセールの告知ページを用意する</b><b>樋口 真央</b><span>2026/12/04 10:12</span></div><div class="orow"><i class="ocb"></i><b>19</b><span>機能</span><span>完了</span><span>高め</span><b>配送日時の指定を注文画面に追加する</b><b>小野寺 剛</b><span>2026/11/24 16:40</span></div><div class="orow"><i class="ocb"></i><b>18</b><span>バグ</span><span>未対応</span><span>通常</span><b>商品名が長いと一覧の行が崩れる</b><b>樋口 真央</b><span>2026/12/05 09:31</span></div><div class="orow"><i class="ocb"></i><b>17</b><span>機能</span><span>未対応</span><span>低め</span><b>購入履歴からもう一度注文できるようにする</b><b></b><span>2026/12/03 11:02</span></div><div class="orow"><i class="ocb"></i><b>16</b><span>サポート</span><span>処理中</span><span>通常</span><b>公開前の確認手順を Wiki にまとめる</b><b>森下 由佳</b><span>2026/12/08 09:41</span></div><div class="orow"><i class="ocb"></i><b>15</b><span>機能</span><span>処理済み</span><span>通常</span><b>会員登録フォームの入力項目を減らす</b><b>樋口 真央</b><span>2026/12/08 10:05</span></div><div class="orow"><i class="ocb"></i><b>14</b><span>バグ</span><span>処理中</span><span>急いで</span><b>クーポンを2枚使うと合計金額がずれる</b><b>小野寺 剛</b><span>2026/12/07 17:20</span></div><div class="orow"><i class="ocb"></i><b>13</b><span>機能</span><span>未対応</span><span>通常</span><b>商品一覧を在庫の有無で絞り込めるようにする</b><b>小野寺 剛</b><span>2026/12/03 13:15</span></div><div class="orow"><i class="ocb"></i><b>12</b><span>サポート</span><span>処理中</span><span>通常</span><b>よくある質問に返品・交換の手順を追加する</b><b>早川 蓮</b><span>2026/12/04 15:48</span></div><div class="orow"><i class="ocb"></i><b>11</b><span>機能</span><span>未対応</span><span>通常</span><b>お気に入りのボタンを商品一覧にも置く</b><b></b><span>2026/12/03 13:20</span></div><div class="orow"><i class="ocb"></i><b>10</b><span>バグ</span><span>完了</span><span>通常</span><b>検索結果の並び順が「新着順」にならない</b><b>小野寺 剛</b><span>2026/11/25 10:07</span></div><div class="orow"><i class="ocb"></i><b>9</b><span>サポート</span><span>未対応</span><span>通常</span><b>注文確認メールの文面を見直す</b><b>早川 蓮</b><span>2026/12/04 18:02</span></div><div class="orow"><i class="ocb"></i><b>8</b><span>機能</span><span>処理中</span><span>通常</span><b>のしとギフト包装を注文時に選べるようにする</b><b>小野寺 剛</b><span>2026/12/02 14:26</span></div><div class="orow"><i class="ocb"></i><b>7</b><span>機能</span><span>処理済み</span><span>通常</span><b>トップページのバナーを冬の特集に切り替える</b><b>樋口 真央</b><span>2026/11/27 11:39</span></div><div class="orow"><i class="ocb"></i><b>6</b><span>バグ</span><span>未対応</span><span>高め</span><b>郵便番号から住所が自動入力されない</b><b>小野寺 剛</b><span>2026/12/08 08:55</span></div><div class="orow"><i class="ocb"></i><b>5</b><span>機能</span><span>処理中</span><span>高め</span><b>年末年始の休業と発送日のお知らせを掲載する</b><b>早川 蓮</b><span>2026/12/08 09:18</span></div><div class="orow"><i class="ocb"></i><b>4</b><span>サポート</span><span>処理済み</span><span>通常</span><b>送料の案内文を新しい料金表に合わせる</b><b>早川 蓮</b><span>2026/12/01 16:11</span></div><div class="orow"><i class="ocb"></i><b>3</b><span>バグ</span><span>処理中</span><span>急いで</span><b>スマホで購入ボタンが画面の外にはみ出す</b><b>小野寺 剛</b><span>2026/12/04 12:30</span></div><div class="orow"><i class="ocb"></i><b>2</b><span>機能</span><span>未対応</span><span>低め</span><b>カートに「あとで買う」を追加する</b><b>小野寺 剛</b><span>2026/11/30 09:50</span></div><div class="orow"><i class="ocb"></i><b>1</b><span>機能</span><span>処理中</span><span>通常</span><b>商品ページの写真を新しい撮影分に差し替える</b><b>樋口 真央</b><span>2026/11/30 10:44</span></div><div class="orow oh"><i class="ocb"></i><span>#</span><span>トラッカー</span><span>ステータス</span><span>優先度</span><span>題名</span><span>担当者</span><span>更新日</span></div><div class="orow"><i class="ocb"></i><b>20</b><span>サポート</span><span>未対応</span><span>通常</span><b>初売りセールの告知ページを用意する</b><b>樋口 真央</b><span>2026/12/04 10:12</span></div><div class="orow"><i class="ocb"></i><b>19</b><span>機能</span><span>完了</span><span>高め</span><b>配送日時の指定を注文画面に追加する</b><b>小野寺 剛</b><span>2026/11/24 16:40</span></div><div class="orow"><i class="ocb"></i><b>18</b><span>バグ</span><span>未対応</span><span>通常</span><b>商品名が長いと一覧の行が崩れる</b><b>樋口 真央</b><span>2026/12/05 09:31</span></div><div class="orow"><i class="ocb"></i><b>17</b><span>機能</span><span>未対応</span><span>低め</span><b>購入履歴からもう一度注文できるようにする</b><b></b><span>2026/12/03 11:02</span></div><div class="orow"><i class="ocb"></i><b>16</b><span>サポート</span><span>処理中</span><span>通常</span><b>公開前の確認手順を Wiki にまとめる</b><b>森下 由佳</b><span>2026/12/08 09:41</span></div><div class="orow"><i class="ocb"></i><b>15</b><span>機能</span><span>処理済み</span><span>通常</span><b>会員登録フォームの入力項目を減らす</b><b>樋口 真央</b><span>2026/12/08 10:05</span></div><div class="orow"><i class="ocb"></i><b>14</b><span>バグ</span><span>処理中</span><span>急いで</span><b>クーポンを2枚使うと合計金額がずれる</b><b>小野寺 剛</b><span>2026/12/07 17:20</span></div><div class="orow"><i class="ocb"></i><b>13</b><span>機能</span><span>未対応</span><span>通常</span><b>商品一覧を在庫の有無で絞り込めるようにする</b><b>小野寺 剛</b><span>2026/12/03 13:15</span></div><div class="orow"><i class="ocb"></i><b>12</b><span>サポート</span><span>処理中</span><span>通常</span><b>よくある質問に返品・交換の手順を追加する</b><b>早川 蓮</b><span>2026/12/04 15:48</span></div><div class="orow"><i class="ocb"></i><b>11</b><span>機能</span><span>未対応</span><span>通常</span><b>お気に入りのボタンを商品一覧にも置く</b><b></b><span>2026/12/03 13:20</span></div><div class="orow"><i class="ocb"></i><b>10</b><span>バグ</span><span>完了</span><span>通常</span><b>検索結果の並び順が「新着順」にならない</b><b>小野寺 剛</b><span>2026/11/25 10:07</span></div><div class="orow"><i class="ocb"></i><b>9</b><span>サポート</span><span>未対応</span><span>通常</span><b>注文確認メールの文面を見直す</b><b>早川 蓮</b><span>2026/12/04 18:02</span></div><div class="orow"><i class="ocb"></i><b>8</b><span>機能</span><span>処理中</span><span>通常</span><b>のしとギフト包装を注文時に選べるようにする</b><b>小野寺 剛</b><span>2026/12/02 14:26</span></div><div class="orow"><i class="ocb"></i><b>7</b><span>機能</span><span>処理済み</span><span>通常</span><b>トップページのバナーを冬の特集に切り替える</b><b>樋口 真央</b><span>2026/11/27 11:39</span></div><div class="orow"><i class="ocb"></i><b>6</b><span>バグ</span><span>未対応</span><span>高め</span><b>郵便番号から住所が自動入力されない</b><b>小野寺 剛</b><span>2026/12/08 08:55</span></div><div class="orow"><i class="ocb"></i><b>5</b><span>機能</span><span>処理中</span><span>高め</span><b>年末年始の休業と発送日のお知らせを掲載する</b><b>早川 蓮</b><span>2026/12/08 09:18</span></div><div class="orow"><i class="ocb"></i><b>4</b><span>サポート</span><span>処理済み</span><span>通常</span><b>送料の案内文を新しい料金表に合わせる</b><b>早川 蓮</b><span>2026/12/01 16:11</span></div><div class="orow"><i class="ocb"></i><b>3</b><span>バグ</span><span>処理中</span><span>急いで</span><b>スマホで購入ボタンが画面の外にはみ出す</b><b>小野寺 剛</b><span>2026/12/04 12:30</span></div><div class="orow"><i class="ocb"></i><b>2</b><span>機能</span><span>未対応</span><span>低め</span><b>カートに「あとで買う」を追加する</b><b>小野寺 剛</b><span>2026/11/30 09:50</span></div><div class="orow"><i class="ocb"></i><b>1</b><span>機能</span><span>処理中</span><span>通常</span><b>商品ページの写真を新しい撮影分に差し替える</b><b>樋口 真央</b><span>2026/11/30 10:44</span></div><div class="orow oh"><i class="ocb"></i><span>#</span><span>トラッカー</span><span>ステータス</span><span>優先度</span><span>題名</span><span>担当者</span><span>更新日</span></div><div class="orow"><i class="ocb"></i><b>20</b><span>サポート</span><span>未対応</span><span>通常</span><b>初売りセールの告知ページを用意する</b><b>樋口 真央</b><span>2026/12/04 10:12</span></div><div class="orow"><i class="ocb"></i><b>19</b><span>機能</span><span>完了</span><span>高め</span><b>配送日時の指定を注文画面に追加する</b><b>小野寺 剛</b><span>2026/11/24 16:40</span></div><div class="orow"><i class="ocb"></i><b>18</b><span>バグ</span><span>未対応</span><span>通常</span><b>商品名が長いと一覧の行が崩れる</b><b>樋口 真央</b><span>2026/12/05 09:31</span></div><div class="orow"><i class="ocb"></i><b>17</b><span>機能</span><span>未対応</span><span>低め</span><b>購入履歴からもう一度注文できるようにする</b><b></b><span>2026/12/03 11:02</span></div><div class="orow"><i class="ocb"></i><b>16</b><span>サポート</span><span>処理中</span><span>通常</span><b>公開前の確認手順を Wiki にまとめる</b><b>森下 由佳</b><span>2026/12/08 09:41</span></div><div class="orow"><i class="ocb"></i><b>15</b><span>機能</span><span>処理済み</span><span>通常</span><b>会員登録フォームの入力項目を減らす</b><b>樋口 真央</b><span>2026/12/08 10:05</span></div><div class="orow"><i class="ocb"></i><b>14</b><span>バグ</span><span>処理中</span><span>急いで</span><b>クーポンを2枚使うと合計金額がずれる</b><b>小野寺 剛</b><span>2026/12/07 17:20</span></div><div class="orow"><i class="ocb"></i><b>13</b><span>機能</span><span>未対応</span><span>通常</span><b>商品一覧を在庫の有無で絞り込めるようにする</b><b>小野寺 剛</b><span>2026/12/03 13:15</span></div><div class="orow"><i class="ocb"></i><b>12</b><span>サポート</span><span>処理中</span><span>通常</span><b>よくある質問に返品・交換の手順を追加する</b><b>早川 蓮</b><span>2026/12/04 15:48</span></div><div class="orow"><i class="ocb"></i><b>11</b><span>機能</span><span>未対応</span><span>通常</span><b>お気に入りのボタンを商品一覧にも置く</b><b></b><span>2026/12/03 13:20</span></div><div class="orow"><i class="ocb"></i><b>10</b><span>バグ</span><span>完了</span><span>通常</span><b>検索結果の並び順が「新着順」にならない</b><b>小野寺 剛</b><span>2026/11/25 10:07</span></div><div class="orow"><i class="ocb"></i><b>9</b><span>サポート</span><span>未対応</span><span>通常</span><b>注文確認メールの文面を見直す</b><b>早川 蓮</b><span>2026/12/04 18:02</span></div><div class="orow"><i class="ocb"></i><b>8</b><span>機能</span><span>処理中</span><span>通常</span><b>のしとギフト包装を注文時に選べるようにする</b><b>小野寺 剛</b><span>2026/12/02 14:26</span></div><div class="orow"><i class="ocb"></i><b>7</b><span>機能</span><span>処理済み</span><span>通常</span><b>トップページのバナーを冬の特集に切り替える</b><b>樋口 真央</b><span>2026/11/27 11:39</span></div><div class="orow"><i class="ocb"></i><b>6</b><span>バグ</span><span>未対応</span><span>高め</span><b>郵便番号から住所が自動入力されない</b><b>小野寺 剛</b><span>2026/12/08 08:55</span></div><div class="orow"><i class="ocb"></i><b>5</b><span>機能</span><span>処理中</span><span>高め</span><b>年末年始の休業と発送日のお知らせを掲載する</b><b>早川 蓮</b><span>2026/12/08 09:18</span></div><div class="orow"><i class="ocb"></i><b>4</b><span>サポート</span><span>処理済み</span><span>通常</span><b>送料の案内文を新しい料金表に合わせる</b><b>早川 蓮</b><span>2026/12/01 16:11</span></div><div class="orow"><i class="ocb"></i><b>3</b><span>バグ</span><span>処理中</span><span>急いで</span><b>スマホで購入ボタンが画面の外にはみ出す</b><b>小野寺 剛</b><span>2026/12/04 12:30</span></div><div class="orow"><i class="ocb"></i><b>2</b><span>機能</span><span>未対応</span><span>低め</span><b>カートに「あとで買う」を追加する</b><b>小野寺 剛</b><span>2026/11/30 09:50</span></div><div class="orow"><i class="ocb"></i><b>1</b><span>機能</span><span>処理中</span><span>通常</span><b>商品ページの写真を新しい撮影分に差し替える</b><b>樋口 真央</b><span>2026/11/30 10:44</span></div></noscript></div><div class="wcol" data-k="7"><noscript><div class="orow oh"><i class="ocb"></i><span>#</span><span>トラッカー</span><span>ステータス</span><span>優先度</span><span>題名</span><span>担当者</span><span>更新日</span></div><div class="orow"><i class="ocb"></i><b>13</b><span>機能</span><span>未対応</span><span>通常</span><b>商品一覧を在庫の有無で絞り込めるようにする</b><b>小野寺 剛</b><span>2026/12/03 13:15</span></div><div class="orow"><i class="ocb"></i><b>12</b><span>サポート</span><span>処理中</span><span>通常</span><b>よくある質問に返品・交換の手順を追加する</b><b>早川 蓮</b><span>2026/12/04 15:48</span></div><div class="orow"><i class="ocb"></i><b>11</b><span>機能</span><span>未対応</span><span>通常</span><b>お気に入りのボタンを商品一覧にも置く</b><b></b><span>2026/12/03 13:20</span></div><div class="orow"><i class="ocb"></i><b>10</b><span>バグ</span><span>完了</span><span>通常</span><b>検索結果の並び順が「新着順」にならない</b><b>小野寺 剛</b><span>2026/11/25 10:07</span></div><div class="orow"><i class="ocb"></i><b>9</b><span>サポート</span><span>未対応</span><span>通常</span><b>注文確認メールの文面を見直す</b><b>早川 蓮</b><span>2026/12/04 18:02</span></div><div class="orow"><i class="ocb"></i><b>8</b><span>機能</span><span>処理中</span><span>通常</span><b>のしとギフト包装を注文時に選べるようにする</b><b>小野寺 剛</b><span>2026/12/02 14:26</span></div><div class="orow"><i class="ocb"></i><b>7</b><span>機能</span><span>処理済み</span><span>通常</span><b>トップページのバナーを冬の特集に切り替える</b><b>樋口 真央</b><span>2026/11/27 11:39</span></div><div class="orow"><i class="ocb"></i><b>6</b><span>バグ</span><span>未対応</span><span>高め</span><b>郵便番号から住所が自動入力されない</b><b>小野寺 剛</b><span>2026/12/08 08:55</span></div><div class="orow"><i class="ocb"></i><b>5</b><span>機能</span><span>処理中</span><span>高め</span><b>年末年始の休業と発送日のお知らせを掲載する</b><b>早川 蓮</b><span>2026/12/08 09:18</span></div><div class="orow"><i class="ocb"></i><b>4</b><span>サポート</span><span>処理済み</span><span>通常</span><b>送料の案内文を新しい料金表に合わせる</b><b>早川 蓮</b><span>2026/12/01 16:11</span></div><div class="orow"><i class="ocb"></i><b>3</b><span>バグ</span><span>処理中</span><span>急いで</span><b>スマホで購入ボタンが画面の外にはみ出す</b><b>小野寺 剛</b><span>2026/12/04 12:30</span></div><div class="orow"><i class="ocb"></i><b>2</b><span>機能</span><span>未対応</span><span>低め</span><b>カートに「あとで買う」を追加する</b><b>小野寺 剛</b><span>2026/11/30 09:50</span></div><div class="orow"><i class="ocb"></i><b>1</b><span>機能</span><span>処理中</span><span>通常</span><b>商品ページの写真を新しい撮影分に差し替える</b><b>樋口 真央</b><span>2026/11/30 10:44</span></div><div class="orow"><i class="ocb"></i><b>20</b><span>サポート</span><span>未対応</span><span>通常</span><b>初売りセールの告知ページを用意する</b><b>樋口 真央</b><span>2026/12/04 10:12</span></div><div class="orow"><i class="ocb"></i><b>19</b><span>機能</span><span>完了</span><span>高め</span><b>配送日時の指定を注文画面に追加する</b><b>小野寺 剛</b><span>2026/11/24 16:40</span></div><div class="orow"><i class="ocb"></i><b>18</b><span>バグ</span><span>未対応</span><span>通常</span><b>商品名が長いと一覧の行が崩れる</b><b>樋口 真央</b><span>2026/12/05 09:31</span></div><div class="orow"><i class="ocb"></i><b>17</b><span>機能</span><span>未対応</span><span>低め</span><b>購入履歴からもう一度注文できるようにする</b><b></b><span>2026/12/03 11:02</span></div><div class="orow"><i class="ocb"></i><b>16</b><span>サポート</span><span>処理中</span><span>通常</span><b>公開前の確認手順を Wiki にまとめる</b><b>森下 由佳</b><span>2026/12/08 09:41</span></div><div class="orow"><i class="ocb"></i><b>15</b><span>機能</span><span>処理済み</span><span>通常</span><b>会員登録フォームの入力項目を減らす</b><b>樋口 真央</b><span>2026/12/08 10:05</span></div><div class="orow"><i class="ocb"></i><b>14</b><span>バグ</span><span>処理中</span><span>急いで</span><b>クーポンを2枚使うと合計金額がずれる</b><b>小野寺 剛</b><span>2026/12/07 17:20</span></div><div class="orow oh"><i class="ocb"></i><span>#</span><span>トラッカー</span><span>ステータス</span><span>優先度</span><span>題名</span><span>担当者</span><span>更新日</span></div><div class="orow"><i class="ocb"></i><b>13</b><span>機能</span><span>未対応</span><span>通常</span><b>商品一覧を在庫の有無で絞り込めるようにする</b><b>小野寺 剛</b><span>2026/12/03 13:15</span></div><div class="orow"><i class="ocb"></i><b>12</b><span>サポート</span><span>処理中</span><span>通常</span><b>よくある質問に返品・交換の手順を追加する</b><b>早川 蓮</b><span>2026/12/04 15:48</span></div><div class="orow"><i class="ocb"></i><b>11</b><span>機能</span><span>未対応</span><span>通常</span><b>お気に入りのボタンを商品一覧にも置く</b><b></b><span>2026/12/03 13:20</span></div><div class="orow"><i class="ocb"></i><b>10</b><span>バグ</span><span>完了</span><span>通常</span><b>検索結果の並び順が「新着順」にならない</b><b>小野寺 剛</b><span>2026/11/25 10:07</span></div><div class="orow"><i class="ocb"></i><b>9</b><span>サポート</span><span>未対応</span><span>通常</span><b>注文確認メールの文面を見直す</b><b>早川 蓮</b><span>2026/12/04 18:02</span></div><div class="orow"><i class="ocb"></i><b>8</b><span>機能</span><span>処理中</span><span>通常</span><b>のしとギフト包装を注文時に選べるようにする</b><b>小野寺 剛</b><span>2026/12/02 14:26</span></div><div class="orow"><i class="ocb"></i><b>7</b><span>機能</span><span>処理済み</span><span>通常</span><b>トップページのバナーを冬の特集に切り替える</b><b>樋口 真央</b><span>2026/11/27 11:39</span></div><div class="orow"><i class="ocb"></i><b>6</b><span>バグ</span><span>未対応</span><span>高め</span><b>郵便番号から住所が自動入力されない</b><b>小野寺 剛</b><span>2026/12/08 08:55</span></div><div class="orow"><i class="ocb"></i><b>5</b><span>機能</span><span>処理中</span><span>高め</span><b>年末年始の休業と発送日のお知らせを掲載する</b><b>早川 蓮</b><span>2026/12/08 09:18</span></div><div class="orow"><i class="ocb"></i><b>4</b><span>サポート</span><span>処理済み</span><span>通常</span><b>送料の案内文を新しい料金表に合わせる</b><b>早川 蓮</b><span>2026/12/01 16:11</span></div><div class="orow"><i class="ocb"></i><b>3</b><span>バグ</span><span>処理中</span><span>急いで</span><b>スマホで購入ボタンが画面の外にはみ出す</b><b>小野寺 剛</b><span>2026/12/04 12:30</span></div><div class="orow"><i class="ocb"></i><b>2</b><span>機能</span><span>未対応</span><span>低め</span><b>カートに「あとで買う」を追加する</b><b>小野寺 剛</b><span>2026/11/30 09:50</span></div><div class="orow"><i class="ocb"></i><b>1</b><span>機能</span><span>処理中</span><span>通常</span><b>商品ページの写真を新しい撮影分に差し替える</b><b>樋口 真央</b><span>2026/11/30 10:44</span></div><div class="orow"><i class="ocb"></i><b>20</b><span>サポート</span><span>未対応</span><span>通常</span><b>初売りセールの告知ページを用意する</b><b>樋口 真央</b><span>2026/12/04 10:12</span></div><div class="orow"><i class="ocb"></i><b>19</b><span>機能</span><span>完了</span><span>高め</span><b>配送日時の指定を注文画面に追加する</b><b>小野寺 剛</b><span>2026/11/24 16:40</span></div><div class="orow"><i class="ocb"></i><b>18</b><span>バグ</span><span>未対応</span><span>通常</span><b>商品名が長いと一覧の行が崩れる</b><b>樋口 真央</b><span>2026/12/05 09:31</span></div><div class="orow"><i class="ocb"></i><b>17</b><span>機能</span><span>未対応</span><span>低め</span><b>購入履歴からもう一度注文できるようにする</b><b></b><span>2026/12/03 11:02</span></div><div class="orow"><i class="ocb"></i><b>16</b><span>サポート</span><span>処理中</span><span>通常</span><b>公開前の確認手順を Wiki にまとめる</b><b>森下 由佳</b><span>2026/12/08 09:41</span></div><div class="orow"><i class="ocb"></i><b>15</b><span>機能</span><span>処理済み</span><span>通常</span><b>会員登録フォームの入力項目を減らす</b><b>樋口 真央</b><span>2026/12/08 10:05</span></div><div class="orow"><i class="ocb"></i><b>14</b><span>バグ</span><span>処理中</span><span>急いで</span><b>クーポンを2枚使うと合計金額がずれる</b><b>小野寺 剛</b><span>2026/12/07 17:20</span></div><div class="orow oh"><i class="ocb"></i><span>#</span><span>トラッカー</span><span>ステータス</span><span>優先度</span><span>題名</span><span>担当者</span><span>更新日</span></div><div class="orow"><i class="ocb"></i><b>13</b><span>機能</span><span>未対応</span><span>通常</span><b>商品一覧を在庫の有無で絞り込めるようにする</b><b>小野寺 剛</b><span>2026/12/03 13:15</span></div><div class="orow"><i class="ocb"></i><b>12</b><span>サポート</span><span>処理中</span><span>通常</span><b>よくある質問に返品・交換の手順を追加する</b><b>早川 蓮</b><span>2026/12/04 15:48</span></div><div class="orow"><i class="ocb"></i><b>11</b><span>機能</span><span>未対応</span><span>通常</span><b>お気に入りのボタンを商品一覧にも置く</b><b></b><span>2026/12/03 13:20</span></div><div class="orow"><i class="ocb"></i><b>10</b><span>バグ</span><span>完了</span><span>通常</span><b>検索結果の並び順が「新着順」にならない</b><b>小野寺 剛</b><span>2026/11/25 10:07</span></div><div class="orow"><i class="ocb"></i><b>9</b><span>サポート</span><span>未対応</span><span>通常</span><b>注文確認メールの文面を見直す</b><b>早川 蓮</b><span>2026/12/04 18:02</span></div><div class="orow"><i class="ocb"></i><b>8</b><span>機能</span><span>処理中</span><span>通常</span><b>のしとギフト包装を注文時に選べるようにする</b><b>小野寺 剛</b><span>2026/12/02 14:26</span></div><div class="orow"><i class="ocb"></i><b>7</b><span>機能</span><span>処理済み</span><span>通常</span><b>トップページのバナーを冬の特集に切り替える</b><b>樋口 真央</b><span>2026/11/27 11:39</span></div><div class="orow"><i class="ocb"></i><b>6</b><span>バグ</span><span>未対応</span><span>高め</span><b>郵便番号から住所が自動入力されない</b><b>小野寺 剛</b><span>2026/12/08 08:55</span></div><div class="orow"><i class="ocb"></i><b>5</b><span>機能</span><span>処理中</span><span>高め</span><b>年末年始の休業と発送日のお知らせを掲載する</b><b>早川 蓮</b><span>2026/12/08 09:18</span></div><div class="orow"><i class="ocb"></i><b>4</b><span>サポート</span><span>処理済み</span><span>通常</span><b>送料の案内文を新しい料金表に合わせる</b><b>早川 蓮</b><span>2026/12/01 16:11</span></div><div class="orow"><i class="ocb"></i><b>3</b><span>バグ</span><span>処理中</span><span>急いで</span><b>スマホで購入ボタンが画面の外にはみ出す</b><b>小野寺 剛</b><span>2026/12/04 12:30</span></div><div class="orow"><i class="ocb"></i><b>2</b><span>機能</span><span>未対応</span><span>低め</span><b>カートに「あとで買う」を追加する</b><b>小野寺 剛</b><span>2026/11/30 09:50</span></div><div class="orow"><i class="ocb"></i><b>1</b><span>機能</span><span>処理中</span><span>通常</span><b>商品ページの写真を新しい撮影分に差し替える</b><b>樋口 真央</b><span>2026/11/30 10:44</span></div><div class="orow"><i class="ocb"></i><b>20</b><span>サポート</span><span>未対応</span><span>通常</span><b>初売りセールの告知ページを用意する</b><b>樋口 真央</b><span>2026/12/04 10:12</span></div><div class="orow"><i class="ocb"></i><b>19</b><span>機能</span><span>完了</span><span>高め</span><b>配送日時の指定を注文画面に追加する</b><b>小野寺 剛</b><span>2026/11/24 16:40</span></div><div class="orow"><i class="ocb"></i><b>18</b><span>バグ</span><span>未対応</span><span>通常</span><b>商品名が長いと一覧の行が崩れる</b><b>樋口 真央</b><span>2026/12/05 09:31</span></div><div class="orow"><i class="ocb"></i><b>17</b><span>機能</span><span>未対応</span><span>低め</span><b>購入履歴からもう一度注文できるようにする</b><b></b><span>2026/12/03 11:02</span></div><div class="orow"><i class="ocb"></i><b>16</b><span>サポート</span><span>処理中</span><span>通常</span><b>公開前の確認手順を Wiki にまとめる</b><b>森下 由佳</b><span>2026/12/08 09:41</span></div><div class="orow"><i class="ocb"></i><b>15</b><span>機能</span><span>処理済み</span><span>通常</span><b>会員登録フォームの入力項目を減らす</b><b>樋口 真央</b><span>2026/12/08 10:05</span></div><div class="orow"><i class="ocb"></i><b>14</b><span>バグ</span><span>処理中</span><span>急いで</span><b>クーポンを2枚使うと合計金額がずれる</b><b>小野寺 剛</b><span>2026/12/07 17:20</span></div></noscript></div></div></div>
+    <canvas class="veil" aria-hidden="true"></canvas>
+    <div class="lens" aria-hidden="true"><div class="lens__in"><div class="wall wall--new"><div class="wall__in ui"><div class="wcol" data-k="0"><noscript><div class="row"><i class="cb"></i><span class="key">SHOP-20</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">初売りセールの告知ページを用意する</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-19</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s5">完了</b></span><span class="prio hi">↑</span><span class="sub">配送日時の指定を注文画面に追加する</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-18</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">商品名が長いと一覧の行が崩れる</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-17</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio lo">↓</span><span class="sub">購入履歴からもう一度注文できるようにする</span><span class="c-av"><em></em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-16</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">公開前の確認手順を Wiki にまとめる</span><span class="c-av"><b class="av a-m">森</b><em>森下 由佳</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-15</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">会員登録フォームの入力項目を減らす</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-14</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">クーポンを2枚使うと合計金額がずれる</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-13</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">商品一覧を在庫の有無で絞り込めるようにする</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-12</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">よくある質問に返品・交換の手順を追加する</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-11</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">お気に入りのボタンを商品一覧にも置く</span><span class="c-av"><em></em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-10</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s5">完了</b></span><span class="prio ">→</span><span class="sub">検索結果の並び順が「新着順」にならない</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-9</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">注文確認メールの文面を見直す</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-8</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">のしとギフト包装を注文時に選べるようにする</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-7</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">トップページのバナーを冬の特集に切り替える</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-6</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio hi">↑</span><span class="sub">郵便番号から住所が自動入力されない</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-5</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">年末年始の休業と発送日のお知らせを掲載する</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-4</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">送料の案内文を新しい料金表に合わせる</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-3</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">スマホで購入ボタンが画面の外にはみ出す</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-2</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio lo">↓</span><span class="sub">カートに「あとで買う」を追加する</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-1</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">商品ページの写真を新しい撮影分に差し替える</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-20</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">初売りセールの告知ページを用意する</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-19</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s5">完了</b></span><span class="prio hi">↑</span><span class="sub">配送日時の指定を注文画面に追加する</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-18</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">商品名が長いと一覧の行が崩れる</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-17</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio lo">↓</span><span class="sub">購入履歴からもう一度注文できるようにする</span><span class="c-av"><em></em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-16</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">公開前の確認手順を Wiki にまとめる</span><span class="c-av"><b class="av a-m">森</b><em>森下 由佳</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-15</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">会員登録フォームの入力項目を減らす</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-14</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">クーポンを2枚使うと合計金額がずれる</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-13</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">商品一覧を在庫の有無で絞り込めるようにする</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-12</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">よくある質問に返品・交換の手順を追加する</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-11</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">お気に入りのボタンを商品一覧にも置く</span><span class="c-av"><em></em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-10</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s5">完了</b></span><span class="prio ">→</span><span class="sub">検索結果の並び順が「新着順」にならない</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-9</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">注文確認メールの文面を見直す</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-8</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">のしとギフト包装を注文時に選べるようにする</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-7</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">トップページのバナーを冬の特集に切り替える</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-6</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio hi">↑</span><span class="sub">郵便番号から住所が自動入力されない</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-5</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">年末年始の休業と発送日のお知らせを掲載する</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-4</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">送料の案内文を新しい料金表に合わせる</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-3</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">スマホで購入ボタンが画面の外にはみ出す</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-2</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio lo">↓</span><span class="sub">カートに「あとで買う」を追加する</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-1</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">商品ページの写真を新しい撮影分に差し替える</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div></noscript></div><div class="wcol" data-k="7"><noscript><div class="row"><i class="cb"></i><span class="key">SHOP-13</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">商品一覧を在庫の有無で絞り込めるようにする</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-12</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">よくある質問に返品・交換の手順を追加する</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-11</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">お気に入りのボタンを商品一覧にも置く</span><span class="c-av"><em></em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-10</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s5">完了</b></span><span class="prio ">→</span><span class="sub">検索結果の並び順が「新着順」にならない</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-9</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">注文確認メールの文面を見直す</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-8</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">のしとギフト包装を注文時に選べるようにする</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-7</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">トップページのバナーを冬の特集に切り替える</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-6</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio hi">↑</span><span class="sub">郵便番号から住所が自動入力されない</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-5</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">年末年始の休業と発送日のお知らせを掲載する</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-4</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">送料の案内文を新しい料金表に合わせる</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-3</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">スマホで購入ボタンが画面の外にはみ出す</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-2</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio lo">↓</span><span class="sub">カートに「あとで買う」を追加する</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-1</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">商品ページの写真を新しい撮影分に差し替える</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-20</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">初売りセールの告知ページを用意する</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-19</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s5">完了</b></span><span class="prio hi">↑</span><span class="sub">配送日時の指定を注文画面に追加する</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-18</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">商品名が長いと一覧の行が崩れる</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-17</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio lo">↓</span><span class="sub">購入履歴からもう一度注文できるようにする</span><span class="c-av"><em></em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-16</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">公開前の確認手順を Wiki にまとめる</span><span class="c-av"><b class="av a-m">森</b><em>森下 由佳</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-15</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">会員登録フォームの入力項目を減らす</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-14</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">クーポンを2枚使うと合計金額がずれる</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-13</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">商品一覧を在庫の有無で絞り込めるようにする</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-12</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">よくある質問に返品・交換の手順を追加する</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-11</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">お気に入りのボタンを商品一覧にも置く</span><span class="c-av"><em></em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-10</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s5">完了</b></span><span class="prio ">→</span><span class="sub">検索結果の並び順が「新着順」にならない</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-9</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">注文確認メールの文面を見直す</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-8</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">のしとギフト包装を注文時に選べるようにする</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-7</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">トップページのバナーを冬の特集に切り替える</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-6</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio hi">↑</span><span class="sub">郵便番号から住所が自動入力されない</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-5</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">年末年始の休業と発送日のお知らせを掲載する</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-4</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">送料の案内文を新しい料金表に合わせる</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-3</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">スマホで購入ボタンが画面の外にはみ出す</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-2</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio lo">↓</span><span class="sub">カートに「あとで買う」を追加する</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-1</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">商品ページの写真を新しい撮影分に差し替える</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-20</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">初売りセールの告知ページを用意する</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-19</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s5">完了</b></span><span class="prio hi">↑</span><span class="sub">配送日時の指定を注文画面に追加する</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-18</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">商品名が長いと一覧の行が崩れる</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-17</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio lo">↓</span><span class="sub">購入履歴からもう一度注文できるようにする</span><span class="c-av"><em></em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-16</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">公開前の確認手順を Wiki にまとめる</span><span class="c-av"><b class="av a-m">森</b><em>森下 由佳</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-15</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">会員登録フォームの入力項目を減らす</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div><div class="row"><i class="cb"></i><span class="key">SHOP-14</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">クーポンを2枚使うと合計金額がずれる</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div></noscript></div></div></div></div></div>
+    <div class="hero">
+      <h1 class="mincho hero__h"><span class="vh">おはよう、Redmine。</span><span aria-hidden="true"><span class="ch">お</span><span class="ch">は</span><span class="ch">よ</span><span class="ch">う</span><span class="ch">、</span><br><span class="ch">R</span><span class="ch">e</span><span class="ch">d</span><span class="ch">m</span><span class="ch">i</span><span class="ch">n</span><span class="ch">e</span><span class="ch">。</span></span></h1>
+      <p class="hero__p">毎朝ひらく画面だから、<br class="sp">やさしいほうがいい。</p>
+      <p class="hero__s"><span class="ws">Redmine 6 を、</span><span class="ws">落ち着いた</span><span class="ws">緑のカード画面に</span><span class="ws">変える</span><br class="pc"><span class="ws">無料の</span><span class="ws">テーマ</span><span class="ws">「Greenboard」。</span></p>
     </div>
-    <figure class="hero-shot">
-      <figcaption>課題の詳細</figcaption>
-      <div class="frame frame--cut">
-        <picture>
-          <source media="(min-width: 1040px)" srcset="assets/shots/d1.webp" width="1200" height="760">
-          <source media="(min-width: 768px)" srcset="assets/shots/d1b.webp" width="944" height="640">
-          <img src="assets/shots/p1.webp" width="375" height="640" fetchpriority="high"
-            alt="Greenboard を適用した Redmine の課題詳細画面。左に濃い緑のメニュー、中央に課題「年末年始の休業と発送日のお知らせを掲載する」、ステータスや担当者の一覧が並んでいる。"
-            data-alt-phone="スマホ幅の課題の詳細。題名の下にステータス、優先度、担当者、マイルストーン、期限日が1列に並んでいる。">
-        </picture>
-      </div>
-    </figure>
-  </section>
-
-  <section class="words" id="words">
-    <div class="wrap">
-      <h2><span class="nb"><span class="open">「</span>チケット<span class="close">」</span>ではなく</span><span class="nb"><span class="open">「</span>課題<span class="close">」</span></span></h2>
-      <p class="intro">Redmine の日本語には、開発の現場の言い方が残っています。同梱のプラグインが、画面のことばを職場でふだん使う言い方に置き換えます。</p>
-
-      <table class="revision" role="table">
-        <caption class="visually-hidden">Redmine 標準の表示と Greenboard の表示の対照表</caption>
-        <thead role="rowgroup">
-          <tr role="row">
-            <th scope="col" role="columnheader">Redmine 標準</th>
-            <th scope="col" role="columnheader">Greenboard</th>
-            <th scope="col" role="columnheader">どこが変わるか</th>
-          </tr>
-        </thead>
-        <tbody role="rowgroup">
-          <tr role="row">
-            <th scope="row" role="rowheader"><s class="old">チケット</s></th>
-            <td role="cell" class="new">課題</td>
-            <td role="cell" class="note">「新しい課題」「子課題」「関連する課題」など、画面全体で置き換わります。</td>
-          </tr>
-          <tr role="row">
-            <th scope="row" role="rowheader"><s class="old">対象バージョン</s></th>
-            <td role="cell" class="new">マイルストーン</td>
-            <td role="cell" class="note">課題の項目、ロードマップ、設定画面まで同じ呼び方です。</td>
-          </tr>
-          <tr role="row">
-            <th scope="row" role="rowheader"><s class="old">期日</s></th>
-            <td role="cell" class="new">期限日</td>
-            <td role="cell" class="note">課題とマイルストーンの締め切りです。</td>
-          </tr>
-          <tr role="row">
-            <th scope="row" role="rowheader"><s class="old">マイページ</s></th>
-            <td role="cell" class="new">ダッシュボード</td>
-            <td role="cell" class="note">自分の担当と最近の更新が並ぶ、自分用の画面です。</td>
-          </tr>
-          <tr role="row">
-            <th scope="row" role="rowheader"><s class="old key">#5</s></th>
-            <td role="cell" class="new key">SHOP-5</td>
-            <td role="cell" class="note">プロジェクトの識別子と番号を組み合わせた「キー」で課題を呼びます。</td>
-          </tr>
-          <tr role="row">
-            <th scope="row" role="rowheader"><span class="blank">（空欄）</span></th>
-            <td role="cell" class="new">未設定</td>
-            <td role="cell" class="note">担当者やカテゴリを選んでいないとき、空欄のままにしません。</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <p class="footnote">上の<span class="nb">4つ</span>は同梱のプラグイン <code>redmine_greenboard</code> が置き換えます。Redmine 本体の翻訳ファイルは書き換えません。</p>
-    </div>
-  </section>
-
-  <section class="section wrap" id="type">
-    <div class="grid">
-      <div class="col-text">
-        <h2><span class="nb">改行の</span><span class="nb">位置まで</span><span class="nb">決めています</span></h2>
-        <p class="intro">題名が<span class="nb">2行</span>になるとき、ことばの途中で切れないようにしました。どの要素をどう折り返すかは<span class="nb">1つ</span>のファイルにまとめ、画面ごとにばらつかないようにしています。このページの見出しも同じ規則で組んでいます。</p>
-      </div>
-      <div class="col-figure">
-        <figure class="specimen">
-          <div class="specimen-live">
-            <div class="specimen-control" hidden>
-              <label for="card-width">カードの幅</label>
-              <input id="card-width" type="range" min="150" max="330" step="1" value="208" aria-label="カードの幅" aria-valuetext="208ピクセル">
-              <span class="readout" aria-hidden="true">208px</span>
-            </div>
-            <div class="specimen-boxes">
-              <div>
-                <p class="specimen-label">文節で改行しない</p>
-                <div class="specimen-box">
-                  <p>スマホで購入ボタンが画面の外にはみ出す</p>
-                  <p>よくある質問に返品・交換の手順を追加する</p>
-                  <p>年末年始の休業と発送日のお知らせを掲載する</p>
-                </div>
-              </div>
-              <div>
-                <p class="specimen-label">Greenboard の設定</p>
-                <div class="specimen-box specimen-box--phrase">
-                  <p>スマホで購入ボタンが画面の外にはみ出す</p>
-                  <p>よくある質問に返品・交換の手順を追加する</p>
-                  <p>年末年始の休業と発送日のお知らせを掲載する</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="specimen-fallback">
-            <img src="assets/specimen-fallback.webp" width="448" height="237" loading="lazy" decoding="async"
-              alt="幅208pxの枠に同じ題名を2通りで組んだ比較。左は「画面／の外にはみ出す」のようにことばの途中で折り返し、右は「スマホで購入ボタンが／画面の外にはみ出す」のように文節の切れ目で折り返している。">
-            <p>このブラウザは文節での改行に対応していないため、Chrome での表示を画像で載せています。</p>
-          </div>
-          <figcaption>同じ題名を同じ幅で組んだものです。<span class="specimen-hint" hidden>幅を変えると、折り返す場所の違いが見えます。</span></figcaption>
-        </figure>
-
-        <dl class="ledger">
-          <div><dt>本文</dt><dd><span class="nb">14px</span>、行間<span class="nb">1.6</span>。Wiki などの読み物は<span class="nb">15px</span>、行間<span class="nb">1.8</span>で、<span class="nb">1行</span>の長さは<span class="nb">860px</span>までです。</dd></div>
-          <div><dt>題名と見出し</dt><dd>文節の切れ目で改行します（Chrome と Edge で有効）。見出しは各行の長さをそろえます。</dd></div>
-          <div><dt>禁則</dt><dd>行の先頭に句読点や「っ」「ー」が来ない、厳しいほうの設定です。</dd></div>
-          <div><dt>数字</dt><dd>キー、日付、時刻、件数は幅のそろった数字で、縦に並べても桁がずれません。</dd></div>
-          <div><dt>斜体</dt><dd>日本語を斜体にしません。日付や補足の文も立てたままです。</dd></div>
-          <div><dt>書体</dt><dd>端末に入っている日本語の書体を使います。ヒラギノ角ゴ、Noto Sans JP、Yu Gothic UI、メイリオの順です。Web フォントは読み込みません。</dd></div>
-          <div><dt>色</dt><dd>ステータスの色は、一覧でもボードでも更新の履歴でも同じです。リンクとボタンの緑は、白地とのコントラスト比が<span class="nb">4.9対1</span>あります。</dd></div>
-        </dl>
-      </div>
-    </div>
-  </section>
-
-  <section class="section wrap" id="screens">
-    <h2><span class="nb">毎日</span><span class="nb">さわる</span><span class="nb">画面から</span><span class="nb">直しました</span></h2>
-
-    <div class="screens">
-      <article class="screen grid">
-        <div class="col-text">
-          <h3><span class="nb">上から</span><span class="nb">順に</span><span class="nb">書けば</span><span class="nb">終わる</span><span class="nb">入力フォーム</span></h3>
-          <p>項目名は入力欄の上に置き、題名は大きく、属性は<span class="nb">2列</span>にまとめました。まだ選んでいない項目は「未設定」と出ます。⌘ または Ctrl を押しながら Enter で作成できます。</p>
-        </div>
-        <figure class="col-figure shot">
-          <div class="frame">
-            <picture>
-              <source media="(min-width: 768px)" srcset="assets/shots/d2.webp" width="792" height="998">
-              <img src="assets/shots/p4.webp" width="375" height="640" loading="lazy" decoding="async"
-                alt="課題の追加フォーム。上からトラッカー、題名、説明の入力欄があり、その下にステータス、優先度、担当者、カテゴリ、マイルストーン、開始日、期限日が2列に並ぶ。担当者は「未設定」と表示されている。"
-                data-alt-phone="スマホ幅の課題の追加フォーム。項目が1列に並んでいる。">
-            </picture>
-          </div>
-          <figcaption>課題の追加</figcaption>
-        </figure>
-      </article>
-
-      <article class="screen grid">
-        <div class="col-text">
-          <h3><span class="nb">編集画面に</span><span class="nb">入らずに</span><span class="nb">コメントする</span></h3>
-          <p>課題の下にある「コメントを追加…」を押すと、その場に入力欄が開きます。ステータス、担当者、マイルストーン、期限日も同じ場所で変えられます。</p>
-        </div>
-        <figure class="col-figure shot">
-          <div class="frame">
-            <picture>
-              <source media="(min-width: 768px)" srcset="assets/shots/d3.webp" width="792" height="628">
-              <img src="assets/shots/p5.webp" width="375" height="640" loading="lazy" decoding="async"
-                alt="課題の履歴の下に開いたコメント欄。左にコメントの入力欄、右にステータス、担当者、マイルストーン、期限日の選択欄、右下に「閉じる」「登録」のボタン。"
-                data-alt-phone="スマホ幅で開いたコメント欄。入力欄の下にステータスなどの選択欄が並んでいる。">
-            </picture>
-          </div>
-          <figcaption>課題の詳細の下に開くコメント欄</figcaption>
-        </figure>
-      </article>
-
-      <article class="screen grid">
-        <div class="col-text">
-          <h3><span class="nb">一覧は</span><span class="nb">色と</span><span class="nb">位置で</span><span class="nb">見分ける</span></h3>
-          <p>トラッカーとステータスは色つきのラベル、優先度は矢印で示します。課題はキーで呼び、題名は<span class="nb">2行</span>まで表示します。</p>
-        </div>
-        <figure class="col-figure shot">
-          <div class="frame">
-            <picture>
-              <source media="(min-width: 768px)" srcset="assets/shots/d4.webp" width="792" height="737">
-              <img src="assets/shots/p2.webp" width="375" height="640" loading="lazy" decoding="async"
-                alt="担当者ごとにまとめた課題の一覧。各行にキー、トラッカー、ステータス、優先度、題名、担当者のアイコンが並ぶ。"
-                data-alt-phone="スマホ幅の課題の一覧。課題が1件ずつカードになり、絞り込みは「1件の条件」と1行にたたまれている。">
-            </picture>
-          </div>
-          <figcaption>課題の一覧（担当者でグループ化）</figcaption>
-        </figure>
-      </article>
-
-      <article class="screen grid">
-        <div class="col-text">
-          <h3><span class="nb">担当者ごとに</span><span class="nb">並ぶ</span><span class="nb">ボード</span></h3>
-          <p>ステータスの列と担当者の行でカードを並べます。期限を過ぎた日付は赤で示します。ボードを使うには <code>redmine_issues_panel</code> プラグインが必要です。</p>
-        </div>
-        <figure class="col-figure shot">
-          <div class="frame">
-            <picture>
-              <source media="(min-width: 768px)" srcset="assets/shots/d5.webp" width="792" height="763">
-              <img src="assets/shots/p3.webp" width="375" height="640" loading="lazy" decoding="async"
-                alt="ボード画面。未対応、処理中、処理済みの3列があり、「担当者なし」の行はたたまれ、その下の小野寺 剛の行に課題のカードが並んでいる。"
-                data-alt-phone="スマホ幅のボード。ステータスの列にカードが縦に並んでいる。">
-            </picture>
-          </div>
-          <figcaption>ボード</figcaption>
-        </figure>
-      </article>
-
-      <article class="screen grid">
-        <div class="col-text">
-          <h3><span class="nb">開いて</span><span class="nb">最初の</span><span class="nb">画面に、</span><span class="nb">状態と</span><span class="nb">最近の</span><span class="nb">更新</span></h3>
-          <p>プロジェクトの概要に、ステータスごとの件数、マイルストーンの進み具合、最近の更新を並べます。更新は「今日」「昨日」の見出しと時刻で追えます。この表示には同梱のプラグインが必要です。</p>
-        </div>
-        <figure class="col-figure shot shot--crop">
-          <div class="frame">
-            <picture>
-              <source media="(min-width: 768px)" srcset="assets/shots/d6.webp" width="792" height="1067">
-              <img src="assets/shots/d6s.webp" width="364" height="496" loading="lazy" decoding="async"
-                alt="プロジェクトの概要画面。説明の下に、ステータスごとの件数、マイルストーンの進み具合、時刻つきの最近の更新が縦に並んでいる。"
-                data-alt-phone="プロジェクトの概要のうち、ステータスごとの件数とマイルストーンの進み具合の部分。">
-            </picture>
-          </div>
-          <figcaption>プロジェクトの概要</figcaption>
-        </figure>
-      </article>
-
-      <article class="screen grid">
-        <div class="col-text">
-          <h3><span class="nb">Wiki は</span><span class="nb">読み物として</span><span class="nb">組む</span></h3>
-          <p>見出しの大きさに差をつけ、行間を広く取りました。表、引用、コードにもそれぞれの体裁があります。右側にはページの一覧が出ます。</p>
-        </div>
-        <figure class="col-figure shot">
-          <div class="frame">
-            <picture>
-              <source media="(min-width: 768px)" srcset="assets/shots/d7.webp" width="792" height="734">
-              <img src="assets/shots/p6.webp" width="375" height="640" loading="lazy" decoding="async"
-                alt="Wiki のページ「公開前チェックリスト」。大きな見出し、本文、担当と期限の表、引用が並び、右にページの一覧がある。"
-                data-alt-phone="スマホ幅の Wiki のページ。見出し、本文、表が1列に並んでいる。">
-            </picture>
-          </div>
-          <figcaption>Wiki のページ</figcaption>
-        </figure>
-      </article>
-
-      <div class="grid">
-        <div class="col-text">
-          <h3><span class="nb">ほかに</span><span class="nb">直した</span><span class="nb">ところ</span></h3>
-        </div>
-        <ul class="col-figure others">
-          <li>ガントチャート、カレンダー、ロードマップ、作業時間、文書、ニュース、フォーラム、管理画面も、同じ部品で整えています。</li>
-          <li>「視差効果を減らす」などの設定をしている端末では、動きを止めます。</li>
-          <li>キーボードで操作したとき、ボタン、リンク、タブに枠が出ます。</li>
-          <li>Redmine 本体のファイルは書き換えません。データベースの変更もありません。</li>
-          <li>テーマが外部のサーバーを呼び出すことはありません。</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="section wrap" id="phone">
-    <h2><span class="nb">375pxの</span><span class="nb">幅でも</span><span class="nb">同じ</span><span class="nb">ことが</span><span class="nb">できます</span></h2>
-    <p class="intro">一覧は<span class="nb">1件</span>ずつのカードになり、絞り込みは「<span class="nb">1件</span>の条件」のように<span class="nb">1行</span>にたたまれます。左のメニューは引き出しに入ります。</p>
-    <div class="phones">
-      <figure>
-        <div class="frame"><img src="assets/shots/p2.webp" width="375" height="640" loading="lazy" decoding="async" alt="スマホ幅の課題の一覧。課題が1件ずつカードになり、絞り込みは「1件の条件」と1行にたたまれている。"></div>
-        <figcaption>課題の一覧</figcaption>
-      </figure>
-      <figure class="phone-detail">
-        <div class="frame"><img src="assets/shots/p1.webp" width="375" height="640" loading="lazy" decoding="async" alt="スマホ幅の課題の詳細。題名の下にステータス、優先度、担当者、マイルストーン、期限日が1列に並んでいる。"></div>
-        <figcaption>課題の詳細</figcaption>
-      </figure>
-      <figure>
-        <div class="frame"><img src="assets/shots/p3.webp" width="375" height="640" loading="lazy" decoding="async" alt="スマホ幅のボード。ステータスの列にカードが縦に並んでいる。"></div>
-        <figcaption>ボード</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <section class="section wrap" id="install">
-    <div class="grid">
-      <div class="col-text">
-        <h2><span class="nb">入れ方</span></h2>
-        <p class="intro">フォルダを<span class="nb">2つ</span>コピーし、Redmine を再起動して、テーマを選びます。</p>
-        <p class="actions actions--beside">
-          <a class="btn" href="https://github.com/nerosui/greenboard-redmine-theme" rel="noopener">GitHub で入手する</a>
-          <a class="link" href="https://github.com/nerosui/greenboard-redmine-theme/issues" rel="noopener">不具合や要望を伝える</a>
-        </p>
-      </div>
-      <div class="col-figure">
-        <dl class="ledger ledger--needs">
-          <div><dt>Redmine</dt><dd><span class="nb">6.0以上</span>（<span class="nb">6.1</span>で確認しています）</dd></div>
-          <div><dt>ボードを使う場合</dt><dd><code>redmine_issues_panel</code>（<span class="nb">v1.2.2</span>で<span class="nb">確認しています</span>）</dd></div>
-          <div><dt>ライセンス</dt><dd>GPL v2（Redmine と同じ）</dd></div>
-          <div><dt>料金</dt><dd>無料</dd></div>
-        </dl>
-
-        <ol class="steps">
-          <li><code>themes/greenboard</code> を Redmine の <code>themes/</code> に、<code>plugins/redmine_greenboard</code> を <code>plugins/</code> にコピーします。</li>
-          <li>ボードを使う場合は、<code>redmine_issues_panel</code> を <code>plugins/</code> に入れます。</li>
-          <li>Redmine を再起動します。プラグインのマイグレーションは要りません。</li>
-          <li>「管理」→「設定」→「表示」のテーマで「Greenboard」を選びます。</li>
-        </ol>
-
-        <table class="scope">
-          <caption>テーマだけの場合とプラグインも入れた場合</caption>
-          <thead>
-            <tr>
-              <td></td>
-              <th scope="col">テーマだけ</th>
-              <th scope="col"><span class="nb">プラグインも</span><span class="nb">入れる</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><th scope="row">見た目と文字組み</th><td class="yes">変わります</td><td class="yes">変わります</td></tr>
-            <tr><th scope="row">ことばの言い換え（チケット→課題 など）</th><td class="no">変わりません</td><td class="yes">変わります</td></tr>
-            <tr><th scope="row">ダッシュボードのブロックと、プロジェクトの<span class="keep">概要の表示</span></th><td class="no">出ません</td><td class="yes">出ます</td></tr>
-          </tbody>
-        </table>
-        <p class="scope-note">次の設定を前提に作っています。必須ではありません。ステータス名は「未対応」「処理中」「処理済み」「完了」、ユーザー名の表示は<span class="nb">「姓 名」</span>、言語は日本語です。</p>
-
-        <h3 class="docker-title" id="docker"><span class="nb">まず</span> <span class="nb">Docker で</span><span class="nb">試す</span></h3>
-        <div class="code">
-          <pre tabindex="0" role="region" aria-labelledby="docker"><code>git clone https://github.com/nerosui/greenboard-redmine-theme.git
-cd greenboard-redmine-theme
-cp docker/.env.example docker/.env
-docker compose -f docker/compose.example.yaml up -d --build
-</code></pre>
-          <button class="copy" type="button" hidden><span aria-live="polite">コピー</span></button>
-        </div>
-        <p class="docker-note"><code>docker/.env</code> に <code>DB_PASSWORD</code> と <code>SECRET_KEY_BASE</code> を設定してから起動してください。<code>http://localhost:3000</code> を開き、管理者でログインしてテーマを選びます。</p>
-
-        <p class="actions actions--below">
-          <a class="btn" href="https://github.com/nerosui/greenboard-redmine-theme" rel="noopener">GitHub で入手する</a>
-          <a class="link" href="https://github.com/nerosui/greenboard-redmine-theme/issues" rel="noopener">不具合や要望を伝える</a>
-        </p>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer class="site-footer">
-  <div class="wrap grid">
-    <p class="footer-mark"><a class="wordmark" href="#top" aria-label="Greenboard トップへ"><img src="assets/favicon.svg" width="22" height="22" alt="">Greenboard</a></p>
-    <div class="footer-lines">
-      <p>Greenboard は GPL v2 で公開している無料のテーマです。Redmine の公式テーマではありません。</p>
-      <p>アイコンは Redmine 本体のものを使っています。このページの画面にある課題、人名、日付は、見本用の架空のものです。</p>
-    </div>
-    <ul class="footer-links">
-      <li><a class="link" href="https://github.com/nerosui/greenboard-redmine-theme" rel="noopener">GitHub</a></li>
-      <li><a class="link" href="https://github.com/nerosui/greenboard-redmine-theme/blob/main/LICENSE" rel="noopener">ライセンス</a></li>
-      <li>© 2026 nerosui</li>
-    </ul>
+    <div class="hint" aria-hidden="true"><i></i><span class="pc">光を動かすと、同じ一覧がこう見えます</span><span class="sp">スクロールで、夜が明けます</span></div>
   </div>
-</footer>
+  <div class="bloom" aria-hidden="true"></div>
+  <p class="mincho line-a"><span class="vh">散らかっていたのは、仕事じゃなくて画面でした。</span><span aria-hidden="true"><span class="ln"><span class="ch">散</span><span class="ch">ら</span><span class="ch">か</span><span class="ch">っ</span><span class="ch">て</span><span class="ch">い</span><span class="ch">た</span><span class="ch">の</span><span class="ch">は</span><span class="ch">、</span></span><span class="ln"><span class="ch">仕</span><span class="ch">事</span><span class="ch">じ</span><span class="ch">ゃ</span><span class="ch">な</span><span class="ch">く</span><span class="ch">て</span></span><span class="ln"><span class="ch">画</span><span class="ch">面</span><span class="ch">で</span><span class="ch">し</span><span class="ch">た</span><span class="ch">。</span></span></span></p>
+
+  <p class="vh">画面の見本。Greenboard を適用した Redmine のボード画面。未対応・処理中・処理済みの列に課題のカードが並んでいる。</p>
+  <div class="winwrap" aria-hidden="true" inert><div class="win ui">
+    <aside class="side">
+      <div class="side__logo"><i class="rlogo"></i>Redmine</div>
+      <div class="side__proj"><b>通</b>通販リニューアル</div>
+      <div class="side__add"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"/></svg>追加</div>
+      <nav><span class="nv" data-n="概要"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-list"/></svg>概要</span><span class="nv" data-n="活動"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-clock"/></svg>活動</span><span class="nv" data-n="ロードマップ"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-box"/></svg>ロードマップ</span><span class="nv" data-n="課題"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-note"/></svg>課題</span><span class="nv" data-n="ボード"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-grid"/></svg>ボード</span><span class="nv" data-n="作業時間"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-clock"/></svg>作業時間</span><span class="nv" data-n="ガントチャート"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chart"/></svg>ガントチャート</span><span class="nv" data-n="カレンダー"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-cal"/></svg>カレンダー</span><span class="nv" data-n="ニュース"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-doc"/></svg>ニュース</span><span class="nv" data-n="文書"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-doc"/></svg>文書</span><span class="nv" data-n="Wiki"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-book"/></svg>Wiki</span><span class="nv" data-n="ファイル"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-folder"/></svg>ファイル</span><span class="nv" data-n="設定"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-gear"/></svg>設定</span></nav>
+    </aside>
+    <div class="top">
+      <span class="top__menu"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-menu"/></svg></span><i class="rlogo top__logo"></i>
+      <span class="top__l">ホーム</span><span class="top__l">ダッシュボード</span><span class="top__l">プロジェクト</span>
+      <span class="top__search"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-search"/></svg>検索</span><span class="top__sel">通販リニューアル<i class="chev d"></i></span><span class="btn pri top__add"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"/></svg><em>課題の追加</em></span><b class="av a-m lg">森</b><span class="top__name">森下 由佳</span>
+    </div>
+    <div class="pan">
+      <div class="view v-list">
+        <div class="pcard">
+          <div class="ptitle"><div class="u3">課題</div><span class="btn pri"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"/></svg>新しい課題</span></div>
+          <div class="fbox"><div class="fl"><i class="chev"></i>フィルタ<span class="fcount">1件の条件</span></div><div class="fr"><i class="cb on"></i><span>ステータス</span><span class="sel">未完了<i class="chev d"></i></span></div><div class="fl"><i class="chev r"></i>オプション</div><div class="fb"><span class="btn pri sm">✓ 適用</span><span class="btn sm">クリア</span></div></div>
+          <div class="tbl"><div class="thead"><i class="cb"></i><span>キー</span><span>トラッカー</span><span>ステータス</span><span></span><span>題名</span><span></span><span></span></div>
+          <div class="slot slot-row" data-id="20"><div class="row"><i class="cb"></i><span class="key">SHOP-20</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">初売りセールの告知ページを用意する</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div></div><div class="slot slot-row" data-id="18"><div class="row"><i class="cb"></i><span class="key">SHOP-18</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">商品名が長いと一覧の行が崩れる</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div></div><div class="slot slot-row" data-id="17"><div class="row"><i class="cb"></i><span class="key">SHOP-17</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio lo">↓</span><span class="sub">購入履歴からもう一度注文できるようにする</span><span class="c-av"><em></em></span><span class="dots">···</span></div></div><div class="slot slot-row" data-id="16"><div class="row"><i class="cb"></i><span class="key">SHOP-16</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">公開前の確認手順を Wiki にまとめる</span><span class="c-av"><b class="av a-m">森</b><em>森下 由佳</em></span><span class="dots">···</span></div></div><div class="slot slot-row" data-id="15"><div class="row"><i class="cb"></i><span class="key">SHOP-15</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">会員登録フォームの入力項目を減らす</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div></div><div class="slot slot-row" data-id="14"><div class="row"><i class="cb"></i><span class="key">SHOP-14</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">クーポンを2枚使うと合計金額がずれる</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div></div><div class="slot slot-row" data-id="13"><div class="row"><i class="cb"></i><span class="key">SHOP-13</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">商品一覧を在庫の有無で絞り込めるようにする</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div></div><div class="slot slot-row" data-id="12"><div class="row"><i class="cb"></i><span class="key">SHOP-12</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">よくある質問に返品・交換の手順を追加する</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div></div><div class="slot slot-row" data-id="11"><div class="row"><i class="cb"></i><span class="key">SHOP-11</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">お気に入りのボタンを商品一覧にも置く</span><span class="c-av"><em></em></span><span class="dots">···</span></div></div><div class="slot slot-row" data-id="9"><div class="row"><i class="cb"></i><span class="key">SHOP-9</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">注文確認メールの文面を見直す</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div></div><div class="slot slot-row" data-id="8"><div class="row"><i class="cb"></i><span class="key">SHOP-8</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">のしとギフト包装を注文時に選べるようにする</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div></div></div>
+        </div>
+        <div class="rcard"><div class="u4">カスタムクエリ</div><span>ウォッチしている課題</span><span>報告した課題</span><span>担当している課題</span><span>更新した課題</span></div>
+      </div>
+      <div class="view v-board">
+        <div class="pcard">
+          <div class="ptitle"><div class="u3">ボード</div><span class="btn pri newbtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"/></svg>新しい課題</span></div>
+          <div class="fbox"><div class="fl"><i class="chev"></i>フィルタ<span class="fcount">1件の条件</span></div><div class="fr"><i class="cb on"></i><span>ステータス</span><span class="sel">未完了<i class="chev d"></i></span></div><div class="fl"><i class="chev r"></i>オプション</div><div class="fb"><span class="btn pri sm">✓ 適用</span><span class="btn sm">クリア</span></div></div>
+          <div class="cols"><div class="col col-1"><div class="col__h"><i class="dot s1"></i>未対応<b class="cnt">8</b></div><div class="col__b"><div class="slot slot-card" data-id="20"><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-20</span></div><div class="s">初売りセールの告知ページを用意する</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/28</span></div></div></div><div class="slot slot-card" data-id="18"><div class="card"><div class="h"><b class="pill t1">バグ</b><span class="key">SHOP-18</span></div><div class="s">商品名が長いと一覧の行が崩れる</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/12</span></div></div></div><div class="slot slot-card" data-id="17"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-17</span></div><div class="s">購入履歴からもう一度注文できるようにする</div><div class="f"><span class="prio lo">↓</span><span>低め</span></div></div></div><div class="slot slot-card" data-id="13"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-13</span></div><div class="s">商品一覧を在庫の有無で絞り込めるようにする</div><div class="f"><b class="av a-o">小</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>2027/01/15</span></div></div></div><div class="slot slot-card" data-id="11"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-11</span></div><div class="s">お気に入りのボタンを商品一覧にも置く</div><div class="f"><span class="prio ">→</span><span>通常</span></div></div></div></div></div><div class="col col-2"><div class="col__h"><i class="dot s2"></i>処理中<b class="cnt">7</b></div><div class="col__b"><div class="slot slot-card" data-id="16"><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-16</span></div><div class="s">公開前の確認手順を Wiki にまとめる</div><div class="f"><b class="av a-m">森</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/14</span></div></div></div><div class="slot slot-card" data-id="14"><div class="card"><div class="h"><b class="pill t1">バグ</b><span class="key">SHOP-14</span></div><div class="s">クーポンを2枚使うと合計金額がずれる</div><div class="f"><b class="av a-o">小</b><span class="prio hi">↑</span><span>急いで</span><span class="due over"><i class="clk"></i>12/7</span></div></div></div><div class="slot slot-card" data-id="12"><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-12</span></div><div class="s">よくある質問に返品・交換の手順を追加する</div><div class="f"><b class="av a-k">早</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/15</span></div></div></div><div class="slot slot-card" data-id="8"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-8</span></div><div class="s">のしとギフト包装を注文時に選べるようにする</div><div class="f"><b class="av a-o">小</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/14</span></div></div></div><div class="slot slot-card" data-id="5"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-5</span></div><div class="s">年末年始の休業と発送日のお知らせを掲載する</div><div class="f"><b class="av a-k">早</b><span class="prio hi">↑</span><span>高め</span><span class="due"><i class="clk"></i>12/11</span></div></div></div></div></div><div class="col col-3"><div class="col__h"><i class="dot s3"></i>処理済み<b class="cnt">3</b></div><div class="col__b"><div class="slot slot-card drop" data-id="14"></div><div class="slot slot-card" data-id="15"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-15</span></div><div class="s">会員登録フォームの入力項目を減らす</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due over"><i class="clk"></i>12/8</span></div></div></div><div class="slot slot-card" data-id="7"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-7</span></div><div class="s">トップページのバナーを冬の特集に切り替える</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due over"><i class="clk"></i>12/4</span></div></div></div><div class="slot slot-card" data-id="4"><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-4</span></div><div class="s">送料の案内文を新しい料金表に合わせる</div><div class="f"><b class="av a-k">早</b><span class="prio ">→</span><span>通常</span><span class="due over"><i class="clk"></i>12/5</span></div></div></div></div></div></div>
+        </div>
+      </div>
+      <div class="actors" aria-hidden="true"><div class="act" data-id="20"><div class="face fr"><div class="row"><i class="cb"></i><span class="key">SHOP-20</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">初売りセールの告知ページを用意する</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div></div><div class="face fc"><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-20</span></div><div class="s">初売りセールの告知ページを用意する</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/28</span></div></div></div></div><div class="act" data-id="18"><div class="face fr"><div class="row"><i class="cb"></i><span class="key">SHOP-18</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">商品名が長いと一覧の行が崩れる</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div></div><div class="face fc"><div class="card"><div class="h"><b class="pill t1">バグ</b><span class="key">SHOP-18</span></div><div class="s">商品名が長いと一覧の行が崩れる</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/12</span></div></div></div></div><div class="act" data-id="17"><div class="face fr"><div class="row"><i class="cb"></i><span class="key">SHOP-17</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio lo">↓</span><span class="sub">購入履歴からもう一度注文できるようにする</span><span class="c-av"><em></em></span><span class="dots">···</span></div></div><div class="face fc"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-17</span></div><div class="s">購入履歴からもう一度注文できるようにする</div><div class="f"><span class="prio lo">↓</span><span>低め</span></div></div></div></div><div class="act" data-id="16"><div class="face fr"><div class="row"><i class="cb"></i><span class="key">SHOP-16</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">公開前の確認手順を Wiki にまとめる</span><span class="c-av"><b class="av a-m">森</b><em>森下 由佳</em></span><span class="dots">···</span></div></div><div class="face fc"><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-16</span></div><div class="s">公開前の確認手順を Wiki にまとめる</div><div class="f"><b class="av a-m">森</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/14</span></div></div></div></div><div class="act" data-id="15"><div class="face fr"><div class="row"><i class="cb"></i><span class="key">SHOP-15</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s3">処理済み</b></span><span class="prio ">→</span><span class="sub">会員登録フォームの入力項目を減らす</span><span class="c-av"><b class="av a-h">樋</b><em>樋口 真央</em></span><span class="dots">···</span></div></div><div class="face fc"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-15</span></div><div class="s">会員登録フォームの入力項目を減らす</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due over"><i class="clk"></i>12/8</span></div></div></div></div><div class="act" data-id="14"><div class="face fr"><div class="row"><i class="cb"></i><span class="key">SHOP-14</span><span class="c-tr"><b class="pill t1">バグ</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio hi">↑</span><span class="sub">クーポンを2枚使うと合計金額がずれる</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div></div><div class="face fc"><div class="card"><div class="h"><b class="pill t1">バグ</b><span class="key">SHOP-14</span></div><div class="s">クーポンを2枚使うと合計金額がずれる</div><div class="f"><b class="av a-o">小</b><span class="prio hi">↑</span><span>急いで</span><span class="due over"><i class="clk"></i>12/7</span></div></div></div></div><div class="act" data-id="13"><div class="face fr"><div class="row"><i class="cb"></i><span class="key">SHOP-13</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">商品一覧を在庫の有無で絞り込めるようにする</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div></div><div class="face fc"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-13</span></div><div class="s">商品一覧を在庫の有無で絞り込めるようにする</div><div class="f"><b class="av a-o">小</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>2027/01/15</span></div></div></div></div><div class="act" data-id="12"><div class="face fr"><div class="row"><i class="cb"></i><span class="key">SHOP-12</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">よくある質問に返品・交換の手順を追加する</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div></div><div class="face fc"><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-12</span></div><div class="s">よくある質問に返品・交換の手順を追加する</div><div class="f"><b class="av a-k">早</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/15</span></div></div></div></div><div class="act" data-id="11"><div class="face fr"><div class="row"><i class="cb"></i><span class="key">SHOP-11</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">お気に入りのボタンを商品一覧にも置く</span><span class="c-av"><em></em></span><span class="dots">···</span></div></div><div class="face fc"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-11</span></div><div class="s">お気に入りのボタンを商品一覧にも置く</div><div class="f"><span class="prio ">→</span><span>通常</span></div></div></div></div><div class="act" data-id="9"><div class="face fr"><div class="row"><i class="cb"></i><span class="key">SHOP-9</span><span class="c-tr"><b class="pill t3">サポート</b></span><span class="c-st"><b class="pill s1">未対応</b></span><span class="prio ">→</span><span class="sub">注文確認メールの文面を見直す</span><span class="c-av"><b class="av a-k">早</b><em>早川 蓮</em></span><span class="dots">···</span></div></div><div class="face fc"><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-9</span></div><div class="s">注文確認メールの文面を見直す</div><div class="f"><b class="av a-k">早</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/12</span></div></div></div></div><div class="act" data-id="8"><div class="face fr"><div class="row"><i class="cb"></i><span class="key">SHOP-8</span><span class="c-tr"><b class="pill t2">機能</b></span><span class="c-st"><b class="pill s2">処理中</b></span><span class="prio ">→</span><span class="sub">のしとギフト包装を注文時に選べるようにする</span><span class="c-av"><b class="av a-o">小</b><em>小野寺 剛</em></span><span class="dots">···</span></div></div><div class="face fc"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-8</span></div><div class="s">のしとギフト包装を注文時に選べるようにする</div><div class="f"><b class="av a-o">小</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/14</span></div></div></div></div><div class="act" data-id="5"><div class="face fc"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-5</span></div><div class="s">年末年始の休業と発送日のお知らせを掲載する</div><div class="f"><b class="av a-k">早</b><span class="prio hi">↑</span><span>高め</span><span class="due"><i class="clk"></i>12/11</span></div></div></div></div><div class="act" data-id="7"><div class="face fc"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-7</span></div><div class="s">トップページのバナーを冬の特集に切り替える</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due over"><i class="clk"></i>12/4</span></div></div></div></div><div class="act" data-id="4"><div class="face fc"><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-4</span></div><div class="s">送料の案内文を新しい料金表に合わせる</div><div class="f"><b class="av a-k">早</b><span class="prio ">→</span><span>通常</span><span class="due over"><i class="clk"></i>12/5</span></div></div></div></div></div>
+    </div>
+    <i class="cursor" aria-hidden="true"></i>
+  </div></div>
+
+  <div class="caps">
+    <div class="cap cap--b"><h2 class="mincho cap__h">だれが、なにを、<br>どこまで。</h2><p class="cap__p">聞かなくても、見えている。</p></div>
+    <i class="cap__wash" aria-hidden="true"></i>
+    <div class="cap cap--c"><h2 class="mincho cap__h">カチッと、<br>終わる。</h2><p class="cap__p">その一枚ぶん、肩が軽くなる。</p></div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ 2. 昼：書く、返す ============ -->
+<section class="scene desk" id="desk" data-tone="light" style="--len:8.15">
+ <div class="stage">
+  <i class="desk__mat" aria-hidden="true"><i></i></i>
+  <h2 class="mincho big desk__h">メモを書くくらいの<br>軽さで。</h2>
+  <p class="vh">画面の見本。新しい課題のフォーム。題名、説明、担当者、期限日を上から順に入力する。</p>
+  <div class="formwrap" aria-hidden="true" inert><div class="form ui">
+    <div class="u3">新しい課題</div>
+    <div class="fld f-tr"><span class="lb">トラッカー <u>*</u></span><span class="sel trk" data-t="1"><span class="trk__v">バグ</span><i class="chev d"></i></span></div>
+    <div class="fld f-title"><span class="lb">題名 <u>*</u></span><div class="inp title"><span class="ph" aria-hidden="true">メモを書くくらいの軽さで。</span><span class="typed" data-text="初売りの送料無料バナーを作る">初売りの送料無料バナーを作る</span><i class="caret"></i></div></div>
+    <div class="fld f-desc"><span class="lb">説明</span><div class="editor"><div class="editor__bar"><b>編集</b><span>プレビュー</span><i>B</i><i class="it">I</i><i class="ul">U</i><i>H1</i><i>H2</i><i>≡</i></div><div class="editor__ta"><span class="typed2" data-text="1月2日の朝に出します。サイズはトップページのバナーと同じです。">1月2日の朝に出します。サイズはトップページのバナーと同じです。</span></div></div></div>
+    <div class="attrs">
+      <div class="fld"><span class="lb">ステータス <u>*</u></span><span class="sel"><i class="dot s1"></i>未対応<i class="chev d"></i></span></div>
+      <div class="fld"><span class="lb">優先度 <u>*</u></span><span class="sel">通常<i class="chev d"></i></span></div>
+      <div class="fld f-who"><span class="lb">担当者 <span class="a">私が担当</span></span><span class="sel who"><span class="who__v"><b class="av a-h">樋</b>樋口 真央</span><span class="who__e">未設定</span><i class="chev d"></i></span></div>
+      <div class="fld f-due"><span class="lb">期限日</span><span class="sel due"><span class="due__v">2026/12/28</span><span class="due__e">年/月/日</span></span></div>
+    </div>
+    <div class="form__foot"><span class="btn pri go">作成</span><span class="btn">連続作成</span><span class="a">キャンセル</span><span class="kbd"><kbd>⌘</kbd>+<kbd>Enter</kbd> で作成</span></div>
+  </div></div>
+  <p class="desk__s">題名を書いて、担当を選ぶ。<br class="sp">頼みごとは、それだけ。</p>
+  <div class="born ui" aria-hidden="true" inert><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-21</span></div><div class="s">初売りの送料無料バナーを作る</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/28</span></div></div></div>
+
+  <h2 class="mincho vert desk__h2">ひとこと返すのに、<br>身構えない。</h2>
+  <p class="desk__s2">「ありがとう」が、<br>すぐ言える。</p>
+  <p class="vh">画面の見本。課題 SHOP-21 のコメント欄。その場で開く入力欄から返事を書き、ステータスを処理中に変えている。</p>
+  <div class="threadwrap" aria-hidden="true" inert><div class="thread ui">
+    <div class="thread__head"><b class="pill t2">機能</b><span class="key k2">SHOP-21</span><span class="thread__t">初売りの送料無料バナーを作る</span><span class="stswap"><b class="pill s1">未対応</b><b class="pill s2">処理中</b></span></div>
+    <div class="tmeta"><span>担当者</span><b class="av a-h">樋</b><b>樋口 真央</b><span>期限日</span><b>2026/12/28</b></div>
+    <div class="tdesc"><b>説明</b><p>1月2日の朝に出します。サイズはトップページのバナーと同じです。</p></div>
+    <div class="tabs"><b>履歴</b><span>コメント</span><span>プロパティ更新履歴</span></div>
+    <div class="tl">
+      <div class="cm cm--a"><b class="av a-h md">樋</b><div><p class="cm__m"><b>樋口 真央</b> さんが3分前に更新<i>#1</i></p><p>サイズ、了解です。30日に初稿を出します。</p></div></div>
+      <div class="cm cm--new"><b class="av a-m md">森</b><div><p class="cm__m"><b>森下 由佳</b> さんがたった今更新<i>#2</i></p><p class="cm__d"><b>ステータス:</b> <b class="pill s1 xs">未対応</b> → <b class="pill s2 xs">処理中</b></p><p>ありがとう。助かります。</p></div></div>
+    </div>
+    <div class="composer">
+      <div class="cta"><b class="av a-m md">森</b><span class="cta__i">コメントを追加…</span></div>
+      <div class="panel">
+        <div class="panel__l"><div class="editor"><div class="editor__bar"><b>編集</b><span>プレビュー</span><i>B</i><i class="it">I</i><i class="ul">U</i><i>≡</i></div><div class="editor__ta"><span class="typed3" data-text="ありがとう。助かります。">ありがとう。助かります。</span><i class="caret"></i></div></div></div>
+        <div class="panel__r">
+          <div class="fld"><span class="lb">ステータス <u>*</u></span><span class="sel stsel"><span class="st-a"><i class="dot s1"></i>未対応</span><span class="st-b"><i class="dot s2"></i>処理中</span><i class="chev d"></i></span></div>
+          <div class="fld"><span class="lb">担当者</span><span class="sel">樋口 真央<i class="chev d"></i></span></div>
+        </div>
+        <div class="panel__f"><span class="a">すべての項目を編集</span><span class="btn">閉じる</span><span class="btn pri send">登録</span></div>
+      </div>
+    </div>
+  </div></div>
+ </div>
+</section>
+
+<!-- ============ 3. 午後：いま ============ -->
+<section class="scene now" id="now" data-tone="light" style="--len:5.5">
+ <div class="stage">
+  <i class="flood" aria-hidden="true"></i>
+  <div class="bands" aria-hidden="true">
+    <div class="band b1" style="--f:8"><i class="band__d"></i><span class="band__n mincho" data-n="8">8</span><span class="band__l">未対応<em>40%</em></span></div><div class="band b2" style="--f:7"><i class="band__d"></i><span class="band__n mincho" data-n="7">7</span><span class="band__l">処理中<em>35%</em></span></div><div class="band b3" style="--f:3"><i class="band__d"></i><span class="band__n mincho" data-n="3">3</span><span class="band__l">処理済み<em>15%</em></span></div><div class="band b5" style="--f:2"><i class="band__d"></i><span class="band__n mincho" data-n="2">2</span><span class="band__l">完了<em>10%</em></span></div>
+  </div>
+  <h2 class="mincho now__h">順調かどうかは、<br>ひらけばわかる。</h2>
+  <p class="vh">画面の見本。プロジェクトの概要画面。状態の内訳、マイルストーンの進み具合、最近の更新が並ぶ。</p>
+  <div class="homewrap" aria-hidden="true" inert><div class="home ui">
+    <div class="hcard h-act"><div class="u4">最近の更新<span class="a">すべて見る</span></div><p class="day">今日</p>
+      <div class="ev"><b class="av a-h md">樋</b><div><p class="ev__m"><b>樋口 真央</b> さんが課題を更新しました<i>10:05</i></p><p><b class="pill t2">機能</b><span class="key">SHOP-15</span> 会員登録フォームの入力項目を減らす</p><p class="ev__d"><b class="pill s2 xs">処理中</b> → <b class="pill s3 xs">処理済み</b></p></div></div>
+      <div class="ev"><b class="av a-m md">森</b><div><p class="ev__m"><b>森下 由佳</b> さんが課題を追加しました<i>09:41</i></p><p><b class="pill t3">サポート</b><span class="key">SHOP-16</span> 公開前の確認手順を Wiki にまとめる</p></div></div>
+      <div class="ev"><b class="av a-o md">小</b><div><p class="ev__m"><b>小野寺 剛</b> さんがコメントしました<i>09:18</i></p><p><b class="pill t2">機能</b><span class="key">SHOP-5</span> 年末年始の休業と発送日のお知らせを掲載する</p></div></div>
+    </div>
+    <div class="hcard h-st"><div class="u4">状態<b class="cnt">20</b><span class="a">すべて見る</span></div><div class="sbar"><i class="s1" style="flex:8"></i><i class="s2" style="flex:7"></i><i class="s3" style="flex:3"></i><i class="s5" style="flex:2"></i></div>
+      <p class="srow"><i class="dot s1"></i>未対応<b>8</b><em>40%</em></p><p class="srow"><i class="dot s2"></i>処理中<b>7</b><em>35%</em></p><p class="srow"><i class="dot s3"></i>処理済み<b>3</b><em>15%</em></p><p class="srow"><i class="dot s5"></i>完了<b>2</b><em>10%</em></p></div>
+    <div class="hcard h-ms"><div class="u4">マイルストーン<b class="cnt">2</b><span class="a">すべて見る</span></div>
+      <p class="ms"><b>リニューアル公開</b><span>2026/12/16</span></p><div class="pbar"><i style="--w:.53"></i></div><p class="ms__m"><b>53%</b> ・ 未完了 13 / 完了 2</p>
+      <p class="ms"><b>年明け改善</b><span>2027/01/22</span></p><div class="pbar"><i style="--w:0"></i></div><p class="ms__m"><b>0%</b> ・ 未完了 5 / 完了 0</p></div>
+  </div></div>
+  <p class="mincho now__after">聞いてまわる午後が、なくなる。</p>
+ </div>
+</section>
+
+<!-- ============ 4. 夕方：読む ============ -->
+<section class="scene wiki" id="wiki" data-tone="light" style="--len:4">
+ <div class="stage">
+  <h2 class="mincho vert wiki__h">せっかく書いた<br class="sp"><span class="lat">Wiki</span>が、<br>ちゃんと読まれる。</h2>
+  <p class="wiki__s">見出しも行間も、読みものの組み方で。</p>
+  <p class="vh">画面の見本。Wiki のページ「公開前チェックリスト」に、見出しと表と箇条書きが並んでいる。</p>
+  <div class="sheetwrap" aria-hidden="true" inert><div class="sheet ui">
+    <p class="sheet__c">Wiki</p><div class="u3">公開前チェックリスト</div>
+    <p>12月16日（水）の切り替えまでに確認することをまとめます。担当と期限は下の表のとおりです。</p>
+    <div class="u4">公開までの流れ</div>
+    <table><thead><tr><th>項目</th><th>担当</th><th>期限</th></tr></thead><tbody><tr><td>デザインの最終確認</td><td>樋口</td><td>12/10</td></tr><tr><td>購入までの通し確認</td><td>小野寺</td><td>12/14</td></tr><tr><td>お知らせの文面</td><td>早川</td><td>12/11</td></tr><tr><td>切り替えの判断</td><td>森下</td><td>12/15</td></tr></tbody></table>
+    <div class="u4">当日に見るところ</div>
+    <ul><li>トップページから購入完了まで進める</li><li>注文確認メールが届く</li><li>スマホで購入ボタンが押せる</li></ul>
+    <blockquote>問題が見つかったら、課題を追加して森下に知らせてください。</blockquote>
+  </div></div>
+ </div>
+</section>
+
+<!-- ============ 5. 夜：電車 ============ -->
+<section class="scene train" id="train" data-tone="dark" style="--len:5">
+ <div class="stage">
+  <i class="glass" aria-hidden="true"></i>
+  <h2 class="mincho train__h"><span class="train__a">帰りの電車で、</span><span class="train__b">ひとつ片づく。</span></h2>
+  <p class="train__s">スマホでも、できることは同じです。</p>
+  <p class="vh">画面の見本。スマートフォンで表示したボード。列を横に送っている。</p>
+  <div class="phonewrap" aria-hidden="true" inert><div class="phone ui"><div class="phone__scr">
+    <div class="mtop"><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-menu"/></svg></span><i class="rlogo"></i><span class="mtop__s"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-search"/></svg></span><span class="mtop__sel">通販リニューアル<i class="chev d"></i></span><span class="btn pri mtop__add"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"/></svg></span><b class="av a-m lg">森</b></div>
+    <div class="mbody"><div class="mtitle"><div class="u3">ボード</div><span class="btn pri sm"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-plus"/></svg>新しい課題</span></div>
+      <div class="mcols"><div class="col col-1"><div class="col__h"><i class="dot s1"></i>未対応<b class="cnt">8</b></div><div class="col__b"><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-20</span></div><div class="s">初売りセールの告知ページを用意する</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/28</span></div></div><div class="card"><div class="h"><b class="pill t1">バグ</b><span class="key">SHOP-18</span></div><div class="s">商品名が長いと一覧の行が崩れる</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/12</span></div></div><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-17</span></div><div class="s">購入履歴からもう一度注文できるようにする</div><div class="f"><span class="prio lo">↓</span><span>低め</span></div></div><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-13</span></div><div class="s">商品一覧を在庫の有無で絞り込めるようにする</div><div class="f"><b class="av a-o">小</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>2027/01/15</span></div></div><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-11</span></div><div class="s">お気に入りのボタンを商品一覧にも置く</div><div class="f"><span class="prio ">→</span><span>通常</span></div></div></div></div><div class="col col-2"><div class="col__h"><i class="dot s2"></i>処理中<b class="cnt">7</b></div><div class="col__b"><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-16</span></div><div class="s">公開前の確認手順を Wiki にまとめる</div><div class="f"><b class="av a-m">森</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/14</span></div></div><div class="card"><div class="h"><b class="pill t1">バグ</b><span class="key">SHOP-14</span></div><div class="s">クーポンを2枚使うと合計金額がずれる</div><div class="f"><b class="av a-o">小</b><span class="prio hi">↑</span><span>急いで</span><span class="due over"><i class="clk"></i>12/7</span></div></div><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-12</span></div><div class="s">よくある質問に返品・交換の手順を追加する</div><div class="f"><b class="av a-k">早</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/15</span></div></div><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-8</span></div><div class="s">のしとギフト包装を注文時に選べるようにする</div><div class="f"><b class="av a-o">小</b><span class="prio ">→</span><span>通常</span><span class="due"><i class="clk"></i>12/14</span></div></div><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-5</span></div><div class="s">年末年始の休業と発送日のお知らせを掲載する</div><div class="f"><b class="av a-k">早</b><span class="prio hi">↑</span><span>高め</span><span class="due"><i class="clk"></i>12/11</span></div></div></div></div><div class="col col-3"><div class="col__h"><i class="dot s3"></i>処理済み<b class="cnt">3</b></div><div class="col__b"><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-15</span></div><div class="s">会員登録フォームの入力項目を減らす</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due over"><i class="clk"></i>12/8</span></div></div><div class="card"><div class="h"><b class="pill t2">機能</b><span class="key">SHOP-7</span></div><div class="s">トップページのバナーを冬の特集に切り替える</div><div class="f"><b class="av a-h">樋</b><span class="prio ">→</span><span>通常</span><span class="due over"><i class="clk"></i>12/4</span></div></div><div class="card"><div class="h"><b class="pill t3">サポート</b><span class="key">SHOP-4</span></div><div class="s">送料の案内文を新しい料金表に合わせる</div><div class="f"><b class="av a-k">早</b><span class="prio ">→</span><span>通常</span><span class="due over"><i class="clk"></i>12/5</span></div></div></div></div></div>
+    </div>
+    <i class="glare" aria-hidden="true"></i>
+  </div><i class="touch" aria-hidden="true"></i></div></div>
+ </div>
+</section>
+
+<!-- ============ 6. 深夜：そのまま ============ -->
+<section class="scene keep" id="keep" data-tone="dark" style="--len:3.6">
+ <div class="stage">
+  <h2 class="mincho keep__h">Redmineは、<br class="sp">そのまま。</h2>
+  <ul class="keep__f">
+    <li>本体のファイルも、データベースも、<br class="sp">書き換えない。</li>
+    <li>外のサーバーを、呼ばない。</li>
+    <li>やめるときは、フォルダを消して<br class="sp">再起動するだけ。</li>
+  </ul>
+  <p class="keep__s">ガントチャートも、カレンダーも、管理画面も。<br class="sp">同じ部品で整えてあります。</p>
+ </div>
+</section>
+
+<!-- ============ 7. あしたの朝 ============ -->
+<section class="scene end" id="install" data-tone="green">
+  <div class="sun" aria-hidden="true"><i></i></div>
+  <div class="end__in">
+    <h2 class="mincho end__h">あしたの朝、<br>ひらいてみてください。</h2>
+    <div class="kit">
+      <h3 class="mincho kit__h">入れるのは、フォルダふたつ。</h3>
+      <ul class="kit__l">
+        <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-folder"/></svg><code>themes/greenboard</code><i>→</i><span>Redmine の <code>themes/</code></span></li>
+        <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-folder"/></svg><code>plugins/redmine_greenboard</code><i>→</i><span><code>plugins/</code></span></li>
+      </ul>
+      <p class="kit__p">再起動して、テーマに「Greenboard」を選ぶ。<br class="sp">それで終わりです。</p>
+      <a class="cta-big" href="https://github.com/nerosui/greenboard-redmine-theme"><span>GitHub で入手する</span><i aria-hidden="true">→</i></a>
+      <p class="kit__n">無料（GPL v2）・Redmine 6.0 以上<span class="pc">・</span><br class="sp">ボードには redmine_issues_panel が必要です</p>
+    </div>
+    <details class="more">
+      <summary>くわしい手順と、Docker で試す方法</summary>
+      <ol class="steps">
+        <li><span><code>themes/greenboard</code> を Redmine の <code>themes/</code> に、<code>plugins/redmine_greenboard</code> を <code>plugins/</code> にコピーします。</span></li>
+        <li><span>ボードを使う場合は、<code>redmine_issues_panel</code> を <code>plugins/</code> に入れます。</span></li>
+        <li><span>Redmine を再起動します（プラグインのマイグレーションは不要です）。</span></li>
+        <li><span>「管理」→「設定」→「表示」→「テーマ」で「Greenboard」を選びます。</span></li>
+      </ol>
+      <p class="more__h">Docker で試す</p>
+      <p class="more__p">入手したフォルダの中で実行します。</p>
+      <div class="term"><pre tabindex="0" role="region" aria-label="Docker で試すコマンド"><code>cp docker/.env.example docker/.env   # DB_PASSWORD と SECRET_KEY_BASE を設定する
+docker compose -f docker/compose.example.yaml up -d --build</code></pre><button class="term__c" type="button" hidden>コピー</button></div>
+      <p class="more__p"><code>http://localhost:3000</code> を開き、管理者でログインしてテーマを選んでください。</p>
+      <dl class="req">
+        <div><dt>Redmine</dt><dd>6.0 以上（6.1 で確認）</dd></div>
+        <div><dt>ボード</dt><dd><code>redmine_issues_panel</code> が必要です（v1.2.2 で確認）</dd></div>
+        <div><dt>プラグイン</dt><dd>プロジェクトの概要の表示、ダッシュボードのブロック、ことばの言い換え（チケット→課題 など）には、同梱の <code>redmine_greenboard</code> が必要です</dd></div>
+      </dl>
+    </details>
+  </div>
+  <footer class="foot"><p>Greenboard は Redmine の公式テーマではありません。このページの画面は、テーマの配色と寸法で組んだ見本で、課題・人名・日付は架空です。冒頭の暗い一覧は、Redmine 標準の表示を模したものです。</p><p class="foot__l"><a href="https://github.com/nerosui/greenboard-redmine-theme">GitHub</a><a href="https://github.com/nerosui/greenboard-redmine-theme/blob/main/LICENSE">ライセンス</a><a class="foot__m" href="?static=1" hidden>動きのないページで見る</a><span>© 2026 nerosui</span></p></footer>
+</section>
+</main>
+<div class="leaves" aria-hidden="true"><i class="leaf leaf--far"></i><i class="leaf leaf--near"></i></div>
+<canvas id="lit" class="fx" aria-hidden="true"></canvas>
+<script src="assets/site.js?5eecc1bc" defer></script>
 </body>
 </html>

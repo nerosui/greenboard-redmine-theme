@@ -1,0 +1,26 @@
+// 404 ページ。どの深さの URL で表示されても部品を読めるように base を置く。
+module.exports = ({ FONT, CSS }) => `<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<base href="/greenboard-redmine-theme/">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ページが見つかりません｜Greenboard</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b1412">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preload" href="${FONT}" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="${CSS}">
+</head>
+<body class="lost">
+<main>
+  <p class="lost__n">404</p>
+  <h1 class="mincho lost__h">まだ、夜の中です。</h1>
+  <p class="lost__p">お探しのページは見つかりませんでした。</p>
+  <a class="cta-big" href="./"><span>朝へもどる</span><i aria-hidden="true">→</i></a>
+</main>
+</body>
+</html>
+`;

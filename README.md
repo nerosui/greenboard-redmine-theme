@@ -27,7 +27,8 @@ Redmine 6 を、すっきりした緑基調のカード型 UI に作り替える
 | `plugins/redmine_greenboard/` | テーマ用の小さなプラグイン（ダッシュボードのブロック、プロジェクトホームの表示、用語の言い換え、既定値） |
 | `src/` | テーマのソース（部品ごとの CSS / JS）と `build.sh` |
 | `docs/` | デザイン仕様（`DESIGN.md`）、部品の担当表（`COMPONENTS.md`）、スクリーンショット |
-| `site/` | 紹介ページ（GitHub Pages） |
+| `site/` | 紹介ページ（GitHub Pages、ビルド済み） |
+| `site-src/` | 紹介ページのソースと `build.js` |
 | `docker/` | Docker で試すための例（`Dockerfile`、`compose.example.yaml`、`.env.example`） |
 
 ## 必要なもの
