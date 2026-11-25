@@ -3,3 +3,5 @@ docker/.env
 *.env
 !docker/.env.example
 docs/
+site/
+.github/

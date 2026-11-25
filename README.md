@@ -1,5 +1,7 @@
 # Greenboard — Redmine テーマ
 
+紹介ページ: https://nerosui.github.io/greenboard-redmine-theme/
+
 Redmine 6 を、すっきりした緑基調のカード型 UI に作り替えるテーマです。
 課題の追加・編集をシンプルなフォームにし、コメントは編集モードに入らずに書けます。
 カンバン（ボード）、ダッシュボード、プロジェクトホームも使いやすく整えています。
@@ -7,15 +9,15 @@ Redmine 6 を、すっきりした緑基調のカード型 UI に作り替える
 > 本テーマは、Backlog のような日本のプロジェクト管理ツールの使い勝手を参考にした独自のデザインです。
 > Backlog（株式会社ヌーラボ）とは関係がなく、同社のロゴ・アイコン・画像などの素材は一切含みません。
 
-![課題の詳細とコンパクトなコメント欄](docs/screenshots/d06-compact-comment.jpg)
+![課題の詳細とコンパクトなコメント欄](docs/screenshots/comment.webp)
 
 | プロジェクトホーム | ボード |
 |---|---|
-| ![](docs/screenshots/d03-project-home.jpg) | ![](docs/screenshots/d10-board.jpg) |
+| ![](docs/screenshots/overview.webp) | ![](docs/screenshots/board.webp) |
 | 課題の追加 | Wiki |
-| ![](docs/screenshots/d07-issue-new.jpg) | ![](docs/screenshots/d11-wiki.jpg) |
+| ![](docs/screenshots/new-issue.webp) | ![](docs/screenshots/wiki.webp) |
 
-スマホ幅（375px）にも対応しています（`docs/screenshots/m02-issues.jpg`、`m05-board.jpg`）。
+画面の見本データはすべて架空です。スマホ幅（375px）にも対応しています（`docs/screenshots/phone-issues.webp`、`phone-board.webp`）。
 
 ## 構成
 
@@ -25,6 +27,7 @@ Redmine 6 を、すっきりした緑基調のカード型 UI に作り替える
 | `plugins/redmine_greenboard/` | テーマ用の小さなプラグイン（ダッシュボードのブロック、プロジェクトホームの表示、用語の言い換え、既定値） |
 | `src/` | テーマのソース（部品ごとの CSS / JS）と `build.sh` |
 | `docs/` | デザイン仕様（`DESIGN.md`）、部品の担当表（`COMPONENTS.md`）、スクリーンショット |
+| `site/` | 紹介ページ（GitHub Pages） |
 | `docker/` | Docker で試すための例（`Dockerfile`、`compose.example.yaml`、`.env.example`） |
 
 ## 必要なもの
