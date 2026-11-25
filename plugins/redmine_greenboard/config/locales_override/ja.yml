@@ -32,8 +32,8 @@ ja:
   error_can_not_reopen_issue_on_closed_version: 終了したマイルストーンにひも付けされた課題の再オープンはできません。
   error_issue_done_ratios_not_updated: 課題の進捗率が更新できません。
   error_can_not_delete_tracker_html: このトラッカーは使用中です。削除できません。<p>以下のプロジェクトにこのトラッカーを使用している課題があります:<br>%{projects}</p>
-  mail_subject_reminder: "%{count}件の課題の期日が%{days}日以内に到来します"
-  mail_body_reminder: "%{count}件の担当課題の期日が%{days}日以内に到来します:"
+  mail_subject_reminder: "%{count}件の課題の期限日が%{days}日以内に到来します"
+  mail_body_reminder: "%{count}件の担当課題の期限日が%{days}日以内に到来します:"
   field_issue: 課題
   field_is_closed: 終了した課題
   field_is_in_roadmap: 課題をロードマップに表示する
@@ -163,3 +163,4 @@ ja:
   project_module_issues_panel: ボード
   label_no_change_option: "(変更なし)"
   field_effective_date: 期限日
+  label_roadmap_due_in: "期限日まで %{value}"

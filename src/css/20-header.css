@@ -39,6 +39,10 @@ html.gb-header-ready #top-menu #account { display: none; }
 /* global links */
 html.gb-header-ready #top-menu > ul { display: flex; align-items: stretch; gap: 0; margin: 0 0 0 8px; padding: 0; }
 html.gb-header-ready #top-menu > ul > li { float: none; display: flex; }
+/* After a narrow -> wide resize core re-appends the menu behind the tools, with the drawer icons still in the links. */
+html.gb-header-ready #top-menu > ul { order: 1; }
+html.gb-header-ready #top-menu > .gb-topbar-tools { order: 2; }
+html.gb-header-ready #top-menu > ul > li > a > svg { display: none; }
 html.gb-header-ready #top-menu > ul > li > a,
 html.gb-header-ready #top-menu > ul > li > a:link,
 html.gb-header-ready #top-menu > ul > li > a:visited {
@@ -95,19 +99,10 @@ html.gb-anim #top-menu a.gb-brand { transition: width var(--gb-dur-2) var(--gb-e
 .gb-brand__mark {
   width: 24px;
   height: 24px;
-  border-radius: 7px;
-  background: var(--gb-primary);
-  position: relative;
   flex: none;
+  /* an opening corner bracket on the theme green */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233fae8a'/%3E%3Cpath d='M22 10H11V23' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='square'/%3E%3C/svg%3E") center / contain no-repeat;
 }
-.gb-brand__mark::before, .gb-brand__mark::after {
-  content: "";
-  position: absolute;
-  background: #fff;
-  border-radius: 2px;
-}
-.gb-brand__mark::before { left: 6px; top: 6px; width: 5px; height: 12px; }
-.gb-brand__mark::after { left: 13px; top: 6px; width: 5px; height: 7px; }
 .gb-brand__name { overflow: hidden; text-overflow: ellipsis; }
 html.gb-nav-collapsed .gb-brand .gb-brand__name { display: none; }
 html.gb-nav-collapsed #top-menu a.gb-brand { justify-content: center; padding: 0; }

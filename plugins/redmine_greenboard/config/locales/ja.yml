@@ -32,7 +32,7 @@ ja:
   gb_show_less: 折りたたむ
   gb_act_noauthor: "%{type}が追加されました"
   gb_add_block: ブロックを追加
-  gb_days_left: 期日まで
+  gb_days_left: 期限日まで
   gb_hours_total: 合計
   gb_log_time_title: 時間を記録
   gb_edit_time_title: 作業時間を編集
