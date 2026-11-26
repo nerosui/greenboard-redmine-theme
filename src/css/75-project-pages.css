@@ -708,7 +708,7 @@
 .controller-gantts #content #gantt_area .gantt_hdr a:link,
 .controller-gantts #content #gantt_area .gantt_hdr a:visited { color: var(--gb-text-2); font-weight: var(--gb-fw-bold); text-decoration: none; }
 .controller-gantts #content #gantt_area .gantt_hdr a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
-.controller-gantts #content #gantt_area .gantt_hdr small { font-size: 11px; color: var(--gb-muted); font-variant-numeric: tabular-nums; }
+.controller-gantts #content #gantt_area .gantt_hdr small { font-size: 12px; color: var(--gb-muted); font-variant-numeric: tabular-nums; }
 .controller-gantts #content #gantt_area .gantt_hdr.nwday { background: var(--gb-surface-2); }
 .controller-gantts #content .gantt_hdr_selected_column_name { font-size: var(--gb-fs-sm); color: var(--gb-text-2); }
 /* subject column */
@@ -744,7 +744,6 @@
   height: 14px;
   min-width: 14px;
   margin: 3px 4px 3px 0;
-  font-size: 8px;
   line-height: 14px;
   vertical-align: top;
 }
@@ -1516,7 +1515,7 @@ body.controller-versions #content a.gb-form-cancel:hover { background: var(--gb-
     padding: 3px 6px 3px 8px;
     line-height: 16px;
   }
-  .controller-calendars #content ul.cal div.issue > a.issue { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; line-height: 16px; }
+  .controller-calendars #content ul.cal div.issue > a.issue { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; line-height: 17px; }
   .controller-calendars #content ul.cal div.issue .gb-cal-chip__subject { margin-left: 0; }
   .controller-calendars #content ul.cal div.issue > .tip { grid-row: 1; }
   /* busy days keep 3 chips + 「+n件」 (the grid display above must not reveal the hidden ones) */
@@ -1537,12 +1536,12 @@ body.controller-versions #content a.gb-form-cancel:hover { background: var(--gb-
   height: 18px;
   min-width: 18px;
   margin: 1px 4px 1px 0;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--gb-fw-bold);
   line-height: 18px;
 }
 /* 10-global hides the initial on gantt avatars (blank dots): show it, white on the avatar colour */
-.controller-gantts #content .gantt_subjects span[role="img"].avatar.s13.icon-avatar { font-size: 11px; color: #fff; }
+.controller-gantts #content .gantt_subjects span[role="img"].avatar.s13.icon-avatar { font-size: 12px; color: #fff; }
 
 /* time entries: the user's full name stays readable (R10) — 課題 wraps instead */
 @container (max-width: 860px) {
@@ -1923,7 +1922,7 @@ body.controller-versions #content a.gb-form-cancel:hover { background: var(--gb-
   }
   /* day columns: 「11/19」 over 「(木)」, so three days fit beside the issue column */
   .controller-timelog #content #time-report.gb-report--grp th.period { min-width: 47px; line-height: 16px; vertical-align: bottom; }
-  .controller-timelog #content #time-report.gb-report--grp th.period > .gb-report-wd { display: block; font-size: 11px; color: var(--gb-muted); }
+  .controller-timelog #content #time-report.gb-report--grp th.period > .gb-report-wd { display: block; font-size: 12px; color: var(--gb-muted); }
   .controller-timelog #content #time-report.gb-report--grp td.hours { min-width: 47px; }
   /* 合計 pinned on the right again (56px, row colour) — only the issue column scrolls away from it */
   .controller-timelog #content #time-report.gb-report--grp th.total,

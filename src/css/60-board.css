@@ -156,7 +156,7 @@
   border-radius: var(--gb-radius-pill, 999px);
   background: var(--gb-surface-3);
   color: var(--gb-text-2);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--gb-fw-bold, 600);
   line-height: 18px;
   text-align: center;
@@ -317,7 +317,7 @@
   border-radius: var(--gb-radius-pill, 999px);
   background: var(--gb-surface-3);
   color: var(--gb-text-2);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--gb-fw-bold, 600);
   line-height: 18px;
   text-align: center;
@@ -486,7 +486,7 @@
   border-radius: var(--gb-radius-pill, 999px);
   background: var(--gb-tr-default);
   color: #fff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--gb-fw-bold, 600);
   line-height: 1;
   white-space: nowrap;
@@ -562,7 +562,7 @@
   border-radius: 50%;
   background: var(--gb-av-0);
   color: #fff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--gb-fw-bold, 600);
   line-height: 1;
   font-style: normal;
@@ -1088,7 +1088,7 @@ html body.controller-issues_panel #content table.issues-panel.gb-board tr.group 
     border-radius: var(--gb-radius-pill, 999px);
     background: var(--gb-surface-3);
     color: var(--gb-text-2);
-    font-size: 11px;
+    font-size: 12px;
     line-height: 18px;
     text-align: center;
     font-variant-numeric: tabular-nums;
@@ -1178,7 +1178,7 @@ html body.controller-issues_panel #content table.issues-panel.gb-board tr.group 
     border-radius: var(--gb-radius-pill, 999px);
     background: var(--gb-surface-3);
     color: var(--gb-text-2);
-    font-size: 11px;
+    font-size: 12px;
     line-height: 18px;
     text-align: center;
     font-variant-numeric: tabular-nums;

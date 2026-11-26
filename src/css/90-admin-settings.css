@@ -854,7 +854,7 @@ body:has(#admin-menu) #content .sort-level .sort-level .table-list-cell.name { p
   border-radius: var(--gb-radius-sm);
   background: var(--gb-surface-3);
   color: var(--gb-text-2);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--gb-fw-bold);
   white-space: nowrap;
   vertical-align: middle;
@@ -2773,7 +2773,7 @@ body.controller-issue_statuses:has(#admin-menu) #content table.list:not(:has(td.
   box-sizing: border-box;
 }
 #ajax-modal #principals_for_new_member #principals label > span.icon svg { width: 16px; height: 16px; margin: 0; }
-#ajax-modal #principals_for_new_member #principals label > .avatar { font-size: 10px; line-height: 20px; }
+#ajax-modal #principals_for_new_member #principals label > .avatar { font-size: 12px; line-height: 20px; }
 
 /* R6.8 リポジトリ 修正用キーワード on phones: one 12px rhythm, rows 2–3 span the whole card */
 @media screen and (max-width: 600px) {

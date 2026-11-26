@@ -837,7 +837,7 @@ body.controller-issues #content > h2 {
   min-width: 18px;
   padding: 1px 5px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 16px;
   text-align: center;
   color: var(--f-text2);
@@ -955,7 +955,7 @@ body.controller-issues #content > h2 .gb-form-key { color: var(--f-strong); font
   align-items: center;
   height: 20px;
   padding: 0 8px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: #fff;
   background: var(--gbf-tracker, var(--gb-tr-default, #6b8fb5));
@@ -1040,7 +1040,7 @@ div.issue.gb-desc-first > div.description .wiki { font-size: 14px; line-height: 
   background: var(--gb-av-0, #4a9d7c);
   border-radius: 50%;
 }
-.gb-f-avatar--20 { width: 20px; height: 20px; font-size: 11px; }
+.gb-f-avatar--20 { width: 20px; height: 20px; font-size: 12px; }
 .gb-f-avatar[data-av="1"] { background: var(--gb-av-1, #4488c5); }
 .gb-f-avatar[data-av="2"] { background: var(--gb-av-2, #c9772e); }
 .gb-f-avatar[data-av="3"] { background: var(--gb-av-3, #8a6bb8); }

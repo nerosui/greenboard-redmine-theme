@@ -685,7 +685,7 @@ body.controller-welcome a.gb-home-news__title:hover { color: var(--gb-primary-st
 body.controller-welcome .gb-home-news__comments {
   flex: none; display: inline-flex; align-items: center; gap: 3px; height: 18px; padding: 0 6px;
   border-radius: var(--gb-radius-pill); background: var(--gb-surface-3); color: var(--gb-text-2);
-  font-size: 11px; font-weight: var(--gb-fw-bold); font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center;
+  font-size: 12px; font-weight: var(--gb-fw-bold); font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center;
 }
 body.controller-welcome svg.gb-home-news__cicon { width: 12px; height: 12px; stroke: currentColor; fill: none; }
 body.controller-welcome .gb-home-news__summary { margin: 2px 0 0; font-size: 13px; color: var(--gb-text-2); line-height: 1.6; }

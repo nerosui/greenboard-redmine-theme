@@ -32,7 +32,7 @@
   background: var(--gb-av-0, #4a9d7c); color: #fff;
   font-size: 13px; font-weight: 600; line-height: 1; font-style: normal;
 }
-:where(body) :where(.gb-avatar--20) { width: 20px; height: 20px; font-size: 11px; }
+:where(body) :where(.gb-avatar--20) { width: 20px; height: 20px; font-size: 12px; }
 :where(body) :where(.gb-avatar--36) { width: 36px; height: 36px; font-size: 15px; }
 :where(body) :where(.gb-avatar[data-av="1"]) { background: var(--gb-av-1, #4488c5); }
 :where(body) :where(.gb-avatar[data-av="2"]) { background: var(--gb-av-2, #c9772e); }

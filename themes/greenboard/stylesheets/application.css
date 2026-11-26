@@ -1326,7 +1326,7 @@ div.modal { border-radius: var(--gb-radius-lg); padding: 0; }
   overflow: hidden;
   box-sizing: border-box;
 }
-.gb-avatar--20 { width: 20px; height: 20px; font-size: 11px; }
+.gb-avatar--20 { width: 20px; height: 20px; font-size: 12px; }
 .gb-avatar--28 { width: 28px; height: 28px; font-size: 13px; }
 .gb-avatar--36 { width: 36px; height: 36px; font-size: 15px; }
 .gb-avatar--64 { width: 64px; height: 64px; font-size: 26px; }
@@ -1557,7 +1557,8 @@ span[role="img"].avatar {
   box-sizing: border-box;
 }
 .avatar.s13, .avatar.s16, .avatar.s22 { inline-size: 20px; block-size: 20px; }
-span[role="img"].avatar.s13, span[role="img"].avatar.s16, span[role="img"].avatar.s22 { font-size: 11px; }
+span[role="img"].avatar.s13 { font-size: 11px; }
+span[role="img"].avatar.s16, span[role="img"].avatar.s22 { font-size: 12px; }
 .avatar.s24 { inline-size: 28px; block-size: 28px; }
 span[role="img"].avatar.s24 { font-size: 13px; }
 .avatar.s40, .avatar.s50 { inline-size: 36px; block-size: 36px; }
@@ -1601,7 +1602,7 @@ span.gb-proj-avatar {
   padding: 0;
   text-indent: 0;
 }
-span.gb-proj-avatar.gb-proj-avatar--20 { width: 20px; height: 20px; border-radius: 5px; font-size: 11px; margin-right: 8px; }
+span.gb-proj-avatar.gb-proj-avatar--20 { width: 20px; height: 20px; border-radius: 5px; font-size: 12px; margin-right: 8px; }
 /* projects list view: avatar + name on one centre line */
 table.list.projects td.name > span.gb-proj-avatar--20 + a { vertical-align: middle; }
 table.list.projects td.name { white-space: nowrap; }
@@ -1661,6 +1662,13 @@ div.modal p.buttons > a:not(.icon-only):hover { background: var(--gb-primary-sof
   html body div.flash.notice.gb-toast.is-leaving { transform: translateY(8px); }
 }
 @keyframes gb-toast-in-left { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* Japanese: proportional kana and punctuation (palt) for headings, buttons, tabs and labels only.
+   Running text keeps full-width metrics, which read better at body size. */
+:is(h1, h2, h3, h4, legend, th, label, .gb-btn, button, input[type=submit], input[type=button],
+    #main-menu a, #top-menu a, .tabs a, .contextual a, .gb-brand) {
+  font-feature-settings: "palt";
+}
 
 /* === 15-c-comment.css === */
 /* ==========================================================================
@@ -6366,7 +6374,7 @@ body.controller-issues #content > h2 {
   min-width: 18px;
   padding: 1px 5px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 16px;
   text-align: center;
   color: var(--f-text2);
@@ -6484,7 +6492,7 @@ body.controller-issues #content > h2 .gb-form-key { color: var(--f-strong); font
   align-items: center;
   height: 20px;
   padding: 0 8px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: #fff;
   background: var(--gbf-tracker, var(--gb-tr-default, #6b8fb5));
@@ -6569,7 +6577,7 @@ div.issue.gb-desc-first > div.description .wiki { font-size: 14px; line-height: 
   background: var(--gb-av-0, #4a9d7c);
   border-radius: 50%;
 }
-.gb-f-avatar--20 { width: 20px; height: 20px; font-size: 11px; }
+.gb-f-avatar--20 { width: 20px; height: 20px; font-size: 12px; }
 .gb-f-avatar[data-av="1"] { background: var(--gb-av-1, #4488c5); }
 .gb-f-avatar[data-av="2"] { background: var(--gb-av-2, #c9772e); }
 .gb-f-avatar[data-av="3"] { background: var(--gb-av-3, #8a6bb8); }
@@ -7247,7 +7255,7 @@ body.controller-issues #content > h2 .gb-form-main { flex: 0 0 100%; }
   border-radius: var(--gb-radius-pill, 999px);
   background: var(--gb-surface-3);
   color: var(--gb-text-2);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--gb-fw-bold, 600);
   line-height: 18px;
   text-align: center;
@@ -7408,7 +7416,7 @@ body.controller-issues #content > h2 .gb-form-main { flex: 0 0 100%; }
   border-radius: var(--gb-radius-pill, 999px);
   background: var(--gb-surface-3);
   color: var(--gb-text-2);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--gb-fw-bold, 600);
   line-height: 18px;
   text-align: center;
@@ -7577,7 +7585,7 @@ body.controller-issues #content > h2 .gb-form-main { flex: 0 0 100%; }
   border-radius: var(--gb-radius-pill, 999px);
   background: var(--gb-tr-default);
   color: #fff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--gb-fw-bold, 600);
   line-height: 1;
   white-space: nowrap;
@@ -7653,7 +7661,7 @@ body.controller-issues #content > h2 .gb-form-main { flex: 0 0 100%; }
   border-radius: 50%;
   background: var(--gb-av-0);
   color: #fff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--gb-fw-bold, 600);
   line-height: 1;
   font-style: normal;
@@ -8179,7 +8187,7 @@ html body.controller-issues_panel #content table.issues-panel.gb-board tr.group 
     border-radius: var(--gb-radius-pill, 999px);
     background: var(--gb-surface-3);
     color: var(--gb-text-2);
-    font-size: 11px;
+    font-size: 12px;
     line-height: 18px;
     text-align: center;
     font-variant-numeric: tabular-nums;
@@ -8269,7 +8277,7 @@ html body.controller-issues_panel #content table.issues-panel.gb-board tr.group 
     border-radius: var(--gb-radius-pill, 999px);
     background: var(--gb-surface-3);
     color: var(--gb-text-2);
-    font-size: 11px;
+    font-size: 12px;
     line-height: 18px;
     text-align: center;
     font-variant-numeric: tabular-nums;
@@ -10259,7 +10267,7 @@ html body.controller-wiki table.annotate tr.bloc-1 + tr.bloc-0 > th.line-num { b
   background: var(--gb-av-0, #4a9d7c); color: #fff;
   font-size: 13px; font-weight: 600; line-height: 1; font-style: normal;
 }
-:where(body) :where(.gb-avatar--20) { width: 20px; height: 20px; font-size: 11px; }
+:where(body) :where(.gb-avatar--20) { width: 20px; height: 20px; font-size: 12px; }
 :where(body) :where(.gb-avatar--36) { width: 36px; height: 36px; font-size: 15px; }
 :where(body) :where(.gb-avatar[data-av="1"]) { background: var(--gb-av-1, #4488c5); }
 :where(body) :where(.gb-avatar[data-av="2"]) { background: var(--gb-av-2, #c9772e); }
@@ -11402,7 +11410,7 @@ a.gb-box-link {
   user-select: none;
 }
 .gb-members .gb-avatar { border-radius: 50%; }
-.gb-members .gb-avatar--20 { width: 20px; height: 20px; font-size: 11px; }
+.gb-members .gb-avatar--20 { width: 20px; height: 20px; font-size: 12px; }
 .gb-members .gb-avatar--anon { background: var(--gb-surface-3); color: var(--gb-text-2); }
 .gb-members .gb-avatar[data-av="1"], .gb-proj-avatar[data-av="1"] { background: var(--gb-av-1); }
 .gb-members .gb-avatar[data-av="2"], .gb-proj-avatar[data-av="2"] { background: var(--gb-av-2); }
@@ -12961,7 +12969,7 @@ body.controller-my.action-page #my-page .block-receiver.ui-sortable:empty,
 .controller-gantts #content #gantt_area .gantt_hdr a:link,
 .controller-gantts #content #gantt_area .gantt_hdr a:visited { color: var(--gb-text-2); font-weight: var(--gb-fw-bold); text-decoration: none; }
 .controller-gantts #content #gantt_area .gantt_hdr a:hover { color: var(--gb-primary-strong); text-decoration: underline; }
-.controller-gantts #content #gantt_area .gantt_hdr small { font-size: 11px; color: var(--gb-muted); font-variant-numeric: tabular-nums; }
+.controller-gantts #content #gantt_area .gantt_hdr small { font-size: 12px; color: var(--gb-muted); font-variant-numeric: tabular-nums; }
 .controller-gantts #content #gantt_area .gantt_hdr.nwday { background: var(--gb-surface-2); }
 .controller-gantts #content .gantt_hdr_selected_column_name { font-size: var(--gb-fs-sm); color: var(--gb-text-2); }
 /* subject column */
@@ -12997,7 +13005,6 @@ body.controller-my.action-page #my-page .block-receiver.ui-sortable:empty,
   height: 14px;
   min-width: 14px;
   margin: 3px 4px 3px 0;
-  font-size: 8px;
   line-height: 14px;
   vertical-align: top;
 }
@@ -13769,7 +13776,7 @@ body.controller-versions #content a.gb-form-cancel:hover { background: var(--gb-
     padding: 3px 6px 3px 8px;
     line-height: 16px;
   }
-  .controller-calendars #content ul.cal div.issue > a.issue { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; line-height: 16px; }
+  .controller-calendars #content ul.cal div.issue > a.issue { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; line-height: 17px; }
   .controller-calendars #content ul.cal div.issue .gb-cal-chip__subject { margin-left: 0; }
   .controller-calendars #content ul.cal div.issue > .tip { grid-row: 1; }
   /* busy days keep 3 chips + 「+n件」 (the grid display above must not reveal the hidden ones) */
@@ -13790,12 +13797,12 @@ body.controller-versions #content a.gb-form-cancel:hover { background: var(--gb-
   height: 18px;
   min-width: 18px;
   margin: 1px 4px 1px 0;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--gb-fw-bold);
   line-height: 18px;
 }
 /* 10-global hides the initial on gantt avatars (blank dots): show it, white on the avatar colour */
-.controller-gantts #content .gantt_subjects span[role="img"].avatar.s13.icon-avatar { font-size: 11px; color: #fff; }
+.controller-gantts #content .gantt_subjects span[role="img"].avatar.s13.icon-avatar { font-size: 12px; color: #fff; }
 
 /* time entries: the user's full name stays readable (R10) — 課題 wraps instead */
 @container (max-width: 860px) {
@@ -14176,7 +14183,7 @@ body.controller-versions #content a.gb-form-cancel:hover { background: var(--gb-
   }
   /* day columns: 「11/19」 over 「(木)」, so three days fit beside the issue column */
   .controller-timelog #content #time-report.gb-report--grp th.period { min-width: 47px; line-height: 16px; vertical-align: bottom; }
-  .controller-timelog #content #time-report.gb-report--grp th.period > .gb-report-wd { display: block; font-size: 11px; color: var(--gb-muted); }
+  .controller-timelog #content #time-report.gb-report--grp th.period > .gb-report-wd { display: block; font-size: 12px; color: var(--gb-muted); }
   .controller-timelog #content #time-report.gb-report--grp td.hours { min-width: 47px; }
   /* 合計 pinned on the right again (56px, row colour) — only the issue column scrolls away from it */
   .controller-timelog #content #time-report.gb-report--grp th.total,
@@ -14925,7 +14932,7 @@ body.controller-welcome a.gb-home-news__title:hover { color: var(--gb-primary-st
 body.controller-welcome .gb-home-news__comments {
   flex: none; display: inline-flex; align-items: center; gap: 3px; height: 18px; padding: 0 6px;
   border-radius: var(--gb-radius-pill); background: var(--gb-surface-3); color: var(--gb-text-2);
-  font-size: 11px; font-weight: var(--gb-fw-bold); font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center;
+  font-size: 12px; font-weight: var(--gb-fw-bold); font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center;
 }
 body.controller-welcome svg.gb-home-news__cicon { width: 12px; height: 12px; stroke: currentColor; fill: none; }
 body.controller-welcome .gb-home-news__summary { margin: 2px 0 0; font-size: 13px; color: var(--gb-text-2); line-height: 1.6; }
@@ -16105,7 +16112,7 @@ body:has(#admin-menu) #content .sort-level .sort-level .table-list-cell.name { p
   border-radius: var(--gb-radius-sm);
   background: var(--gb-surface-3);
   color: var(--gb-text-2);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: var(--gb-fw-bold);
   white-space: nowrap;
   vertical-align: middle;
@@ -18024,7 +18031,7 @@ body.controller-issue_statuses:has(#admin-menu) #content table.list:not(:has(td.
   box-sizing: border-box;
 }
 #ajax-modal #principals_for_new_member #principals label > span.icon svg { width: 16px; height: 16px; margin: 0; }
-#ajax-modal #principals_for_new_member #principals label > .avatar { font-size: 10px; line-height: 20px; }
+#ajax-modal #principals_for_new_member #principals label > .avatar { font-size: 12px; line-height: 20px; }
 
 /* R6.8 リポジトリ 修正用キーワード on phones: one 12px rhythm, rows 2–3 span the whole card */
 @media screen and (max-width: 600px) {
