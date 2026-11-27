@@ -34,7 +34,7 @@ function leave() {
     else el.setAttribute('class', name);
   }
   words.forEach(([el, s]) => (el.textContent = s));
-  [hdr, tools, clock, clockB, leafWrap, leafN, leafF, litCv, R].forEach(el => (el._c = null));
+  [hdr, tools, clock, clockB, play, leafWrap, leafN, leafF, litCv, R].forEach(el => (el._c = null));
   $('.trk').dataset.t = '1';
   $$('.scene > .stage').forEach(s => s.removeAttribute('aria-hidden'));
   fitStatic();
@@ -70,35 +70,71 @@ function choose() {
   controls();
 }
 
-/* ---- stop / start ---- */
-const still = $('.still'),
-  stillT = $('.still__t'),
+/* ---- play: the day runs by itself until the visitor takes the scroll back ---- */
+const play = $('.play'),
+  playT = $('.play__t'),
   modeLink = $('.foot__m');
+const SPEED = 0.5; // screens a second
+let auto = false,
+  ay = 0,
+  aLast = 0;
+const atEnd = () => scrollY >= dawn - 4;
+const LABEL = {
+  off: ['<span class="play__w">時間を</span>進める', 'スクロールしなくても、時間が進みます'],
+  on: ['止める', '時間を止める'],
+  end: ['<span class="play__w">朝から</span>もう一度', '朝から、もう一度時間を進める']
+};
+/* called every frame by chrome(); the label only changes when the state does */
+function playMark() {
+  const st = auto ? 'on' : atEnd() ? 'end' : 'off';
+  once(play, 's', st, v => {
+    play.dataset.s = v;
+    playT.innerHTML = LABEL[v][0];
+    play.title = LABEL[v][1];
+  });
+}
 function controls() {
-  still.hidden = !live;
-  still.setAttribute('aria-pressed', String(stopped));
-  still.title = stopped ? '背景の動きを再開する' : '背景の動きを止める';
-  stillT.innerHTML = stopped ? '動かす' : '<span class="still__w">動きを</span>止める';
-  R.classList.toggle('stopped', live && stopped);
+  play.hidden = !live;
+  if (!live) auto = false;
   modeLink.hidden = reducedMotion.matches || !roomy.matches;
   modeLink.href = QUERY.get('static') === '1' ? './' : '?static=1';
   modeLink.textContent = QUERY.get('static') === '1' ? '動きのあるページで見る' : '動きのないページで見る';
 }
-try {
-  stopped = sessionStorage.getItem('gb-motion') === 'off';
-} catch (e) {
-  stopped = false;
+function halt() {
+  auto = false;
+  playMark();
 }
-still.addEventListener('click', () => {
-  stopped = !stopped;
-  try {
-    sessionStorage.setItem('gb-motion', stopped ? 'off' : 'on');
-  } catch (e) {
-    /* storage can be refused; the button still works for this page view */
-  }
-  controls();
+function tick(now) {
+  if (!auto || !live) return;
+  /* a slow frame still moves the day at its pace; a long gap (a hidden tab) does not jump it */
+  const dt = Math.min(now - aLast, 200);
+  aLast = now;
+  /* the scrollbar was dragged, or the page was moved some other way */
+  if (Math.abs(scrollY - Math.round(ay)) > 3) return halt();
+  ay = Math.min(dawn, ay + (vh * SPEED * dt) / 1000);
+  scrollTo(0, ay);
+  if (ay >= dawn) return halt();
+  requestAnimationFrame(tick);
+}
+play.addEventListener('click', () => {
+  if (auto) return halt();
+  if (atEnd()) scrollTo(0, 0);
+  ay = scrollY;
+  aLast = performance.now();
+  auto = true;
+  playMark();
   wake();
+  requestAnimationFrame(tick);
 });
+/* any scrolling of the visitor's own stops the day where it is */
+for (const t of ['wheel', 'touchstart', 'keydown'])
+  addEventListener(
+    t,
+    e => {
+      if (auto && !(e.target instanceof Node && play.contains(e.target))) halt();
+    },
+    { passive: true }
+  );
 
 /* ---- events ---- */
 addEventListener('scroll', () => (live ? wake() : noteSection()), { passive: true });

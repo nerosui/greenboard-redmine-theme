@@ -24,7 +24,7 @@
 <meta property="og:image:alt" content="夜の画面に並ぶ課題の一覧を、まるい光が照らしている。「おはよう、Redmine。」">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="assets/fonts/shippori-mincho-500.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/site.css?2b5837b8">
+<link rel="stylesheet" href="assets/site.css?82b6eba6">
 <script>(d=>{d.classList.add('js');var m=q=>matchMedia(q).matches;if(!m('(prefers-reduced-motion: reduce)')&&m('(min-width: 18.75em) and (min-height: 30em)')&&!/[?&]static=1/.test(location.search)){d.classList.add('motion');try{if(sessionStorage.getItem('gb-motion')==='off')d.classList.add('stopped')}catch(e){}}})(document.documentElement)</script>
 </head>
 <body>
@@ -53,7 +53,7 @@
 </header>
 <div class="tools">
   <span class="clock" aria-hidden="true" title="ページの中の時刻"><svg class="clock__ic" viewBox="0 0 24 24"><use href="#i-clock"/></svg><b>05:12</b></span>
-  <button class="still" type="button" aria-pressed="false" title="背景の動きを止める" hidden><i aria-hidden="true"></i><span class="still__t"><span class="still__w">動きを</span>止める</span></button>
+  <button class="play" type="button" data-s="off" title="スクロールしなくても、時間が進みます" hidden><i aria-hidden="true"></i><span class="play__t"><span class="play__w">時間を</span>進める</span></button>
 </div>
 
 <main id="top" tabindex="-1">
@@ -310,6 +310,6 @@ docker compose -f docker/compose.example.yaml up -d --build</code></pre><button 
 </main>
 <div class="leaves" aria-hidden="true"><i class="leaf leaf--far"></i><i class="leaf leaf--near"></i></div>
 <canvas id="lit" class="fx" aria-hidden="true"></canvas>
-<script src="assets/site.js?146d071d" defer></script>
+<script src="assets/site.js?5957d31d" defer></script>
 </body>
 </html>

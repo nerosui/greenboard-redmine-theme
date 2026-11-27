@@ -66,7 +66,7 @@ module.exports = ({ TITLE, DESC, BASE, REPO, CSS, JS, FONT, HEADJS }) => `<!doct
 </header>
 <div class="tools">
   <span class="clock" aria-hidden="true" title="ページの中の時刻"><svg class="clock__ic" viewBox="0 0 24 24"><use href="#i-clock"/></svg><b>05:12</b></span>
-  <button class="still" type="button" aria-pressed="false" title="背景の動きを止める" hidden><i aria-hidden="true"></i><span class="still__t"><span class="still__w">動きを</span>止める</span></button>
+  <button class="play" type="button" data-s="off" title="スクロールしなくても、時間が進みます" hidden><i aria-hidden="true"></i><span class="play__t"><span class="play__w">時間を</span>進める</span></button>
 </div>
 
 <main id="top" tabindex="-1">

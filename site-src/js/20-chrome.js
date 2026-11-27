@@ -30,6 +30,7 @@ function chrome() {
   const s = String((m / 60) | 0).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
   once(clockB, 's', s, v => (clockB.textContent = v));
   cls(clock, 'off', G > 6.25);
+  playMark();
 }
 
 /* ---- pointer ---- */

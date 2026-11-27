@@ -5,27 +5,25 @@
 .motion.nogl #sky,.motion.nolit #lit{display:none}
 .cssky{display:none;position:fixed;inset:0;z-index:0}.motion.nogl .cssky{display:block}
 .cssky::after{content:"";position:absolute;inset:0 0 40%;opacity:var(--stars,0);background-image:radial-gradient(1.5px 1.5px at 22px 34px,#fff,transparent),radial-gradient(1px 1px at 118px 80px,#cfe0ff,transparent),radial-gradient(1.2px 1.2px at 190px 22px,#fff3da,transparent),radial-gradient(1px 1px at 64px 150px,#fff,transparent),radial-gradient(1.4px 1.4px at 236px 138px,#dfeaff,transparent);background-size:271px 193px}
-/* stopped: nothing moves unless it is scrolled */
+/* calm: the ambient light has come to rest */
 .calm .wall__in,.calm .leaf,.calm .sun i,.calm .hint i,.calm .caret,.calm .wk__st i{animation-play-state:paused!important}
-.stopped.in .hero__h .ch,.stopped.in .hero__p,.stopped.in .hero__s,.stopped.in .hint{animation:none!important;opacity:1;transform:none;filter:none}
-.stopped.in .lens{animation:none!important;opacity:1!important}
-.stopped [data-rv]{transition:none!important}
 .motion main{position:relative;z-index:1}
 .motion .scene[style*="--len"]{height:calc(var(--len)*100svh);padding:0;background:none}
 .motion .stage.haze{-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,calc(1 - var(--haze,0)*.97)) 44px,#000 112px,#000 calc(100svh - 130px),rgba(0,0,0,calc(1 - var(--low,0)*.97)) calc(100svh - 66px));mask-image:linear-gradient(180deg,rgba(0,0,0,calc(1 - var(--haze,0)*.97)) 44px,#000 112px,#000 calc(100svh - 130px),rgba(0,0,0,calc(1 - var(--low,0)*.97)) calc(100svh - 66px))}
 .motion .scene[style*="--len"]>.stage{position:fixed;left:0;top:0;width:100%;height:100lvh;overflow:hidden;visibility:hidden;display:block;max-width:none;margin:0;contain:layout style}
 .motion .tools{position:fixed;z-index:50;left:clamp(10px,2.1vw,32px);bottom:clamp(10px,2.4svh,22px);bottom:calc(100lvh - 100svh + clamp(10px,2.4svh,22px));display:flex;align-items:center;height:40px;padding-left:14px;border-radius:999px;color:#eef5f1;background:rgba(5,10,14,.6);transition:color .6s,background .6s}
-.motion .tools[data-tone=end]{color:var(--ink);background:none}.motion .tools[data-tone=end] .clock{width:0;overflow:hidden}.motion .tools[data-tone=end] .still{background:rgba(255,253,246,.8)}
+.motion .tools[data-tone=end]{color:var(--ink);background:none}.motion .tools[data-tone=end] .clock{width:0;overflow:hidden}.motion .tools[data-tone=end] .play{background:rgba(255,253,246,.8)}
 .motion .tools[data-tone=light]{color:var(--ink);background:rgba(255,253,246,.74)}
 .motion .clock{display:flex;align-items:center;gap:10px;font:500 14px/1 var(--min);letter-spacing:.16em;font-variant-numeric:tabular-nums;transition:opacity .6s}
 .motion .clock__ic{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none;opacity:.85}
 .motion .clock.off{opacity:0}
-.still{height:40px;margin-left:14px;padding:0 16px 0 14px;border:0;border-left:1px solid color-mix(in srgb,currentColor 28%,transparent);border-radius:0 999px 999px 0;background:none;color:inherit;display:flex;align-items:center;gap:9px;font:500 13px/1 var(--ui);letter-spacing:.04em;white-space:nowrap;cursor:pointer}
-.still__t{min-width:6.3em;opacity:.85}.still:hover .still__t{opacity:1}
-.motion .tools[data-tone=end] .still{border-left:0;border-radius:999px;margin-left:0}
-.still i{width:10px;height:11px;border:solid currentColor;border-width:0 3px;opacity:.75}
-.still:hover i{opacity:1}
-.still[aria-pressed=true] i{width:0;height:0;border-width:6px 0 6px 10px;border-color:transparent transparent transparent currentColor;margin-left:3px}
+.play{height:40px;margin-left:14px;padding:0 16px 0 14px;border:0;border-left:1px solid color-mix(in srgb,currentColor 28%,transparent);border-radius:0 999px 999px 0;background:none;color:inherit;display:flex;align-items:center;gap:9px;font:500 13px/1 var(--ui);letter-spacing:.04em;white-space:nowrap;cursor:pointer}
+.play__t{min-width:6.3em;opacity:.85}.play:hover .play__t{opacity:1}
+.motion .tools[data-tone=end] .play{border-left:0;border-radius:999px;margin-left:0}
+/* off and end: a play triangle; on: pause bars */
+.play i{width:0;height:0;margin-left:2px;border:solid transparent;border-width:6px 0 6px 10px;border-left-color:currentColor;opacity:.8}
+.play[data-s=on] i{width:10px;height:11px;margin-left:0;border-width:0 3px;border-color:currentColor}
+.play:hover i{opacity:1}
 /* komorebi: two pre-blurred leaf-shadow layers */
 .motion .leaves{display:block;position:fixed;inset:0;z-index:39;overflow:hidden;pointer-events:none;visibility:hidden;-webkit-mask:radial-gradient(ellipse 58vw 52vh at 62vw 68vh,rgba(0,0,0,.13) 0,rgba(0,0,0,.13) 62%,#000 100%);mask:radial-gradient(ellipse 58vw 52vh at 62vw 68vh,rgba(0,0,0,.13) 0,rgba(0,0,0,.13) 62%,#000 100%)}
 .motion .leaves.on{visibility:visible}
