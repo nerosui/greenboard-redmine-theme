@@ -6,7 +6,7 @@
 .cssky{display:none;position:fixed;inset:0;z-index:0}.motion.nogl .cssky{display:block}
 .cssky::after{content:"";position:absolute;inset:0 0 40%;opacity:var(--stars,0);background-image:radial-gradient(1.5px 1.5px at 22px 34px,#fff,transparent),radial-gradient(1px 1px at 118px 80px,#cfe0ff,transparent),radial-gradient(1.2px 1.2px at 190px 22px,#fff3da,transparent),radial-gradient(1px 1px at 64px 150px,#fff,transparent),radial-gradient(1.4px 1.4px at 236px 138px,#dfeaff,transparent);background-size:271px 193px}
 /* stopped: nothing moves unless it is scrolled */
-.calm .wall__in,.calm .leaf,.calm .sun i,.calm .hint i,.calm .caret{animation-play-state:paused!important}
+.calm .wall__in,.calm .leaf,.calm .sun i,.calm .hint i,.calm .caret,.calm .wk__st i{animation-play-state:paused!important}
 .stopped.in .hero__h .ch,.stopped.in .hero__p,.stopped.in .hero__s,.stopped.in .hint{animation:none!important;opacity:1;transform:none;filter:none}
 .stopped.in .lens{animation:none!important;opacity:1!important}
 .stopped [data-rv]{transition:none!important}
@@ -108,7 +108,8 @@
 .motion .who.empty .who__v,.motion .due.empty .due__v{display:none}.motion .who.empty .who__e,.motion .due.empty .due__e{display:inline}
 .motion .sel.flash{animation:flash .7s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 4px rgba(63,174,138,.55)}100%{box-shadow:0 0 0 12px rgba(63,174,138,0)}}
-.motion .btn.go.down,.motion .btn.send.down{transform:scale(.94);filter:brightness(.9)}.motion .btn.go,.motion .btn.send{transition:transform .15s,filter .15s}
+.motion kbd.down{transform:translateY(1px) scale(.94);background:var(--gb-border);border-bottom-width:1px}.motion kbd{display:inline-block;transition:transform .12s,background-color .12s}
+.motion .btn.go.down,.motion .btn.send.down,.motion .btn.wk__go.down{transform:scale(.94);filter:brightness(.9)}.motion .btn.go,.motion .btn.send,.motion .btn.wk__go{transition:transform .15s,filter .15s}
 .motion .desk__s{position:absolute;right:7vw;top:0;margin:0;opacity:0;color:var(--ink);font:500 clamp(18px,2vw,30px)/1.6 var(--min);letter-spacing:.14em;white-space:nowrap}
 .motion .born{display:block;position:absolute;left:0;top:0;width:340px;opacity:0;transform-origin:0 0;will-change:transform,opacity}
 .motion .born .card{box-shadow:-18px 34px 60px -14px rgba(20,50,40,.45),0 0 0 1px rgba(63,174,138,.25)}
@@ -146,9 +147,12 @@
 .band__l em{opacity:1}
 /* wiki */
 .motion .wiki__h{position:absolute;right:clamp(28px,7vw,120px);top:clamp(90px,13svh,130px);white-space:nowrap;color:#0e211b;font-size:min(clamp(30px,3.7vw,56px),5.5svh);text-shadow:10px 14px 26px rgba(110,60,10,.3);will-change:transform,opacity}
-.motion .wiki__s{display:none}
-.motion .sheetwrap{position:absolute;left:0;top:0;width:860px;perspective:1700px;transform-origin:0 0;display:block}
-.motion .sheet{transform-origin:50% 100%;will-change:transform,opacity}
+.motion .wiki__s{position:absolute;right:clamp(28px,7vw,120px);margin:0;white-space:nowrap;text-align:right;color:#33260f;font-size:min(clamp(15px,1.15vw,18px),2.4svh);letter-spacing:.1em;line-height:1.9;opacity:0}
+.motion .wiki__after{position:absolute;right:clamp(28px,7vw,120px);top:clamp(90px,13svh,130px);margin:0;writing-mode:vertical-rl;text-orientation:upright;white-space:nowrap;color:#0e211b;font-size:min(clamp(30px,3.7vw,56px),5.5svh);line-height:1.5;letter-spacing:.12em;text-shadow:10px 14px 26px rgba(110,60,10,.3);opacity:0;will-change:transform,opacity}
+.motion .sheetwrap{position:absolute;left:0;top:0;perspective:1700px;transform-origin:0 0;display:block}
+.motion .wk{transform-origin:50% 100%;will-change:transform,opacity}
+.motion .wk__st i{animation:blink 1s steps(1) infinite}
+.motion .wk__bar.pvw b,.motion .wk__bar.pvw span{transition:color .2s}
 /* train */
 .motion .glass{display:block;position:absolute;inset:9svh 5vw;border-radius:clamp(22px,3vw,44px);box-shadow:0 0 0 100vmax #05080d,inset 0 0 0 2px rgba(255,255,255,.09),inset 0 0 140px rgba(0,0,0,.55);will-change:transform,opacity}
 .motion .train__h{position:absolute;inset:0;margin:0;pointer-events:none;font-size:min(clamp(34px,5.6vw,92px),8.4svh);text-shadow:0 0 18px rgba(4,8,20,.55),0 4px 44px rgba(4,8,20,.75)}

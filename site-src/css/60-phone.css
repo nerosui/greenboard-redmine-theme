@@ -54,9 +54,11 @@
   .motion .homewrap{width:390px}
   .motion .now__after{bottom:calc(100lvh - 100svh + 72px);font-size:20px;letter-spacing:.06em}
   .wiki .stage{grid-template-columns:1fr}.wiki__h{grid-column:1;grid-row:auto;writing-mode:horizontal-tb}
-  .motion .wiki__h{left:var(--pad);right:var(--pad);top:72px;white-space:nowrap;font-size:clamp(24px,6.9vw,32px);line-height:1.45;letter-spacing:.05em;writing-mode:horizontal-tb}
-  .motion .wiki__s{display:block;position:absolute;left:var(--pad);top:210px;margin:0;color:#33260f;font-size:15px;line-height:1.7;letter-spacing:.06em}
-  .motion .sheetwrap{width:390px}
+  .motion .wiki__h{left:var(--pad);right:var(--pad);top:72px;white-space:nowrap;font-size:clamp(26px,7.6vw,34px);line-height:1.45;letter-spacing:.05em;writing-mode:horizontal-tb}
+  .motion .wiki__s{display:block;position:absolute;left:var(--pad);right:auto;text-align:left;white-space:normal;top:210px;margin:0;color:#33260f;font-size:15px;line-height:1.7;letter-spacing:.06em}
+  .motion .wiki__after{writing-mode:horizontal-tb;top:auto;left:0;right:0;bottom:calc(100lvh - 100svh + 72px);text-align:center;font-size:20px;letter-spacing:.06em}
+  .motion .wiki__after br{display:none}
+  .wk.one .sheet{padding:26px 22px}.wk.one .wk__src{padding:16px 14px;font-size:12px}.wk__bar{gap:12px}.wk__foot .kbd{display:none}
   .train .stage{grid-template-columns:1fr;justify-items:center}.phonewrap{grid-column:1;grid-row:auto}
   .motion .glass{inset:64px 10px 56px}
   .motion .train__h{font-size:clamp(30px,8.6vw,38px)}

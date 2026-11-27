@@ -205,21 +205,51 @@ module.exports = ({ TITLE, DESC, BASE, REPO, CSS, JS, FONT, HEADJS }) => `<!doct
  </div>
 </section>
 
-<!-- ============ 4. 夕方：読む ============ -->
-<section class="scene wiki" id="wiki" data-tone="light" style="--len:4">
+<!-- ============ 4. 夕方：書いて、読まれる ============ -->
+<section class="scene wiki" id="wiki" data-tone="light" style="--len:4.4">
  <div class="stage">
-  <h2 class="mincho vert wiki__h">せっかく書いた<br class="sp"><span class="lat">Wiki</span>が、<br>ちゃんと読まれる。</h2>
-  <p class="wiki__s">見出しも行間も、読みものの組み方で。</p>
-  <p class="vh">画面の見本。Wiki のページ「公開前チェックリスト」に、見出しと表と箇条書きが並んでいる。</p>
-  <div class="sheetwrap" aria-hidden="true" inert><div class="sheet ui">
-    <p class="sheet__c">Wiki</p><div class="u3">公開前チェックリスト</div>
-    <p>12月16日（水）の切り替えまでに確認することをまとめます。担当と期限は下の表のとおりです。</p>
-    <div class="u4">公開までの流れ</div>
-    <table><thead><tr><th>項目</th><th>担当</th><th>期限</th></tr></thead><tbody><tr><td>デザインの最終確認</td><td>樋口</td><td>12/10</td></tr><tr><td>購入までの通し確認</td><td>小野寺</td><td>12/14</td></tr><tr><td>お知らせの文面</td><td>早川</td><td>12/11</td></tr><tr><td>切り替えの判断</td><td>森下</td><td>12/15</td></tr></tbody></table>
-    <div class="u4">当日に見るところ</div>
-    <ul><li>トップページから購入完了まで進める</li><li>注文確認メールが届く</li><li>スマホで購入ボタンが押せる</li></ul>
-    <blockquote>問題が見つかったら、課題を追加して森下に知らせてください。</blockquote>
+  <h2 class="mincho vert wiki__h">書くそばから、<br>読みものになる。</h2>
+  <p class="wiki__s">書くのは中身だけ。<br>組むのは、まかせていい。</p>
+  <p class="vh">画面の見本。Wiki のページ「公開前チェックリスト」を編集している。左に書いた記法が、右のプレビューで見出し、表、チェックリスト、マーカーの強調としてすぐに組まれ、保存すると行間のゆったりした読みやすいページになる。末尾に、森下 由佳 さんがたった今更新したことと、履歴へのリンクが出ている。</p>
+  <div class="sheetwrap" aria-hidden="true" inert><div class="wk ui"><i class="wk__bg"></i>
+    <div class="editor__bar wk__bar"><b>編集</b><span>プレビュー</span><i>B</i><i class="it">I</i><i>H1</i><i>H2</i><i>≡</i><em class="wk__sp">並べて表示</em></div>
+    <div class="wk__body">
+     <pre class="wk__src"><span class="ln"># 公開前チェックリスト</span>
+<span class="ln"> </span>
+<span class="ln">12月16日（水）の切り替えまでに確認することをまとめます。</span>
+<span class="ln">切り替えるかどうかは、<i class="ins">*</i><i class="caret c5"></i>前日の17時まで<i class="ins">*</i><i class="caret c6"></i>に森下が決めます。</span>
+<span class="ln"> </span>
+<span class="ln">## 公開までの流れ</span>
+<span class="ln"> </span>
+<span class="ln">| 項目 | 担当 | 期限 |</span>
+<span class="ln">|---|---|---|</span>
+<span class="ln">| デザインの最終確認 | 樋口 | 12/10 |</span>
+<span class="ln">| 購入までの通し確認 | 小野寺 | 12/14 |</span>
+<span class="ln">| お知らせの文面 | 早川 | 12/11 |</span>
+<span class="ln">| 切り替えの判断 | 森下 | 12/15 |</span>
+<span class="ln"> </span>
+<span class="ln tln">## <span class="ty" data-text="公開前に確かめること">公開前に確かめること</span><i class="caret c0"></i></span>
+<span class="ln"> </span>
+<span class="ln tln">- [<b class="x">x</b><i class="caret c3"></i>] <span class="ty" data-text="トップページから購入完了まで進める">トップページから購入完了まで進める</span><i class="caret c1"></i></span>
+<span class="ln tln">- [<b class="x">x</b><i class="caret c4"></i>] <span class="ty" data-text="注文確認メールが届く">注文確認メールが届く</span><i class="caret c2"></i></span>
+<span class="ln tln">- [ ] <span class="ty" data-text="スマホで購入ボタンが押せる">スマホで購入ボタンが押せる</span><i class="caret c7"></i></span>
+<span class="ln"> </span>
+<span class="ln">&gt; 問題が見つかったら、課題を追加して森下に知らせてください。</span></pre>
+     <div class="sheet">
+      <p class="sheet__c">Wiki</p><div class="u3">公開前チェックリスト</div>
+      <p>12月16日（水）の切り替えまでに確認することをまとめます。切り替えるかどうかは、<em class="mk"><i></i>前日の17時まで</em>に森下が決めます。</p>
+      <div class="u4">公開までの流れ</div>
+      <table><thead><tr><th>項目</th><th>担当</th><th>期限</th></tr></thead><tbody><tr><td>デザインの最終確認</td><td>樋口</td><td>12/10</td></tr><tr><td>購入までの通し確認</td><td>小野寺</td><td>12/14</td></tr><tr><td>お知らせの文面</td><td>早川</td><td>12/11</td></tr><tr><td>切り替えの判断</td><td>森下</td><td>12/15</td></tr></tbody></table>
+      <div class="u4 pv wk__h"><i class="wk__hl"></i>公開前に確かめること<span class="wk__tools"><i class="wk__pm">¶</i><svg class="ic" viewBox="0 0 24 24"><path d="M4 20l1-4.5L16 4.5l3.5 3.5L8.5 19z M13.5 7l3.5 3.5"/></svg></span></div>
+      <ul class="tasks"><li class="pv"><i class="cb on"></i>トップページから購入完了まで進める</li><li class="pv"><i class="cb on"></i>注文確認メールが届く</li><li class="pv"><i class="cb"></i>スマホで購入ボタンが押せる</li></ul>
+      <blockquote>問題が見つかったら、課題を追加して森下に知らせてください。</blockquote>
+      <p class="wk__meta">${av('m')}<span><b>森下 由佳</b> さんがたった今更新</span><span class="a">履歴</span></p>
+     </div>
+     <span class="wk__note"><span class="wk__st"><i></i>更新中…</span><span class="wk__ok">更新しました。</span></span>
+    </div>
+    <div class="wk__foot"><span class="btn pri wk__go">保存</span><span class="a">キャンセル</span><span class="kbd wk__kbd"><kbd class="k1">⌘</kbd>+<kbd class="k2">Enter</kbd> で保存</span></div>
   </div></div>
+  <p class="mincho wiki__after">聞かれるまえに、<br>読まれている。</p>
  </div>
 </section>
 
