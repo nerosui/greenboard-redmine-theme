@@ -37,6 +37,7 @@
 /* open */
 .motion .hint{display:flex}
 .motion .night{position:absolute;inset:0;height:auto;display:block}
+.motion .wall{will-change:transform}
 .motion .wall__in{animation:drift 80s linear infinite;will-change:transform;height:300%}
 .motion .wall--old .wall__in{animation-duration:48s;--d:-527px}.motion .wall--new .wall__in{--d:-880px}
 .motion .wcol{background-repeat:repeat-y;background-position:0 0}

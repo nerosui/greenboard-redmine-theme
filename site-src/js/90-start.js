@@ -78,7 +78,9 @@ const SPEED = 0.5; // screens a second
 let auto = false,
   ay = 0,
   aLast = 0;
-const atEnd = () => scrollY >= dawn - 4;
+/* the day ends once the last light has turned green */
+const goal = () => Math.min(dawn + vh * 1.1, R.scrollHeight - vh);
+const atEnd = () => scrollY >= goal() - 4;
 const LABEL = {
   off: ['<span class="play__w">時間を</span>進める', 'スクロールしなくても、時間が進みます'],
   on: ['止める', '時間を止める'],
@@ -104,17 +106,16 @@ function halt() {
   auto = false;
   playMark();
 }
-function tick(now) {
-  if (!auto || !live) return;
-  /* a slow frame still moves the day at its pace; a long gap (a hidden tab) does not jump it */
+/* runs at the start of the engine's frame, so the stages are drawn at the scroll it has just set */
+function autoStep(now) {
+  if (!auto) return;
   const dt = Math.min(now - aLast, 200);
   aLast = now;
   /* the scrollbar was dragged, or the page was moved some other way */
   if (Math.abs(scrollY - Math.round(ay)) > 3) return halt();
-  ay = Math.min(dawn, ay + (vh * SPEED * dt) / 1000);
+  ay = Math.min(goal(), ay + (vh * SPEED * dt) / 1000);
   scrollTo(0, ay);
-  if (ay >= dawn) return halt();
-  requestAnimationFrame(tick);
+  if (ay >= goal()) halt();
 }
 play.addEventListener('click', () => {
   if (auto) return halt();
@@ -124,7 +125,6 @@ play.addEventListener('click', () => {
   auto = true;
   playMark();
   wake();
-  requestAnimationFrame(tick);
 });
 /* any scrolling of the visitor's own stops the day where it is */
 for (const t of ['wheel', 'touchstart', 'keydown'])

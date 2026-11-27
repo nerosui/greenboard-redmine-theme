@@ -54,6 +54,7 @@ function frame(now) {
   raf = 0;
   if (!live) return;
   const dt = Math.min(now - last, 64);
+  autoStep(now);
   const y0 = scrollY;
   const still = stopped || now - lastInput > IDLE;
   const moving = sy !== y0 || now < busyUntil || (pOn && Math.abs(px / vw - cx) + Math.abs(py / vh - cy) > 0.002);
@@ -106,7 +107,7 @@ function frame(now) {
   chrome();
   leaves();
   drawLight();
-  if (moving || sy !== y0) kick();
+  if (moving || sy !== y0 || auto) kick();
   else if (amb > 0) rest();
 }
 
