@@ -79,7 +79,7 @@
   .motion .tools[data-tone] .play,.play{height:44px;margin:0;padding:0 10px 0 6px;gap:6px;border:0;border-radius:0;background:none;font-size:12px}
   .play__w{display:none}.play__t{min-width:0}
   .motion .hdr__brand span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-  .motion .clock{gap:5px;font-size:14px;letter-spacing:.08em}.motion .clock__ic{width:14px;height:14px}
+  .motion .clock{gap:5px;font-size:14px;letter-spacing:.08em}.motion .clock b{width:3.2em}.motion .clock__ic{width:14px;height:14px}
   .motion .stage.haze{-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,calc(1 - var(--haze,0)*.97)) 40px,#000 84px);mask-image:linear-gradient(180deg,rgba(0,0,0,calc(1 - var(--haze,0)*.97)) 40px,#000 84px)}
   .motion .keep__h{white-space:nowrap}
   .night .wall--new{margin-left:-1108px}

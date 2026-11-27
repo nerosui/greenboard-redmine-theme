@@ -393,6 +393,7 @@ code{font:14px/1.6 "SFMono-Regular",Menlo,Consolas,monospace;background:rgba(22,
 .motion .tools[data-tone=end]{color:var(--ink);background:none}.motion .tools[data-tone=end] .clock{width:0;overflow:hidden}.motion .tools[data-tone=end] .play{background:rgba(255,253,246,.8)}
 .motion .tools[data-tone=light]{color:var(--ink);background:rgba(255,253,246,.74)}
 .motion .clock{display:flex;align-items:center;gap:10px;font:500 14px/1 var(--min);letter-spacing:.16em;font-variant-numeric:tabular-nums;transition:opacity .6s}
+.motion .clock b{display:inline-block;width:3.5em;font-weight:inherit}
 .motion .clock__ic{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none;opacity:.85}
 .motion .clock.off{opacity:0}
 .play{height:40px;margin-left:14px;padding:0 16px 0 14px;border:0;border-left:1px solid color-mix(in srgb,currentColor 28%,transparent);border-radius:0 999px 999px 0;background:none;color:inherit;display:flex;align-items:center;gap:9px;font:500 13px/1 var(--ui);letter-spacing:.04em;white-space:nowrap;cursor:pointer}
@@ -636,7 +637,7 @@ code{font:14px/1.6 "SFMono-Regular",Menlo,Consolas,monospace;background:rgba(22,
   .motion .tools[data-tone] .play,.play{height:44px;margin:0;padding:0 10px 0 6px;gap:6px;border:0;border-radius:0;background:none;font-size:12px}
   .play__w{display:none}.play__t{min-width:0}
   .motion .hdr__brand span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-  .motion .clock{gap:5px;font-size:14px;letter-spacing:.08em}.motion .clock__ic{width:14px;height:14px}
+  .motion .clock{gap:5px;font-size:14px;letter-spacing:.08em}.motion .clock b{width:3.2em}.motion .clock__ic{width:14px;height:14px}
   .motion .stage.haze{-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,calc(1 - var(--haze,0)*.97)) 40px,#000 84px);mask-image:linear-gradient(180deg,rgba(0,0,0,calc(1 - var(--haze,0)*.97)) 40px,#000 84px)}
   .motion .keep__h{white-space:nowrap}
   .night .wall--new{margin-left:-1108px}
