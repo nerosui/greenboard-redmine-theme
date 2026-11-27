@@ -72,11 +72,13 @@ function choose() {
 
 /* ---- stop / start ---- */
 const still = $('.still'),
+  stillT = $('.still__t'),
   modeLink = $('.foot__m');
 function controls() {
   still.hidden = !live;
   still.setAttribute('aria-pressed', String(stopped));
-  still.title = stopped ? '動かす' : '動きを止める';
+  still.title = stopped ? '背景の動きを再開する' : '背景の動きを止める';
+  stillT.innerHTML = stopped ? '動かす' : '<span class="still__w">動きを</span>止める';
   R.classList.toggle('stopped', live && stopped);
   modeLink.hidden = reducedMotion.matches || !roomy.matches;
   modeLink.href = QUERY.get('static') === '1' ? './' : '?static=1';

@@ -18,9 +18,11 @@
 .motion .tools[data-tone=end]{color:var(--ink);background:none}.motion .tools[data-tone=end] .clock{width:0;overflow:hidden}.motion .tools[data-tone=end] .still{background:rgba(255,253,246,.8)}
 .motion .tools[data-tone=light]{color:var(--ink);background:rgba(255,253,246,.74)}
 .motion .clock{display:flex;align-items:center;gap:10px;font:500 14px/1 var(--min);letter-spacing:.16em;font-variant-numeric:tabular-nums;transition:opacity .6s}
-.motion .clock i{width:9px;height:9px;border-radius:50%;background:currentColor;box-shadow:0 0 12px currentColor}
+.motion .clock__ic{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none;opacity:.85}
 .motion .clock.off{opacity:0}
-.still{width:40px;height:40px;padding:0;border:0;border-radius:50%;background:none;color:inherit;display:grid;place-items:center;cursor:pointer}
+.still{height:40px;margin-left:14px;padding:0 16px 0 14px;border:0;border-left:1px solid color-mix(in srgb,currentColor 28%,transparent);border-radius:0 999px 999px 0;background:none;color:inherit;display:flex;align-items:center;gap:9px;font:500 13px/1 var(--ui);letter-spacing:.04em;white-space:nowrap;cursor:pointer}
+.still__t{min-width:6.3em;opacity:.85}.still:hover .still__t{opacity:1}
+.motion .tools[data-tone=end] .still{border-left:0;border-radius:999px;margin-left:0}
 .still i{width:10px;height:11px;border:solid currentColor;border-width:0 3px;opacity:.75}
 .still:hover i{opacity:1}
 .still[aria-pressed=true] i{width:0;height:0;border-width:6px 0 6px 10px;border-color:transparent transparent transparent currentColor;margin-left:3px}

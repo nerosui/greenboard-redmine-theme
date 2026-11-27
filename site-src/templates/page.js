@@ -65,8 +65,8 @@ module.exports = ({ TITLE, DESC, BASE, REPO, CSS, JS, FONT, HEADJS }) => `<!doct
   <a class="hdr__cta" href="${REPO}">GitHub で入手</a>
 </header>
 <div class="tools">
-  <span class="clock" aria-hidden="true"><i></i><b>05:12</b></span>
-  <button class="still" type="button" aria-pressed="false" title="動きを止める" hidden><span class="vh">動きを止める</span><i aria-hidden="true"></i></button>
+  <span class="clock" aria-hidden="true" title="ページの中の時刻"><svg class="clock__ic" viewBox="0 0 24 24"><use href="#i-clock"/></svg><b>05:12</b></span>
+  <button class="still" type="button" aria-pressed="false" title="背景の動きを止める" hidden><i aria-hidden="true"></i><span class="still__t"><span class="still__w">動きを</span>止める</span></button>
 </div>
 
 <main id="top" tabindex="-1">
